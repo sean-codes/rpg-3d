@@ -1,8 +1,14 @@
 # Adding a light
 To make our shape not look so flat we will add a light!
 
+Before we can add a light and make it work we will need to change out MeshBasicMaterial into one that can be affected by light. We can use `MeshPhongMaterial`, `MeshStandardMaterial`, or `MeshPhysicalMaterial`. For this we will use Phong since it seems to be the best for performance.
 
-Fight we will create a directional light
+Change Basic Material for Phong
+```js
+const material = new THREE.MeshPhongMaterial({ color: "#465" });
+```
+
+Create a directional light
 ```js
 const light = new THREE.DirectionalLight(0xffffff, 1);
 ```
