@@ -3,10 +3,11 @@ Exploring 3D Game development
 
 # Would like to figure out
 - [x] Render a basic cube
-- [ ] Adding a light
-- [ ] Textures
-- [ ] Movement
+- [x] Adding a light
+- [x] A Texture
+- [ ] shadows
 - [ ] arcball camera
+- [ ] Movement
 - [ ] Physics
 - [ ] Jumping
 - [ ] Load a model

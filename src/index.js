@@ -22,24 +22,35 @@ controls.update();
 const planeSize = 20;
 
 const loader = new THREE.TextureLoader();
-const texture = loader.load('./src/assets/checker.png');
-texture.wrapS = THREE.RepeatWrapping;
-texture.wrapT = THREE.RepeatWrapping;
-texture.magFilter = THREE.NearestFilter;
+const checkerTexture = loader.load('./src/assets/checker.png');
+checkerTexture.wrapS = THREE.RepeatWrapping;
+checkerTexture.wrapT = THREE.RepeatWrapping;
+checkerTexture.magFilter = THREE.NearestFilter;
 const repeats = planeSize;
-texture.repeat.set(repeats, repeats);
+checkerTexture.repeat.set(repeats, repeats);
 
 const planeGeometry = new THREE.PlaneBufferGeometry(planeSize, planeSize);
-const planeMaterial = new THREE.MeshPhongMaterial({ map: texture, side: THREE.DoubleSide });
+const planeMaterial = new THREE.MeshBasicMaterial({ map: checkerTexture, side: THREE.DoubleSide });
 const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
 planeMesh.rotation.x = Math.PI * -0.5;
 scene.add(planeMesh);
+
+// shadow
+const shadowTexture = loader.load('./src/assets/roundshadow.png');
+const shadowGeometry = new THREE.PlaneBufferGeometry(planeSize, planeSize);
+const shadowMaterial = new THREE.MeshBasicMaterial({ map: shadowTexture, transparent: true, depthWrite: false })
+const shadowMesh = new THREE.Mesh(shadowGeometry, shadowMaterial);
+shadowMesh.rotation.x = Math.PI * -0.5;
+shadowMesh.position.y += 0.001;
+shadowMesh.scale.set(0.25, 0.25, 0.25);
+scene.add(shadowMesh);
 
 // a circle
 const sunGeometry = new THREE.SphereBufferGeometry();
 const sunMaterial = new THREE.MeshPhongMaterial({ color: '#a2f', flatShading: true })
 const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
 sunMesh.position.y += 1.5;
+sunMesh.scale.set(1, 1, 1)
 scene.add(sunMesh);
 
 // Ambient light
@@ -91,14 +102,20 @@ function resize() {
   // lightHelper.update();
 }
 
-function render() {
+function render(time) {
+  // console.log(time)
+  const timeInSeconds = time / 1000
   requestAnimationFrame(render);
   renderer.render(scene, camera);
 
   sunMesh.rotation.x -= 0.01;
   sunMesh.rotation.y -= 0.01;
+
+  const zeroToOne = Math.abs(Math.sin(timeInSeconds * 2));
+  sunMesh.position.y = 2 + THREE.Math.lerp(-1, 1, zeroToOne)
+  shadowMesh.material.opacity = THREE.Math.lerp(1, 0.25, zeroToOne)
 }
 
 
 resize();
-render();
+requestAnimationFrame(render)
