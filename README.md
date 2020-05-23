@@ -3,7 +3,7 @@ Exploring 3D Game development
 
 # Would like to figure out
 - [x] Render a basic cube
-- [ ] Lighting
+- [ ] Adding a light
 - [ ] Textures
 - [ ] Movement
 - [ ] arcball camera
