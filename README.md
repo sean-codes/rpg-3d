@@ -25,4 +25,6 @@ Exploring 3D Game development
 - [ ] 3D maps
 
 # Notes
-[Rendering a basic cube](./notes/render_a_basic_cube.md)
+- [Rendering a basic cube](./notes/render_a_basic_cube.md)
+- [Adding a light](./notes/adding_a_light.md)
+- [Shadows](./notes/shadows.md)

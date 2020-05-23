@@ -1,0 +1,22 @@
+{
+  "name": "rpg-3d",
+  "version": "1.0.0",
+  "description": "Exploring 3D Game development",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sean-codes/rpg-3d.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sean-codes/rpg-3d/issues"
+  },
+  "homepage": "https://github.com/sean-codes/rpg-3d#readme",
+  "dependencies": {
+    "three": "^0.116.1"
+  }
+}
