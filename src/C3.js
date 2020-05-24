@@ -3,7 +3,7 @@
 class C3 {
    constructor({ init, render }) {
       this.renderer = new THREE.WebGLRenderer();
-      this.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+      this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color('#666')
       // this.datGui = new dat.GUI();

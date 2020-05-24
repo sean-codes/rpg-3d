@@ -2,83 +2,43 @@
 // Lets figure out the basics of using three first
 
 const init = async function(c3) {
-   c3.camera.position.set(0, 2, 0)
+   c3.camera.position.set(0, 15, 10)
 
    // Orbit Camera
    const controls = new THREE.OrbitControls(c3.camera, c3.renderer.domElement)
    controls.target.set(0, 0, 0)
    controls.update()
 
-   const ambientLight = new THREE.AmbientLight('#FFF', 0.75)
+   const ambientLight = new THREE.AmbientLight('#FFF', 0.5)
    c3.scene.add(ambientLight);
 
    const directionalLight = new THREE.DirectionalLight('#FFF');
-   directionalLight.position.y += 4
+   directionalLight.position.y += 1
+   directionalLight.target.position.set(0, 0, 0)
    c3.scene.add(directionalLight);
+   c3.scene.add(directionalLight.target);
 
-   // position helper
-   const lonGeometry = new THREE.BoxGeometry(0.25, 3, 0.25)
-   const lonMaterial = new THREE.MeshPhongMaterial({ color: '#F22' })
-   const lonMesh = new THREE.Mesh(lonGeometry, lonMaterial)
-   c3.scene.add(lonMesh)
+   const directionLightHelper = new THREE.DirectionalLightHelper(directionalLight);
+   c3.scene.add(directionLightHelper);
 
-   const latGeometry = new THREE.BoxGeometry(3, 0.25, 0.25)
-   const latMaterial = new THREE.MeshPhongMaterial({ color: '#F22' })
-   const latMesh = new THREE.Mesh(latGeometry, latMaterial)
-   lonMesh.add(latMesh)
+   // a gtlf file
+   const gtlfLoader = new THREE.GLTFLoader();
+   gtlfLoader.load('./assets/models/city/scene.gltf', (gltf) => {
+      const root = gltf.scene
+      root.scale.x = 0.01
+      root.scale.y = 0.01
+      root.scale.z = 0.01
 
-   const latLonPointGeometry = new THREE.SphereGeometry(0.25)
-   const latlonPointMaterial = new THREE.MeshPhongMaterial({ color: '#FF4' })
-   const latLonPointMesh = new THREE.Mesh(latLonPointGeometry, latlonPointMaterial)
-   latLonPointMesh.position.z = 1
-   latMesh.add(latLonPointMesh)
+      const box = new THREE.Box3().setFromObject(root);
+      const boxSize = box.getSize()
+      const boxCenter = box.getCenter()
 
-   // create an origin helper
-   const originHelper = new THREE.Object3D();
-   originHelper.position.z = 0.5;
-   latLonPointMesh.add(originHelper)
-
-
-   // world
-   const textureLoader = new THREE.TextureLoader()
-   const worldTexture = textureLoader.load('./assets/world.jpg')
-   const worldGeometry = new THREE.SphereGeometry(1, 32, 32)
-   const worldMaterial = new THREE.MeshBasicMaterial({ map: worldTexture })
-   const worldMesh = new THREE.Mesh(worldGeometry, worldMaterial)
-   c3.scene.add(worldMesh)
-
-
-   // add points from the dataset
-   const fetchedData = await fetch('./assets/demographic-data.json')
-   const data = await fetchedData.json()
-
-
-   const geometries = []
-
-   for (const point of data.points) {
-      if (point.value === null) continue
-      const yRot = THREE.MathUtils.degToRad(Number(point.lon) + -180) + Math.PI*0.5;
-      const xRot = THREE.MathUtils.degToRad(Number(point.lat) + -60) + Math.PI*-0.135;
-
-      lonMesh.rotation.y = yRot
-      latMesh.rotation.x = xRot
-      latLonPointMesh.updateWorldMatrix(true, false);
-
-      const pointGeometry = new THREE.BoxBufferGeometry(0.01, 0.01, 0.01)
-      pointGeometry.applyMatrix4(latLonPointMesh.matrixWorld)
-      geometries.push(pointGeometry)
-   }
-
-   const mergedGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(geometries, false)
-   const pointMaterial = new THREE.MeshPhongMaterial({ color: '#F2F' })
-   const pointMesh = new THREE.Mesh(mergedGeometry, pointMaterial)
-   c3.scene.add(pointMesh)
-
-
-   // remove helpers
-   c3.scene.remove(lonMesh)
-   c3.scene.remove(latMesh)
-   c3.scene.remove(latLonPointMesh)
+      console.log(root, boxSize, boxCenter)
+      controls.target.set(boxCenter.x, boxCenter.y, boxCenter.z)
+      controls.update()
+      // root.scale(0.5);
+      c3.scene.add(root)
+   })
 }
 
 const render = function(c3) {
