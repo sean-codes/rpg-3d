@@ -72,4 +72,15 @@ const lightCameraHelper = new THREE.CameraHelper(light.shadow.camera);
 scene.add(lightCameraHelper);
 ```
 
-> If the camera helper is not pointing in the right direction check your castShadow is spelt correctly on the light. I had some issues where the camera was not moving with the light because I didn't spell `light.castShadow`.
+> If the camera helper is not pointing in the right direction check your castShadow is spelt correctly on the light and `renderer.shadowMap.enabled = true;`. I had some issues where the camera was not moving with the light because I didn't spell `light.castShadow`.
+
+Additionally for `renderer.shadow` we can set the `type` property to one of the values
+
+- `BasicShadowMap` gives unfiltered shadow maps - fastest, but lowest quality.
+- `PCFShadowMap` filters shadow maps using the Percentage-Closer Filtering (PCF) algorithm (default).
+- `PCFSoftShadowMap` filters shadow maps using the Percentage-Closer Filtering (PCF) algorithm with better soft shadows especially when using low-resolution shadow maps.
+- `VSMShadowMap` filters shadow maps using the Variance Shadow Map (VSM) algorithm. When using VSMShadowMap all shadow receivers will also cast shadows.
+
+```js
+renderer.shadow.type = THREE.PCFSoftShadowMap;
+```
