@@ -3,10 +3,11 @@
 class C3 {
    constructor({ init, render }) {
       this.renderer = new THREE.WebGLRenderer();
-      this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
+      this.renderer.shadowMap.enabled = true;
+      this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 31, 10001);
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color('#666')
-      // this.datGui = new dat.GUI();
+      this.datGui = new dat.GUI();
 
       this.userObject = {};
       this.userInitFunction = init.bind(this.userObject);
@@ -15,7 +16,7 @@ class C3 {
 
    async init() {
       document.body.appendChild(this.renderer.domElement);
-      window.onresize = this.handleResize;
+      window.onresize = () => this.handleResize();
       this.handleResize();
 
       await this.userInitFunction(this);
@@ -35,10 +36,34 @@ class C3 {
 
    render(time) {
       // console.log(time)
-      const timeInSeconds = time / 1000
+
       window.requestAnimationFrame((time) => this.render(time));
       this.renderer.render(this.scene, this.camera);
 
-      this.userRenderFunction(this);
+      this.userRenderFunction(this, time);
+   }
+
+   toStringVec3(v3, precision = 3) {
+      return `${v3.x.toFixed(precision)}, ${v3.y.toFixed(precision)}, ${v3.z.toFixed(precision)}`;
+   }
+
+   logSceneGraph(obj, isFirst = true, lines = [], isLast = true, prefix = '') {
+      const localPrefix = isLast ? '└─' : '├─';
+      lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
+      const dataPrefix = obj.children.length
+        ? (isLast ? '  │ ' : '│ │ ')
+        : (isLast ? '    ' : '│   ');
+      lines.push(`${prefix}${dataPrefix}  pos: ${this.toStringVec3(obj.position)}`);
+      lines.push(`${prefix}${dataPrefix}  rot: ${this.toStringVec3(obj.rotation)}`);
+      lines.push(`${prefix}${dataPrefix}  scl: ${this.toStringVec3(obj.scale)}`);
+      const newPrefix = prefix + (isLast ? '  ' : '│ ');
+      const lastNdx = obj.children.length - 1;
+      obj.children.forEach((child, ndx) => {
+         const isLast = ndx === lastNdx;
+         this.logSceneGraph(child, false, lines, isLast, newPrefix);
+      });
+
+      if (isFirst) console.log(lines.join('\n'));
+      else return lines;
    }
 }

@@ -84,3 +84,24 @@ Additionally for `renderer.shadow` we can set the `type` property to one of the 
 ```js
 renderer.shadow.type = THREE.PCFSoftShadowMap;
 ```
+
+# Black Banding
+Something I experiences when enabling shadow son a directional light was black bands being applied to anything the light casted on
+
+![Black Banding](./images/shadows-black-bands.png)
+
+To fix this I was able to adjust `shadow.bias` to get the artifacts removed and remove scaling the objects down by `0.001`
+> [threeJS bias docs](https://threejs.org/docs/index.html#api/en/lights/shadows/LightShadow.bias): Very tiny adjustments here (in the order of 0.0001) may help reduce artefacts in shadows
+
+
+```js
+directionalLight.shadow.bias = -0.005
+directionalLight.shadow.mapSize.width = 2048
+directionalLight.shadow.mapSize.height = 2048
+
+// removed scaling
+// root.scale.x = 0.01
+// root.scale.y = 0.01
+// root.scale.z = 0.01
+```
+![Black Banding](./images/shadows-black-bands-gone.png)
