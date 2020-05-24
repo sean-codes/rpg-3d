@@ -1,171 +1,70 @@
 // Not sure yet how we will structure this :]
 // Lets figure out the basics of using three first
 
-const init = async function(c3) {
-   c3.camera.position.set(1500, 1500, 0)
+const init = async function({ c3, camera, scene, renderer }) {
+   camera.position.set(0, 300, 400)
+   camera.far = 2000
+   camera.updateProjectionMatrix()
+   scene.fog = new THREE.Fog('#cbdbfc', 1, 2000);
+   scene.background = new THREE.Color('#cbdbfc');
 
    // Orbit Camera
    const controls = new THREE.OrbitControls(c3.camera, c3.renderer.domElement)
-   controls.target.set(0, 0, 0)
+   controls.target.set(0, 100, 0)
    controls.update()
 
-   const ambientLight = new THREE.AmbientLight('#FFF', 0.5)
-   c3.scene.add(ambientLight);
+   // a light
+   const ambientLight = new THREE.AmbientLight('#FFF', 0.25)
+   scene.add(ambientLight)
 
-   const directionalLight = new THREE.DirectionalLight('#FFF');
-   directionalLight.castShadow = true;
-   directionalLight.position.y += 1000
-   directionalLight.position.x += 1000
-   directionalLight.position.z += 1000
-   directionalLight.target.position.set(0, 0, 0)
-   directionalLight.shadow.bias = -0.005
+   // a light bulb
+   const dirLight = new THREE.DirectionalLight('#FFF')
+   dirLight.position.set(100, 300, 400)
+   dirLight.castShadow = true
+   dirLight.shadow.camera.left -= 500
+   dirLight.shadow.camera.right += 500
+   dirLight.shadow.camera.top += 500
+   dirLight.shadow.camera.bottom -= 500
+   dirLight.shadow.camera.far = 2000
+   scene.add(dirLight)
 
-   c3.datGui.add(directionalLight.shadow, 'bias', -1, 1, 0.001)
-   directionalLight.shadow.camera.far = 4000
-   directionalLight.shadow.camera.left -= 1500
-   directionalLight.shadow.camera.top += 1500
-   directionalLight.shadow.camera.bottom -= 1500
-   directionalLight.shadow.camera.right += 1500
-   directionalLight.shadow.mapSize.width = 2048
-   directionalLight.shadow.mapSize.height = 2048
-   c3.scene.add(directionalLight);
-   c3.scene.add(directionalLight.target);
+   const dirLightHelper = new THREE.DirectionalLightHelper(dirLight)
+   scene.add(dirLightHelper)
 
-   const directionLightHelper = new THREE.DirectionalLightHelper(directionalLight);
-   c3.scene.add(directionLightHelper);
+   const dirLightCameraHelper = new THREE.CameraHelper(dirLight.shadow.camera)
+   scene.add(dirLightCameraHelper)
 
-   const directionLightCameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera)
-   c3.scene.add(directionLightCameraHelper)
+   // make a ground
+   const geoGround = new THREE.PlaneBufferGeometry(4000, 4000)
+   const matGround = new THREE.MeshPhongMaterial({ color: '#cbdbfc' })
+   const mesGround = new THREE.Mesh(geoGround, matGround);
+   mesGround.receiveShadow = true
+   mesGround.rotation.x -= Math.PI * 0.5
+   scene.add(mesGround)
 
-   // a gtlf file
-   this.cars = []
-   const gtlfLoader = new THREE.GLTFLoader();
-   gtlfLoader.load('./assets/models/city/scene.gltf', (gltf) => {
-      const root = gltf.scene
-      console.log(root)
-      // root.scale.x = 0.01
-      // root.scale.y = 0.01
-      // root.scale.z = 0.01
+   // grid
+   const grid = new THREE.GridHelper(4000, 100, '#000', '#000')
+   grid.material.opacity = 0.2
+   grid.material.transparent = true
+   grid.position.y += 1
+   scene.add(grid)
 
-      const box = new THREE.Box3().setFromObject(root);
-      const boxSize = box.getSize()
-      const boxCenter = box.getCenter()
+   // load a fbx model
+   const fbxLoader = new THREE.FBXLoader()
+   fbxLoader.load('./assets/models/xbot.fbx', (object) => {
+      scene.add(object)
 
-      controls.target.set(boxCenter.x, boxCenter.y, boxCenter.z)
-      controls.update()
-      c3.scene.add(root)
-
-      c3.logSceneGraph(root)
-      const loadedCars = root.getObjectByName('Cars');
-      console.log(loadedCars.children.length)
-      // console.log(loadedCars)
-
-      const fixes = [
-         { prefix: 'car_08', y: 25, rot: [Math.PI * 0.5, 0, Math.PI * 0.5 ] },
-         { prefix: 'car_03', y: 60, rot: [0, Math.PI, 0 ] },
-         { prefix: 'car_04', y: 80, rot: [0, Math.PI, 0 ] },
-      ]
-      //
-      root.updateMatrixWorld();
-      let i = 0;
-      for (const car of loadedCars.children.slice()) {
-         const fix = fixes.find(f => car.name.toLowerCase().startsWith(f.prefix))
-         // console.log(car, fix)
-         const obj = new THREE.Object3D();
-         car.getWorldPosition(obj.position); // <-- puts the world pos into the obj
-         car.position.set(0, fix.y, 0); // <-- put the car to nothing. we will put inside the obj :]
-         car.rotation.set(...fix.rot);
-         obj.add(car) // see!
-         c3.scene.add(obj) // wow
-         // car.scale.x = 0.01
-         // car.scale.y = 0.01
-         // car.scale.z = 0.01
-         // console.log(fix)
-         this.cars.push(obj);
-      }
-
-      c3.scene.traverse((obj) => {
-         if (obj.castShadow !== undefined) {
-            obj.castShadow = true
-            obj.receiveShadow = true
+      object.traverse((child) => {
+         if (child.isMesh) {
+            child.castShadow = true
+            child.receiveShadow = true
          }
       })
-      //
-      console.log(this.cars.length);
    })
-
-
-   // create pathing
-  const controlPoints = [
-    [1.118281, 5.115846, -3.681386],
-    [3.948875, 5.115846, -3.641834],
-    [3.960072, 5.115846, -0.240352],
-    [3.985447, 5.115846, 4.585005],
-    [-3.793631, 5.115846, 4.585006],
-    [-3.826839, 5.115846, -14.736200],
-    [-14.542292, 5.115846, -14.765865],
-    [-14.520929, 5.115846, -3.627002],
-    [-5.452815, 5.115846, -3.634418],
-    [-5.467251, 5.115846, 4.549161],
-    [-13.266233, 5.115846, 4.567083],
-    [-13.250067, 5.115846, -13.499271],
-    [4.081842, 5.115846, -13.435463],
-    [4.125436, 5.115846, -5.334928],
-    [-14.521364, 5.115846, -5.239871],
-    [-14.510466, 5.115846, 5.486727],
-    [5.745666, 5.115846, 5.510492],
-    [5.787942, 5.115846, -14.728308],
-    [-5.423720, 5.115846, -14.761919],
-    [-5.373599, 5.115846, -3.704133],
-    [1.004861, 5.115846, -3.641834],
-  ];
-  const p0 = new THREE.Vector3();
-  const p1 = new THREE.Vector3();
-  this.curve = new THREE.CatmullRomCurve3(
-    controlPoints.map((p, ndx) => {
-      p0.set(...p);
-      p1.set(...controlPoints[(ndx + 1) % controlPoints.length]);
-      return [
-        (new THREE.Vector3()).copy(p0),
-        (new THREE.Vector3()).lerpVectors(p0, p1, 0.1),
-        (new THREE.Vector3()).lerpVectors(p0, p1, 0.9),
-      ];
-    }).flat(),
-    true,
-  );
-  console.log('hello', this.curve)
-
-   const points = this.curve.getPoints(250);
-   const geometry = new THREE.BufferGeometry().setFromPoints(points);
-   const material = new THREE.LineBasicMaterial({color: 'transparent'});
-   this.curveObject = new THREE.Line(geometry, material);
-   this.curveObject.position.y -= 650
-   this.curveObject.scale.set(100, 100, 100)
-   material.depthTest = false;
-   // this.curveObject.renderOrder = 1;
-   c3.scene.add(this.curveObject);
 }
 
-const render = function(c3, time) {
-   const timeInSeconds = time / 1000
+const render = function({ c3, time }) {
 
-   if (this.cars) {
-      const carTarget = new THREE.Vector3()
-      const carPosition = new THREE.Vector3()
-
-      this.cars.forEach((car, i) => {
-         const carTime = timeInSeconds + (i * 4)
-         const pathTime = (carTime * 0.01) % 1
-         this.curve.getPointAt(pathTime, carPosition)
-         this.curve.getPointAt(pathTime + 0.01, carTarget)
-
-         carPosition.applyMatrix4(this.curveObject.matrixWorld)
-         carTarget.applyMatrix4(this.curveObject.matrixWorld)
-
-         car.position.set(carPosition.x, carPosition.y, carPosition.z)
-         car.lookAt(carTarget)
-      })
-   }
 }
 
 

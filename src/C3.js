@@ -2,11 +2,10 @@
 // Cats, Code, and Coffee
 class C3 {
    constructor({ init, render }) {
-      this.renderer = new THREE.WebGLRenderer();
+      this.renderer = new THREE.WebGLRenderer({ antialias: true });
       this.renderer.shadowMap.enabled = true;
-      this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 31, 10001);
+      this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.01, 100);
       this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color('#666')
       this.datGui = new dat.GUI();
 
       this.userObject = {};
@@ -19,7 +18,13 @@ class C3 {
       window.onresize = () => this.handleResize();
       this.handleResize();
 
-      await this.userInitFunction(this);
+      await this.userInitFunction({
+         c3,
+         scene: c3.scene,
+         renderer: c3.renderer,
+         camera: c3.camera,
+         datGui: c3.datGui
+      });
       window.requestAnimationFrame((time) => this.render(time));
    }
 
@@ -35,12 +40,17 @@ class C3 {
    }
 
    render(time) {
-      // console.log(time)
-
       window.requestAnimationFrame((time) => this.render(time));
       this.renderer.render(this.scene, this.camera);
 
-      this.userRenderFunction(this, time);
+      this.userRenderFunction({
+         c3,
+         time,
+         scene: c3.scene,
+         renderer: c3.renderer,
+         camera: c3.camera,
+         datGui: c3.datGui
+      });
    }
 
    toStringVec3(v3, precision = 3) {
