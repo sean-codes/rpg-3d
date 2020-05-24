@@ -4,7 +4,7 @@
   "description": "Exploring 3D Game development",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "http-serve . -p 4444",
     "build": "gulp build",
     "watch": "gulp watch"
   },
@@ -20,17 +20,6 @@
   "homepage": "https://github.com/sean-codes/rpg-3d#readme",
   "dependencies": {
     "dat.gui": "^0.7.7",
-    "three": "^0.116.1",
-    "tslib": "^2.0.0"
-  },
-  "devDependencies": {
-    "@rollup/plugin-node-resolve": "^8.0.0",
-    "@rollup/plugin-typescript": "^4.1.2",
-    "gulp": "^4.0.2",
-    "http-server": "^0.12.3",
-    "rollup": "^2.10.8",
-    "rollup-plugin-terser": "^6.0.1",
-    "rollup-plugin-uglify": "^6.0.4",
-    "typescript": "^3.9.3"
+    "three": "^0.116.1"
   }
 }

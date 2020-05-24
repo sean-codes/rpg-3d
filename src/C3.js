@@ -1,31 +1,24 @@
-import {
-   WebGLRenderer,
-   PerspectiveCamera,
-   Scene
-} from 'three';
-
-import * as dat from 'dat.gui';
 
 // Cats, Code, and Coffee
 class C3 {
    constructor({ init, render }) {
-      this.renderer = new WebGLRenderer();
-      this.camera = new PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-      this.scene = new Scene();
-      this.datGui = new dat.GUI();
+      this.renderer = new THREE.WebGLRenderer();
+      this.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+      this.scene = new THREE.Scene();
+      this.scene.background = new THREE.Color('#666')
+      // this.datGui = new dat.GUI();
 
       this.userObject = {};
       this.userInitFunction = init.bind(this.userObject);
       this.userRenderFunction = render.bind(this.userObject);
-
-      this.init();
-      this.userInitFunction(this);
    }
 
-   init() {
+   async init() {
       document.body.appendChild(this.renderer.domElement);
       window.onresize = this.handleResize;
       this.handleResize();
+
+      await this.userInitFunction(this);
       window.requestAnimationFrame((time) => this.render(time));
    }
 
@@ -49,5 +42,3 @@ class C3 {
       this.userRenderFunction(this);
    }
 }
-
-export default C3;
