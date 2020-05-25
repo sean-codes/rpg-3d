@@ -7,6 +7,8 @@ class C3 {
       this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.01, 100);
       this.scene = new THREE.Scene();
       this.datGui = new dat.GUI();
+      this.keys = {}
+      this.clock = new THREE.Clock()
 
       this.userObject = {};
       this.userInitFunction = init.bind(this.userObject);
@@ -14,22 +16,27 @@ class C3 {
    }
 
    async init() {
+      this.renderer.domElement.tabIndex = 1
       document.body.appendChild(this.renderer.domElement);
       window.onresize = () => this.handleResize();
       this.handleResize();
+      document.body.addEventListener('keydown', e => { !e.repeat && this.onKeyDown(e.keyCode)})
+      document.body.addEventListener('keyup', e => { this.onKeyUp(e.keyCode) })
 
       await this.userInitFunction({
-         c3,
-         scene: c3.scene,
-         renderer: c3.renderer,
-         camera: c3.camera,
-         datGui: c3.datGui
+         c3: this,
+         scene: this.scene,
+         renderer: this.renderer,
+         camera: this.camera,
+         datGui: this.datGui,
+         clock: this.clock
       });
       window.requestAnimationFrame((time) => this.render(time));
    }
 
    handleResize() {
-      const pixelRatio = window.devicePixelRatio
+      const pixelRatio = 1 //window.devicePixelRatio
+
       const width = window.innerWidth * pixelRatio
       const height = window.innerHeight * pixelRatio
       this.renderer.domElement.width = width;
@@ -44,13 +51,16 @@ class C3 {
       this.renderer.render(this.scene, this.camera);
 
       this.userRenderFunction({
-         c3,
+         c3: this,
          time,
-         scene: c3.scene,
-         renderer: c3.renderer,
-         camera: c3.camera,
-         datGui: c3.datGui
+         scene: this.scene,
+         renderer: this.renderer,
+         camera: this.camera,
+         datGui: this.datGui,
+         clock: this.clock
       });
+
+      this.resetKeys()
    }
 
    toStringVec3(v3, precision = 3) {
@@ -75,5 +85,35 @@ class C3 {
 
       if (isFirst) console.log(lines.join('\n'));
       else return lines;
+   }
+
+   logAnimations(object) {
+      const animations = []
+      for (const i in object.animations) {
+         animations.push(`[${i}] ${object.animations[i].name}`)
+      }
+
+      console.log(animations.join('\n'))
+   }
+
+
+   // weak keyboard util
+   onKeyDown(keyCode) {
+      this.keys[keyCode] = { up: false, down: true, held: true }
+   }
+
+   onKeyUp(keyCode) {
+      this.keys[keyCode] = { up: true, down: false, held: false }
+   }
+
+   checkKey(keyCode) {
+      return this.keys[keyCode] || { up: false, down: false, help: false }
+   }
+
+   resetKeys() {
+      for (const keyId in this.keys) {
+         this.keys[keyId].up = false
+         this.keys[keyId].down = false
+      }
    }
 }

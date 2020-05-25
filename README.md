@@ -1,6 +1,14 @@
 # RPG 3D
 Exploring 3D Game development
 
+# Notes
+- [Rendering a basic cube](./notes/render_a_basic_cube.md)
+- [Adding a light](./notes/adding_a_light.md)
+- [Shadows](./notes/shadows.md)
+- [Flat Models](./notes/flat-models.md)
+- [Importing Models FBX](./notes/importing-fbx.md)
+- [Animations and blending](./notes/animations.md)
+
 # Would like to figure out
 - [x] Render a basic cube
 - [x] Adding a light
@@ -23,8 +31,3 @@ Exploring 3D Game development
 - [ ] Drop items from a monster
 - [ ] Pickup that item
 - [ ] 3D maps
-
-# Notes
-- [Rendering a basic cube](./notes/render_a_basic_cube.md)
-- [Adding a light](./notes/adding_a_light.md)
-- [Shadows](./notes/shadows.md)
