@@ -1,99 +1,78 @@
 // Not sure yet how we will structure this :]
 // Lets figure out the basics of using three first
 const init = async function({ c3, camera, scene, renderer, datGui }) {
-   camera.position.set(0, 900, 800)
-   camera.far = 4000
-   camera.updateProjectionMatrix()
-   scene.fog = new THREE.Fog('#cbdbfc', 1, 3000);
-   scene.background = new THREE.Color('#cbdbfc');
+   scene.background = new THREE.Color('#cdcdff')
+   camera.position.set(0, 2, 2.5)
+   camera.lookAt(0, 0, 0)
 
-   // Orbit Camera
-   const controls = new THREE.OrbitControls(c3.camera, c3.renderer.domElement)
-   controls.target.set(0, 300, 0)
-   controls.update()
+   // orbitable camera
+   const orbitControls = new THREE.OrbitControls(camera, renderer.domElement)
+   orbitControls.target.set(0, 1, 0)
+   orbitControls.update()
 
    // a light
-   const ambientLight = new THREE.AmbientLight('#FFF', 0.5)
+   const ambientLight = new THREE.AmbientLight('#FFF', 0.75)
    scene.add(ambientLight)
 
-   // a light bulb
-   const dirLight = new THREE.DirectionalLight('#FFF', 0.75)
-   dirLight.position.set(100, 300, 400)
-   dirLight.castShadow = true
-   dirLight.shadow.camera.left -= 1500
-   dirLight.shadow.camera.right += 1500
-   dirLight.shadow.camera.top += 1500
-   dirLight.shadow.camera.bottom -= 1500
-   dirLight.shadow.camera.far = 2000
+   const dirLight = new THREE.DirectionalLight('#FFF', 1)
    scene.add(dirLight)
 
-   // make a ground
-   const geoGround = new THREE.PlaneBufferGeometry(4000, 4000)
-   const matGround = new THREE.MeshPhongMaterial({ color: '#cbdbfc' })
-   const mesGround = new THREE.Mesh(geoGround, matGround);
-   mesGround.receiveShadow = true
-   mesGround.rotation.x -= Math.PI * 0.5
-   scene.add(mesGround)
+   // loading a model
+   const gltfLoader = new THREE.GLTFLoader()
+   gltfLoader.load('./assets/models/test-xbot-2.glb', (object) => {
+      console.log('loaded', object)
+      scene.add(object.scene)
 
-   // grid
-   const grid = new THREE.GridHelper(4000, 100, '#000', '#000')
-   grid.material.opacity = 0.2
-   grid.material.transparent = true
-   grid.position.y += 1
-   scene.add(grid)
-
-   // load a fbx model
-   const fbxLoader = new THREE.FBXLoader()
-   fbxLoader.load('./assets/models/knight/KnightCharacter.fbx', (object) => {
-      scene.add(object)
-
-      // Enable animations
-      this.mixer = new THREE.AnimationMixer(object)
-      this.actions = {
-         idle: this.mixer.clipAction(object.animations[4]),
-         walk: this.mixer.clipAction(object.animations[8]),
+      this.mixer = new THREE.AnimationMixer(object.scene)
+      THREE.AnimationUtils.makeClipAdditive(object.animations[1])
+      const shakingHeadAnimation = this.mixer.clipAction(object.animations[1])
+      this.animations = {
+         idle: this.mixer.clipAction(object.animations[0]),
+         // shakingHead: this.mixer.clipAction(object.animations[1]),
+         walking: this.mixer.clipAction(object.animations[3]),
       }
 
-      for (const actionName in this.actions) {
-         const action = this.actions[actionName]
-         action.enabled = true
-         // action.setEffectiveTimeScale(1)
-         action.setEffectiveWeight(0)
-         action.play()
+      for (const animationName in this.animations) {
+         const animation = this.animations[animationName]
+         animation.enabled = true
+         animation.weight = 0
+         animation.play()
 
          datGui.add({ btn: () => {
-            // change animation
-            if (actionName === this.currentActionName) return
+            if (this.currentAnimation === animationName) return
 
-            const outAction = this.actions[this.currentActionName]
-            const inAction = this.actions[actionName]
+            const outAnimation = this.animations[this.currentAnimation]
+            const inAnimation = this.animations[animationName]
 
-            inAction.enabled = true
-            inAction.setEffectiveWeight(1)
-            outAction.crossFadeTo(inAction, 1, true)
-            this.currentActionName = actionName
-         }}, 'btn').name(`play: ${actionName}`)
+            inAnimation.enabled = true
+            inAnimation.setEffectiveWeight(1)
+            inAnimation.crossFadeFrom(outAnimation, 1, true)
+            this.currentAnimation = animationName
+         }}, 'btn').name(animationName)
       }
 
-      this.currentActionName = 'idle'
-      this.actions.idle.setEffectiveWeight(1)
+      this.animations.walking.setEffectiveWeight(1)
+      this.currentAnimation = 'walking'
 
-      // Flat shading
-      object.traverse((child) => {
-         if (child.isMesh) {
-            child.castShadow = true
-            child.receiveShadow = true
-         }
 
-         if (child.material) {
-            for (const material of child.material) {
-               material.flatShading = true
-               material.reflectivity = 0
-               material.shininess = 0
-            }
+
+      // additive action
+      shakingHeadAnimation.enabled = true
+      shakingHeadAnimation.setEffectiveWeight(0)
+      shakingHeadAnimation.play()
+      datGui.add({ add_headshake: false }, 'add_headshake').onChange((v) => {
+         if (v) {
+            shakingHeadAnimation.enabled = true
+            shakingHeadAnimation.setEffectiveWeight(1)
+            shakingHeadAnimation.fadeIn(1)
+         } else {
+            // shakingHeadAnimation.enabled = false
+            shakingHeadAnimation.enabled = true
+            // shakingHeadAnimation.setEffectiveWeight(0)
+            shakingHeadAnimation.fadeOut(1)
          }
       })
-   }, ()=>{}, console.log)
+   })
 }
 
 const render = function({ c3, time, clock }) {
@@ -103,7 +82,5 @@ const render = function({ c3, time, clock }) {
 }
 
 
-const c3 = new C3({ init, render })
-c3.init()
-
-window.c3 = c3
+window.c3 = new C3({ init, render })
+window.c3.init()

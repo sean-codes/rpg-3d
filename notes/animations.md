@@ -62,12 +62,12 @@ for (const actionName in actions) {
 }
 
 let currentActionName = 'idle'
-actions.idle.setEffectiveWeight(1)
+actions.idle.setEffectiveWeight(1) // always use .setEffectiveWeight never .weight = x!
 ```
 
-To switch between an action we need a in and out animation. Then we set the weight to 1, and run crossDateTo!
+To switch between an action we need a in and out animation. Then we set the weight to 1, and run crossDafeTo!
 
-> NOTE: crossDateTo seems to set enabled to false on the action. Don't forget to set enabled back to true on the action we are switching to!
+> NOTE: crossDafeTo seems to set enabled to false on the action. Don't forget to set enabled back to true on the action we are switching to!
 
 ```js
 const outAction = actions.idle // the old action
