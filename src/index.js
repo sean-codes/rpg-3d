@@ -11,7 +11,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    orbitControls.update()
 
    // a light
-   const ambientLight = new THREE.AmbientLight('#FFF', 0.75)
+   const ambientLight = new THREE.AmbientLight('#FFF', 1)
    scene.add(ambientLight)
 
    const dirLight = new THREE.DirectionalLight('#FFF', 1)
@@ -24,12 +24,13 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       scene.add(object.scene)
 
       this.mixer = new THREE.AnimationMixer(object.scene)
-      THREE.AnimationUtils.makeClipAdditive(object.animations[1])
-      const shakingHeadAnimation = this.mixer.clipAction(object.animations[1])
+      THREE.AnimationUtils.makeClipAdditive(object.animations[2])
+      const shakingHeadAnimation = this.mixer.clipAction(object.animations[2])
       this.animations = {
          idle: this.mixer.clipAction(object.animations[0]),
-         // shakingHead: this.mixer.clipAction(object.animations[1]),
-         walking: this.mixer.clipAction(object.animations[3]),
+         running: this.mixer.clipAction(object.animations[1]),
+         TPose: this.mixer.clipAction(object.animations[3]),
+         walking: this.mixer.clipAction(object.animations[4]),
       }
 
       for (const animationName in this.animations) {
@@ -40,19 +41,27 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
 
          datGui.add({ btn: () => {
             if (this.currentAnimation === animationName) return
+            const time = Date.now()
+            const onLoopFinished = () => {
+               console.log('finished', Date.now() - time)
+               this.mixer.removeEventListener('loop', onLoopFinished)
+               const outAnimation = this.animations[this.currentAnimation]
+               const inAnimation = this.animations[animationName]
 
-            const outAnimation = this.animations[this.currentAnimation]
-            const inAnimation = this.animations[animationName]
+               // outAnimation.setEffectiveWeight(1)
+               inAnimation.time = 0
 
-            inAnimation.enabled = true
-            inAnimation.setEffectiveWeight(1)
-            inAnimation.crossFadeFrom(outAnimation, 1, true)
-            this.currentAnimation = animationName
+               inAnimation.enabled = true
+               inAnimation.setEffectiveWeight(1)
+               inAnimation.crossFadeFrom(outAnimation, 0.5, true)
+               this.currentAnimation = animationName
+            }
+            this.mixer.addEventListener('loop', onLoopFinished)
          }}, 'btn').name(animationName)
       }
 
-      this.animations.walking.setEffectiveWeight(1)
-      this.currentAnimation = 'walking'
+      this.animations.running.setEffectiveWeight(1)
+      this.currentAnimation = 'running'
 
 
 

@@ -23,7 +23,7 @@ In mixamo download 1 of the files with skin and all the others without
 
    ![rnla tracks view](./images/nla-tracks.png)
 
-1. Once all have been "pushed down" select one animation (I selected tpos) and down click anything else now we hav eone main animation and a bunch of NLA Tracks showing in Scene Collection under character
+1. now we have a bunch of NLA Tracks showing in Scene Collection under character
 1. Switch from dopesheet to Nonlinear Animations and we can see out animations and can also rename them
 
    ![view-and-rename-nla-tracks](./images/view-and-rename-nla-tracks.png)

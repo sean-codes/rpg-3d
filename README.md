@@ -2,12 +2,14 @@
 Exploring 3D Game development
 
 # Notes
-- [Rendering a basic box](./notes/render-a-basic-box.md)
+- [Rendering a basic box](./notes/rendering-a-basic-box.md)
 - [Adding a light](./notes/adding-a-light.md)
 - [Shadows](./notes/shadows.md)
 - [Flat Models](./notes/flat-models.md)
 - [Importing Models FBX](./notes/importing-fbx.md)
+- [Combining FBX Animations into a GLTF](./notes/convert-fbx-to-gltf-with-animations.md)
 - [Animations and blending](./notes/animations.md)
+- [Animation Additive Blending](./notes/animation-additive-blending.md)
 
 # Would like to figure out
 - [x] Render a basic cube
