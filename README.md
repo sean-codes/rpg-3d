@@ -1,5 +1,7 @@
 # RPG 3D
-Exploring 3D Game development
+> Exploring 3d development
+
+![Example image](./notes/images/equipment-points.gif)
 
 # Notes
 - [Rendering a basic box](./notes/rendering-a-basic-box.md)
@@ -11,6 +13,7 @@ Exploring 3D Game development
 - [Animations and blending](./notes/animations.md)
 - [Animation Additive Blending](./notes/animation-additive-blending.md)
 - [Physics](./notes/physics.md)
+- [Equipment Points (equiping sword/shield/etc)](./notes/equipment-points.md)
 
 # Would like to figure out
 - [x] Render a basic cube

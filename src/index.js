@@ -2,19 +2,23 @@
 // Lets figure out the basics of using three first
 const init = async function({ c3, camera, scene, renderer, datGui }) {
    scene.background = new THREE.Color('#cdcdff')
-   camera.position.set(0, 2, 2.5)
+   camera.position.set(0, 6, 10)
+   camera.near = 1
+   camera.far = 100
+   camera.updateProjectionMatrix()
    camera.lookAt(0, 0, 0)
 
    // orbitable camera
    const orbitControls = new THREE.OrbitControls(camera, renderer.domElement)
-   orbitControls.target.set(0, 1, 0)
+   orbitControls.target.set(0, 3, 0)
    orbitControls.update()
 
    // a light
    const ambientLight = new THREE.AmbientLight('#FFF', 1)
    scene.add(ambientLight)
 
-   const dirLight = new THREE.DirectionalLight('#FFF', 1)
+   const dirLight = new THREE.DirectionalLight('#FFF', 0.75)
+   dirLight.position.set(12, 6, 10)
    scene.add(dirLight)
 
    // a plane under
@@ -29,124 +33,110 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    const gridHelper = new THREE.GridHelper(50, 50)
    scene.add(gridHelper)
 
-   // physics
-   this.world = new CANNON.World()
-   this.world.gravity.set(0, -9.82, 0)
-
-
-   // a box with physics
-   this.boxes = []
-   for (let i = 1; i < 50; i++) {
-      const boxGeo = new THREE.BoxBufferGeometry(0.5, 0.5, 0.5)
-      const boxMat = new THREE.MeshPhongMaterial({ color: '#465' })
-      const boxMes = new THREE.Mesh(boxGeo, boxMat)
-      boxMes.position.y += 2 * i
-      scene.add(boxMes)
-
-      boxBody = new CANNON.Body({
-         mass: 5,
-         position: new CANNON.Vec3(boxMes.position.x, boxMes.position.y, boxMes.position.z),
-         // cannon size is 1/2 a three? or the way three makes cubes is different
-         shape: new CANNON.Box(new CANNON.Vec3(0.25, 0.25, 0.25))
-      })
-      this.world.addBody(boxBody)
-
-      this.boxes.push({ mesh: boxMes, body: boxBody})
+   const models = {
+      helmet: { file: './assets/models/knight/Helmet1.fbx', scale: 0.01, offset: [0.08, 0.05, 0.65] },
+      sword: { file: './assets/models/knight/Sword.fbx', scale: 0.01, rotation: [0, -Math.PI*0.5, 0], offset: [0.1, 0.05, -0.15] },
+      shield: { file: './assets/models/knight/Shield_Round.fbx', scale: 0.01, rotation: [-0.1, Math.PI*0.5, 0], offset: [0.2, -0.3, 0] },
+      character: { file: './assets/models/knight/KnightCharacter.fbx', scale: 0.01 },
+      shoulderPads: { file: './assets/models/knight/ShoulderPads.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
    }
 
+   const loader = new THREE.FBXLoader()
 
-   // how to i size this to match my plane I wonder. maybe plane sog on forever
-   this.planeBody = new CANNON.Body({
-      mass: 0,
-      shape: new CANNON.Plane(),
-      position: new CANNON.Vec3(this.planeMes.position.x, this.planeMes.position.y, this.planeMes.position.z),
+   await new Promise((yay, nay) => {
+      let loading = Object.keys(models).length
+      for (const modelName in models) {
+         const model = models[modelName]
+         loader.load(model.file, (object) => {
+            console.log(object)
+            model.object = object
+            model.bones = {}
+
+            model.object.traverse((part) => {
+               // flat shading
+               if (part.material) {
+                  const makeMaterialFlat = (material) => {
+                     material.flatShading = true
+                     material.reflectivity = 0
+                     material.shininess = 0
+                  }
+
+                  if (part.material.length) part.material.forEach(makeMaterialFlat)
+                  else makeMaterialFlat(part.material)
+               }
+
+               // bones
+               if (part.type === 'Bone') {
+                  model.bones[part.name] = part
+               }
+
+               if (part.type === 'Mesh' || part.type === 'SkinnedMesh') {
+                  if (model.offset) {
+                     part.geometry.translate(...model.offset)
+                  }
+
+                  if (model.rotation) {
+                     part.geometry.rotateX(model.rotation[0])
+                     part.geometry.rotateY(model.rotation[1])
+                     part.geometry.rotateZ(model.rotation[2])
+                  }
+               }
+            })
+
+            // scale
+            // scale after so we can adjust axis
+            model.object.scale.x = model.scale
+            model.object.scale.y = model.scale
+            model.object.scale.z = model.scale
+
+            //animations
+            model.mixer = new THREE.AnimationMixer(model.object)
+            model.clips = {}
+            model.object.animations.forEach((animation) => {
+               const clip = model.mixer.clipAction(animation)
+               model.clips[animation.name] = clip
+            })
+            // finish loading
+            loading -= 1
+            if (!loading) yay()
+         }, null, (e) => { throw e })
+      }
    })
 
-   this.planeBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI/2)
-   this.world.addBody(this.planeBody)
+   console.log('Finished Loading!', models)
 
-   // model experiment wrapped to minimize for now
-   {
-      // loading a model
-      const gltfLoader = new THREE.GLTFLoader()
-      gltfLoader.load('./assets/models/test-xbot-2.glb', (object) => {
-         console.log('loaded', object)
-         scene.add(object.scene)
-         object.scene.position.x += 2 // just going to scoot this over
+   models.character.bones.Head.add(models.helmet.object)
+   models.character.bones.PalmR.add(models.sword.object)
+   models.character.bones.PalmL.add(models.shield.object)
+   models.character.bones.Neck.add(models.shoulderPads.object)
+   scene.add(models.character.object)
 
-         this.mixer = new THREE.AnimationMixer(object.scene)
-         THREE.AnimationUtils.makeClipAdditive(object.animations[2])
-         const shakingHeadAnimation = this.mixer.clipAction(object.animations[2])
-         this.animations = {
-            idle: this.mixer.clipAction(object.animations[0]),
-            running: this.mixer.clipAction(object.animations[1]),
-            TPose: this.mixer.clipAction(object.animations[3]),
-            walking: this.mixer.clipAction(object.animations[4]),
-         }
+   models.character.clips['HumanArmature|Walking'].enabled = true
+   models.character.clips['HumanArmature|Walking'].setEffectiveWeight(1)
+   models.character.clips['HumanArmature|Walking'].play()
 
-         for (const animationName in this.animations) {
-            const animation = this.animations[animationName]
-            animation.enabled = true
-            animation.weight = 0
-            animation.play()
+   datGui.add({ equip: true }, 'equip').name('Equip Helmet').onChange((value) => {
+      models.character.bones.Head[value ? 'add' : 'remove'](models.helmet.object)
+   })
+   datGui.add({ equip: true }, 'equip').name('Equip Sword').onChange((value) => {
+      models.character.bones.PalmR[value ? 'add' : 'remove'](models.sword.object)
+   })
+   datGui.add({ equip: true }, 'equip').name('Equip Shield').onChange((value) => {
+      models.character.bones.PalmL[value ? 'add' : 'remove'](models.shield.object)
+   })
+   datGui.add({ equip: true }, 'equip').name('Equip Shoulders').onChange((value) => {
+      models.character.bones.Neck[value ? 'add' : 'remove'](models.shoulderPads.object)
+   })
 
-            datGui.add({ btn: () => {
-               if (this.currentAnimation === animationName) return
-               const time = Date.now()
-               const onLoopFinished = () => {
-                  console.log('finished', Date.now() - time)
-                  this.mixer.removeEventListener('loop', onLoopFinished)
-                  const outAnimation = this.animations[this.currentAnimation]
-                  const inAnimation = this.animations[animationName]
-
-                  // outAnimation.setEffectiveWeight(1)
-                  inAnimation.time = 0
-
-                  inAnimation.enabled = true
-                  inAnimation.setEffectiveWeight(1)
-                  inAnimation.crossFadeFrom(outAnimation, 0.5, true)
-                  this.currentAnimation = animationName
-               }
-               this.mixer.addEventListener('loop', onLoopFinished)
-            }}, 'btn').name(animationName)
-         }
-
-         this.animations.running.setEffectiveWeight(1)
-         this.currentAnimation = 'running'
-
-
-
-         // additive action
-         shakingHeadAnimation.enabled = true
-         shakingHeadAnimation.setEffectiveWeight(0)
-         shakingHeadAnimation.play()
-         datGui.add({ add_headshake: false }, 'add_headshake').onChange((v) => {
-            if (v) {
-               shakingHeadAnimation.enabled = true
-               shakingHeadAnimation.setEffectiveWeight(1)
-               shakingHeadAnimation.fadeIn(1)
-            } else {
-               // shakingHeadAnimation.enabled = false
-               shakingHeadAnimation.enabled = true
-               // shakingHeadAnimation.setEffectiveWeight(0)
-               shakingHeadAnimation.fadeOut(1)
-            }
-         })
-      })
-   }
+   // globals
+   this.models = models
 }
 
 const render = function({ c3, time, clock }) {
-   if (this.mixer) {
-      this.mixer.update(clock.getDelta())
-   }
-
-   // update physics
-   this.world.step(1/60)
-
-   for (const { mesh, body } of this.boxes) {
-      mesh.position.copy(body.position)
-      mesh.quaternion.copy(body.quaternion)
+   const delta = clock.getDelta()
+   for (const modelName in this.models) {
+      const model = this.models[modelName]
+      model.mixer.update(delta)
    }
 }
 
