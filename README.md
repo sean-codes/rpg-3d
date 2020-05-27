@@ -10,6 +10,7 @@ Exploring 3D Game development
 - [Combining FBX Animations into a GLTF](./notes/convert-fbx-to-gltf-with-animations.md)
 - [Animations and blending](./notes/animations.md)
 - [Animation Additive Blending](./notes/animation-additive-blending.md)
+- [Physics](./notes/physics.md)
 
 # Would like to figure out
 - [x] Render a basic cube
