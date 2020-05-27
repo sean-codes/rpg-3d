@@ -96,3 +96,23 @@ for (const actionName in this.actions) {
    }}, 'btn').name(`play: ${actionName}`)
 }
 ```
+
+
+#### Connecting two animations seamlessly
+
+We can set and event on the mixer waiting for loop to then change the animation
+
+```js
+const onLoopFinished = () => {
+   this.mixer.removeEventListener('loop', onLoopFinished)
+   const outAnimation = this.animations[this.currentAnimation]
+   const inAnimation = this.animations[animationName]
+
+   inAnimation.time = 0 // start the new animation at the beginning
+   inAnimation.enabled = true
+   inAnimation.setEffectiveWeight(1)
+   inAnimation.crossFadeFrom(outAnimation, 0.5, true)
+   this.currentAnimation = animationName
+}
+this.mixer.addEventListener('loop', onLoopFinished)
+```
