@@ -20,6 +20,7 @@
   "homepage": "https://github.com/sean-codes/rpg-3d#readme",
   "dependencies": {
     "cannon": "^0.6.2",
+    "cannon-es": "^0.9.1",
     "dat.gui": "^0.7.7",
     "three": "^0.116.1",
     "zlibjs": "^0.3.1"

@@ -48,7 +48,6 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       for (const modelName in models) {
          const model = models[modelName]
          loader.load(model.file, (object) => {
-            console.log(object)
             model.object = object
             model.bones = {}
 
@@ -94,6 +93,8 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
             model.clips = {}
             model.object.animations.forEach((animation) => {
                const clip = model.mixer.clipAction(animation)
+               clip.setEffectiveWeight(0)
+               clip.play()
                model.clips[animation.name] = clip
             })
             // finish loading
@@ -103,17 +104,15 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       }
    })
 
-   console.log('Finished Loading!', models)
-
    models.character.bones.Head.add(models.helmet.object)
    models.character.bones.PalmR.add(models.sword.object)
    models.character.bones.PalmL.add(models.shield.object)
    models.character.bones.Neck.add(models.shoulderPads.object)
-   scene.add(models.character.object)
+   // scene.add(models.character.object) // Adding this to the physics box
 
-   models.character.clips['HumanArmature|Walking'].enabled = true
-   models.character.clips['HumanArmature|Walking'].setEffectiveWeight(1)
-   models.character.clips['HumanArmature|Walking'].play()
+   models.character.clips['HumanArmature|Idle'].enabled = true
+   models.character.clips['HumanArmature|Idle'].setEffectiveWeight(1)
+   models.character.clips['HumanArmature|Idle'].play()
 
    datGui.add({ equip: true }, 'equip').name('Equip Helmet').onChange((value) => {
       models.character.bones.Head[value ? 'add' : 'remove'](models.helmet.object)
@@ -128,8 +127,92 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       models.character.bones.Neck[value ? 'add' : 'remove'](models.shoulderPads.object)
    })
 
+
+   // wonder if we can add physics to this!
+   const world = new CANNON.World()
+   world.gravity.set(0, -40, 0)
+   const physicsObjects = []
+   const groundBodyMaterial = new CANNON.Material({ friction: -1, restitution: 0 })
+   const groundBody = new CANNON.Body({
+      mass: 0,
+      shape: new CANNON.Plane(),
+      material: groundBodyMaterial
+   })
+
+   groundBody.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI/2)
+
+   world.add(groundBody)
+
+   // I'm not going to use the model for this. Will create a cube and attach the model to it!
+   const playerGeo = new THREE.BoxGeometry()
+   const playerMat = new THREE.MeshBasicMaterial({ color: '#000', wireframe: true })
+   const playerMes = new THREE.Mesh(playerGeo, playerMat)
+   playerMes.position.y += 4
+   playerMes.add(models.character.object)
+   models.character.object.position.y -= 0.5
+   scene.add(playerMes)
+
+   const yawMes = new THREE.Object3D()
+   scene.add(yawMes)
+
+   const playerBodyMaterial = new CANNON.Material({ friction: 0, restitution: 0 })
+   const playerBody = new CANNON.Body({
+      mass: 1,
+      position: new CANNON.Vec3(playerMes.position.x, playerMes.position.y, playerMes.position.z),
+      shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
+      material: playerBodyMaterial
+   })
+
+   playerBody.fixedRotation = true
+   playerBody.updateMassProperties()
+   world.addBody(playerBody)
+   physicsObjects.push({ name: 'player', body: playerBody, mesh: playerMes, accel: 0, isOnGround: false })
+
+   // contact material gorund and player
+   const contactMaterial = new CANNON.ContactMaterial(playerBodyMaterial, groundBodyMaterial, {
+      friction: 0,
+      restitution: 0
+   })
+
+   world.addContactMaterial(contactMaterial)
+
+   playerBody.addEventListener('collide', (event) => {
+      const { contact, body, target, type } = event;
+      const { ni, bj, bi } = contact
+
+      const contactNormal = new CANNON.Vec3()
+      const upAxis = new CANNON.Vec3(0, 1, 0)
+      const directionOfCollision = bi.id === playerBody.id ? -ni.y : ni.y
+
+      if (directionOfCollision > 0.9) {
+         this.physicsObjects[0].isOnGround = true
+      }
+   })
+
+   // add some random boxes
+   const boxGeo = new THREE.BoxGeometry()
+   const boxMat = new THREE.MeshPhongMaterial({ color: '#465' })
+   for (var i = 0; i < 10; i++) {
+      const boxMes = new THREE.Mesh(boxGeo, boxMat)
+      const boxBodyMaterial = new CANNON.Material({ friction: 0 })
+      const boxBody = new CANNON.Body({
+         mass: 0,
+         position: new CANNON.Vec3(Math.random()*10-5, 0.5, Math.random()*10-5),
+         shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
+         material: boxBodyMaterial
+      })
+      scene.add(boxMes)
+      world.addBody(boxBody)
+      physicsObjects.push({ name: 'box_'+i, body: boxBody, mesh: boxMes })
+   }
+
    // globals
    this.models = models
+   this.world = world
+   this.yaw = yawMes
+   this.models = models
+   this.physicsObjects = physicsObjects
+   this.orbitControls = orbitControls
 }
 
 const render = function({ c3, time, clock }) {
@@ -138,6 +221,79 @@ const render = function({ c3, time, clock }) {
       const model = this.models[modelName]
       model.mixer.update(delta)
    }
+
+   this.world.step(1/60)
+
+   for (const { mesh, body } of this.physicsObjects) {
+      mesh.position.copy(body.position)
+      mesh.quaternion.copy(body.quaternion)
+   }
+
+   // Player keyboard movement
+   const player = this.physicsObjects.find(o => o.name === 'player')
+
+
+   if (c3.checkKey(68).held) {
+      const { body, mesh } = player
+      this.yaw.rotation.y -= 0.1
+      body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.yaw.rotation.y);
+   }
+
+   if (c3.checkKey(65).held) {
+      const { body, mesh } = player
+      this.yaw.rotation.y += 0.1
+      body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.yaw.rotation.y);
+   }
+
+   const { body, mesh, accel } = player
+   if (c3.checkKey(87).held) {
+      player.accel = Math.min(accel + 1, 8)
+   } else {
+      player.accel = Math.max(0, accel - 0.25)
+   }
+
+   // changing animation
+   const idleMixer = this.models.character.mixer
+   const clipIdle = this.models.character.clips['HumanArmature|Idle']
+   const clipWalk = this.models.character.clips['HumanArmature|Run_swordRight']
+
+   if (c3.checkKey(87).down) {
+      clipWalk.setEffectiveWeight(1)
+      clipWalk.crossFadeFrom(clipIdle, 0.25)
+      clipWalk.time = 0
+      clipWalk.enabled = true
+   }
+
+   if (c3.checkKey(87).up) {
+      const changeToIdle = () => {
+         clipIdle.setEffectiveWeight(1)
+         clipIdle.crossFadeFrom(clipWalk, 0.25)
+         clipIdle.time = 0
+         clipIdle.enabled = true
+         idleMixer.removeEventListener('loop', changeToIdle)
+      }
+
+      idleMixer.addEventListener('loop', changeToIdle)
+   }
+
+   if (c3.checkKey(32).down) {
+      if (player.isOnGround) {
+         body.velocity.y = 15
+         player.isOnGround = false
+      }
+   }
+
+   const playerDirection = mesh.getWorldDirection(new THREE.Vector3())
+   // console.log(playerDirection)
+   body.velocity.set(
+      playerDirection.x*player.accel,
+      body.velocity.y,//playerDirection.y*player.accel,
+      playerDirection.z*player.accel,
+   )
+
+   // cheap camera follow
+   this.orbitControls.target.set(player.mesh.position.x, player.mesh.position.y, player.mesh.position.z)
+   this.orbitControls.update()
 }
 
 
