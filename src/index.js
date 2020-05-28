@@ -144,22 +144,36 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    world.add(groundBody)
 
    // I'm not going to use the model for this. Will create a cube and attach the model to it!
-   const playerGeo = new THREE.BoxGeometry()
+   const playerGeo = new THREE.SphereGeometry(0.5)
    const playerMat = new THREE.MeshBasicMaterial({ color: '#000', wireframe: true })
    const playerMes = new THREE.Mesh(playerGeo, playerMat)
    playerMes.position.y += 4
    playerMes.add(models.character.object)
    models.character.object.position.y -= 0.5
+
+   // this is here since i had nowhere to put it at
+   models.character.changeToIdle = () => {
+      models.character.stopWalking = false
+      const idleMixer = models.character.mixer
+      const clipIdle = models.character.clips['HumanArmature|Idle']
+      const clipWalk = models.character.clips['HumanArmature|Run_swordRight']
+
+      clipIdle.setEffectiveWeight(1)
+      clipIdle.crossFadeFrom(clipWalk, 0.25)
+      clipIdle.time = 0
+      clipIdle.enabled = true
+      idleMixer.removeEventListener('loop', models.character.changeToIdle)
+   }
    scene.add(playerMes)
 
    const yawMes = new THREE.Object3D()
    scene.add(yawMes)
 
-   const playerBodyMaterial = new CANNON.Material({ friction: 0, restitution: 0 })
+   const playerBodyMaterial = new CANNON.Material({ friction: 0.1, restitution: 0 })
    const playerBody = new CANNON.Body({
       mass: 1,
       position: new CANNON.Vec3(playerMes.position.x, playerMes.position.y, playerMes.position.z),
-      shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
+      shape: new CANNON.Sphere(0.5),
       material: playerBodyMaterial
    })
 
@@ -192,9 +206,9 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    // add some random boxes
    const boxGeo = new THREE.BoxGeometry()
    const boxMat = new THREE.MeshPhongMaterial({ color: '#465' })
+   const boxBodyMaterial = new CANNON.Material({ friction: 0 })
    for (var i = 0; i < 10; i++) {
       const boxMes = new THREE.Mesh(boxGeo, boxMat)
-      const boxBodyMaterial = new CANNON.Material({ friction: 0 })
       const boxBody = new CANNON.Body({
          mass: 0,
          position: new CANNON.Vec3(Math.random()*10-5, 0.5, Math.random()*10-5),
@@ -205,6 +219,25 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       world.addBody(boxBody)
       physicsObjects.push({ name: 'box_'+i, body: boxBody, mesh: boxMes })
    }
+
+   // make a ramp?
+   const rampGeo = new THREE.BoxGeometry(10, 1, 10)
+   const rampMat = new THREE.MeshPhongMaterial({ color: '#F66' })
+   const rampMes = new THREE.Mesh(rampGeo, rampMat)
+   scene.add(rampMes)
+
+   const rampBodyMaterial = new CANNON.Material({ friction: 0.1 })
+   const rampBody = new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(0, 0, -10),
+      shape: new CANNON.Box(new CANNON.Vec3(5, 0.5, 5)),
+      material: rampBodyMaterial
+   })
+
+   rampBody.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI * 0.1)
+   world.addBody(rampBody)
+
+   physicsObjects.push({ name: 'ramp', body: rampBody, mesh: rampMes })
 
    // globals
    this.models = models
@@ -257,23 +290,18 @@ const render = function({ c3, time, clock }) {
    const clipIdle = this.models.character.clips['HumanArmature|Idle']
    const clipWalk = this.models.character.clips['HumanArmature|Run_swordRight']
 
+
+
    if (c3.checkKey(87).down) {
       clipWalk.setEffectiveWeight(1)
       clipWalk.crossFadeFrom(clipIdle, 0.25)
       clipWalk.time = 0
       clipWalk.enabled = true
+      idleMixer.removeEventListener('loop', this.models.character.changeToIdle)
    }
 
    if (c3.checkKey(87).up) {
-      const changeToIdle = () => {
-         clipIdle.setEffectiveWeight(1)
-         clipIdle.crossFadeFrom(clipWalk, 0.25)
-         clipIdle.time = 0
-         clipIdle.enabled = true
-         idleMixer.removeEventListener('loop', changeToIdle)
-      }
-
-      idleMixer.addEventListener('loop', changeToIdle)
+      idleMixer.addEventListener('loop', this.models.character.changeToIdle)
    }
 
    if (c3.checkKey(32).down) {
