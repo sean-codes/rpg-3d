@@ -233,6 +233,32 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       }
    })
 
+
+   // creating a weapon collider type of object thing?
+   const weaponGeo = new THREE.BoxGeometry(4, 1, 1)
+   const weaponMes = new THREE.Mesh(weaponGeo, wireFrameMat)
+   weaponMes.position.x -= 2
+   // weaponMes.position.y = 5
+   models.character.bones.PalmR.add(weaponMes)
+   // scene.add(weaponMes)
+   const weaponBody = new CANNON.Body({
+      mass: 1,
+      shape: new CANNON.Box(new CANNON.Vec3(2, 0.5, 0.5)),
+      position: new CANNON.Vec3(weaponMes.position.x, weaponMes.position.y, weaponMes.position.z),
+      // type: CANNON.Body.STATIC
+   })
+   weaponBody.collisionResponse = false
+
+   world.add(weaponBody)
+   physicsObjects.push({ name: 'sword', body: weaponBody, mesh: weaponMes, linkToMesh: true })
+   weaponBody.addEventListener('collide', (e) => {
+      const dragon = physicsObjects.find(o => o.name === 'dragon')
+      if (e.body.id === dragon.body.id) {
+
+         console.log('sword collision', e, playerBody.id, e.target.id, e.body.id)
+      }
+   })
+
    // add some random boxes
    const boxMat = new THREE.MeshPhongMaterial({ color: '#465' })
    const boxBodyMaterial = new CANNON.Material({ friction: 0 })
@@ -334,7 +360,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    }
 
    // A monster
-   const dragonGeo = new THREE.SphereGeometry()
+   const dragonGeo = new THREE.SphereGeometry(2)
    const dragonMes = new THREE.Mesh(dragonGeo, wireFrameMat)
 
    dragonMes.position.set(15, 3, 0)
@@ -344,7 +370,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
 
    const dragonBody = new CANNON.Body({
       mass: 0,
-      shape: new CANNON.Sphere(0.5),
+      shape: new CANNON.Sphere(2),
       position: new CANNON.Vec3(dragonMes.position.x, dragonMes.position.y, dragonMes.position.z)
    })
    world.addBody(dragonBody)
@@ -356,7 +382,6 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    this.playerRotator = playerRotatorMesh
    this.models = models
    this.physicsObjects = physicsObjects
-
 
    playerMes.add(cameraLookY)
    this.cameraLookY = cameraLookY
@@ -428,16 +453,10 @@ const render = function({ c3, time, clock, camera }) {
       const clipToStop = c3.checkKey(87).held ? clipWalk : clipIdle
       clipAttack.reset()
       clipAttack.setEffectiveWeight(1)
-      // clipAttack.crossFadeFrom(clipToStop, 0.2)
 
       const stopAttackAnimation = (e) => {
          clipAttack.setEffectiveWeight(0)
-         // const clipToStart = c3.checkKey(87).held ? clipWalk : clipIdle
          modelCharacter.isAttacking = false
-         // characterMixer.removeEventListener('loop', stopAttackAnimation)
-         // clipToStart.reset()
-         // clipToStart.setEffectiveWeight(1)
-         // clipToStart.crossFadeFrom(clipAttack, 0.2)
       }
 
       characterMixer.addEventListener('loop', (e) => {
@@ -493,9 +512,16 @@ const render = function({ c3, time, clock, camera }) {
    // and not seeing them immediately or camera not picking them up
    this.world.step(1/60)
 
-   for (const { mesh, body } of this.physicsObjects) {
-      mesh.position.copy(body.position)
-      mesh.quaternion.copy(body.quaternion)
+   for (const { mesh, body, linkToMesh } of this.physicsObjects) {
+      if (linkToMesh) {
+         // console.log('inking')
+         const meshWorldPosition = mesh.getWorldPosition(new THREE.Vector3())
+         body.position.copy(meshWorldPosition)
+         body.quaternion.copy(body.quaternion)
+      } else {
+         mesh.position.copy(body.position)
+         mesh.quaternion.copy(body.quaternion)
+      }
    }
 }
 

@@ -150,3 +150,54 @@ function render() {
    )
 }
 ```
+
+
+### Remove Physics from Body but still get collisions
+For make a collision box for the players weapon
+```js
+// creating a weapon collider type of object thing?
+const weaponGeo = new THREE.BoxGeometry(4, 1, 1)
+const weaponMes = new THREE.Mesh(weaponGeo, wireFrameMat)
+weaponMes.position.x -= 2 // Offsetting to fix around model
+models.character.bones.PalmR.add(weaponMes)
+
+const weaponBody = new CANNON.Body({
+   mass: 1,
+   shape: new CANNON.Box(new CANNON.Vec3(2, 0.5, 0.5)),
+   position: new CANNON.Vec3(weaponMes.position.x, weaponMes.position.y, weaponMes.position.z),
+})
+
+// this makes the object able to go through other objects but will still return collide event!
+weaponBody.collisionResponse = false
+
+world.add(weaponBody)
+
+// added a prop here "linkToMesh" this will copy the world position from mesh to body
+physicsObjects.push({ name: 'sword', body: weaponBody, mesh: weaponMes, linkToMesh: true })
+
+
+weaponBody.addEventListener('collide', (e) => {
+   // Making if collide on the dragon body
+   const dragon = physicsObjects.find(o => o.name === 'dragon')
+   if (e.body.id === dragon.body.id) {
+
+      console.log('sword collision', e, playerBody.id, e.target.id, e.body.id)
+   }
+})
+
+
+function render() {
+   for (const { mesh, body, linkToMesh } of physicsObjects) {
+      if (linkToMesh) {
+         // console.log('inking')
+         const meshWorldPosition = mesh.getWorldPosition(new THREE.Vector3())
+         body.position.copy(meshWorldPosition)
+         body.quaternion.copy(body.quaternion)
+      } else {
+         mesh.position.copy(body.position)
+         mesh.quaternion.copy(body.quaternion)
+      }
+   }
+}
+
+```
