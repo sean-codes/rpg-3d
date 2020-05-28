@@ -116,3 +116,13 @@ const onLoopFinished = () => {
 }
 this.mixer.addEventListener('loop', onLoopFinished)
 ```
+
+When doing that make sure you check it's the right animation ending!
+```js
+mixer.addEventListener('loop', (e) => {
+   if (e.action.getClip().name === 'NAME_OF_ACTION!!') {
+      // remove listener
+      // fade to next
+   }
+})
+```

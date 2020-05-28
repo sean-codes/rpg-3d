@@ -2,16 +2,17 @@
 // Lets figure out the basics of using three first
 const init = async function({ c3, camera, scene, renderer, datGui }) {
    scene.background = new THREE.Color('#cdcdff')
-   camera.position.set(0, 6, 10)
+   camera.position.set(0, 15, -15)
    camera.near = 1
    camera.far = 100
    camera.updateProjectionMatrix()
    camera.lookAt(0, 0, 0)
 
-   // orbitable camera
-   const orbitControls = new THREE.OrbitControls(camera, renderer.domElement)
-   orbitControls.target.set(0, 3, 0)
-   orbitControls.update()
+
+   cameraLookX = new THREE.Object3D()
+   cameraLookY = new THREE.Object3D()
+   cameraLookY.add(cameraLookX)
+   cameraLookX.add(camera)
 
    // a light
    const ambientLight = new THREE.AmbientLight('#FFF', 1)
@@ -144,12 +145,17 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    world.add(groundBody)
 
    // I'm not going to use the model for this. Will create a cube and attach the model to it!
-   const playerGeo = new THREE.SphereGeometry(0.5)
-   const playerMat = new THREE.MeshBasicMaterial({ color: '#000', wireframe: true })
+   const playerGeo = new THREE.SphereGeometry(0.75)
+   const playerMat = new THREE.MeshBasicMaterial({
+      color: '#000',
+      wireframe: true,
+      opacity: 0.1,
+      transparent: true,
+   })
    const playerMes = new THREE.Mesh(playerGeo, playerMat)
    playerMes.position.y += 4
    playerMes.add(models.character.object)
-   models.character.object.position.y -= 0.5
+   models.character.object.position.y -= 0.75
 
    // this is here since i had nowhere to put it at
    models.character.changeToIdle = () => {
@@ -166,16 +172,31 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    }
    scene.add(playerMes)
 
-   const yawMes = new THREE.Object3D()
-   scene.add(yawMes)
+   const playerRotatorMesh = new THREE.Object3D()
+   scene.add(playerRotatorMesh)
 
    const playerBodyMaterial = new CANNON.Material({ friction: 0.1, restitution: 0 })
+
    const playerBody = new CANNON.Body({
       mass: 1,
       position: new CANNON.Vec3(playerMes.position.x, playerMes.position.y, playerMes.position.z),
-      shape: new CANNON.Sphere(0.5),
+      shape: new CANNON.Sphere(0.75),
       material: playerBodyMaterial
    })
+
+   const playerBodyTopGeo = new THREE.CylinderGeometry( 1, 1, 5, 10 )
+   const playerBodyTopMes = new THREE.Mesh(playerBodyTopGeo, playerMat)
+
+   playerMes.add(playerBodyTopMes)
+   playerBodyTopMes.position.y += 2
+
+   const shape = new CANNON.Cylinder(1, 1, 5, 10);
+   var quat = new CANNON.Quaternion();
+   quat.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+   var translation = new CANNON.Vec3(0,0,0);
+   shape.transformAllPoints(translation,quat);
+   playerBody.addShape(shape, new CANNON.Vec3(0, 2, 0))
+
 
    playerBody.fixedRotation = true
    playerBody.updateMassProperties()
@@ -204,15 +225,16 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    })
 
    // add some random boxes
-   const boxGeo = new THREE.BoxGeometry()
    const boxMat = new THREE.MeshPhongMaterial({ color: '#465' })
    const boxBodyMaterial = new CANNON.Material({ friction: 0 })
    for (var i = 0; i < 10; i++) {
+      const size = Math.random() * 3 + 1
+      const boxGeo = new THREE.BoxGeometry(size, size, size)
       const boxMes = new THREE.Mesh(boxGeo, boxMat)
       const boxBody = new CANNON.Body({
          mass: 0,
-         position: new CANNON.Vec3(Math.random()*10-5, 0.5, Math.random()*10-5),
-         shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
+         position: new CANNON.Vec3(Math.random()*-10, size/2, Math.random()*20-10),
+         shape: new CANNON.Box(new CANNON.Vec3(size/2, size/2, size/2)),
          material: boxBodyMaterial
       })
       scene.add(boxMes)
@@ -233,33 +255,66 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       shape: new CANNON.Box(new CANNON.Vec3(5, 0.5, 5)),
       material: rampBodyMaterial
    })
-
    rampBody.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI * 0.1)
    world.addBody(rampBody)
-
    physicsObjects.push({ name: 'ramp', body: rampBody, mesh: rampMes })
+
+   const contactMaterialRamp = new CANNON.ContactMaterial(rampBodyMaterial, playerBodyMaterial, {
+      friction: 0.1,
+      restitution: 0
+   })
+   world.addContactMaterial(contactMaterialRamp)
+   // a few platforms
+   // an object the player could go under on accident
+   const platformGeo = new THREE.BoxGeometry(10, 1, 10)
+   const platformMat = new THREE.MeshPhongMaterial({ color: '#F66' })
+   const platformMes = new THREE.Mesh(platformGeo, platformMat)
+   scene.add(platformMes)
+
+   const platformBodyMaterial = new CANNON.Material({ friction: 0 })
+   const platformBody = new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(0, 2.5, 15),
+      shape: new CANNON.Box(new CANNON.Vec3(5, 0.5, 5)),
+      material: platformBodyMaterial
+   })
+   world.addBody(platformBody)
+   physicsObjects.push({ name: 'platform', body: platformBody, mesh: platformMes })
+
+   const platform2Geo = new THREE.BoxGeometry(10, 1, 10)
+   const platform2Mat = new THREE.MeshPhongMaterial({ color: '#F66' })
+   const platform2Mes = new THREE.Mesh(platform2Geo, platform2Mat)
+   scene.add(platform2Mes)
+
+   const platform2BodyMaterial = new CANNON.Material({ friction: 0 })
+   const platform2Body = new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(5, 5, 15),
+      shape: new CANNON.Box(new CANNON.Vec3(5, 0.5, 5)),
+      material: platform2BodyMaterial
+   })
+   world.addBody(platform2Body)
+   physicsObjects.push({ name: 'platform2', body: platform2Body, mesh: platform2Mes })
+
 
    // globals
    this.models = models
    this.world = world
-   this.yaw = yawMes
+   this.playerRotator = playerRotatorMesh
    this.models = models
    this.physicsObjects = physicsObjects
-   this.orbitControls = orbitControls
+
+
+   playerMes.add(cameraLookY)
+   this.cameraLookY = cameraLookY
+   this.cameraLookX = cameraLookX
 }
 
-const render = function({ c3, time, clock }) {
+const render = function({ c3, time, clock, camera }) {
    const delta = clock.getDelta()
    for (const modelName in this.models) {
       const model = this.models[modelName]
       model.mixer.update(delta)
-   }
-
-   this.world.step(1/60)
-
-   for (const { mesh, body } of this.physicsObjects) {
-      mesh.position.copy(body.position)
-      mesh.quaternion.copy(body.quaternion)
    }
 
    // Player keyboard movement
@@ -268,47 +323,78 @@ const render = function({ c3, time, clock }) {
 
    if (c3.checkKey(68).held) {
       const { body, mesh } = player
-      this.yaw.rotation.y -= 0.1
-      body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.yaw.rotation.y);
+      this.playerRotator.rotation.y -= 0.1
+      this.cameraLookY.rotation.y += 0.1
+      body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
    }
 
    if (c3.checkKey(65).held) {
       const { body, mesh } = player
-      this.yaw.rotation.y += 0.1
-      body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.yaw.rotation.y);
+      this.playerRotator.rotation.y += 0.1
+      this.cameraLookY.rotation.y -= 0.1
+      body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
    }
 
    const { body, mesh, accel } = player
-   if (c3.checkKey(87).held) {
-      player.accel = Math.min(accel + 1, 8)
-   } else {
-      player.accel = Math.max(0, accel - 0.25)
-   }
 
    // changing animation
-   const idleMixer = this.models.character.mixer
-   const clipIdle = this.models.character.clips['HumanArmature|Idle']
-   const clipWalk = this.models.character.clips['HumanArmature|Run_swordRight']
+   const modelCharacter = this.models.character
+   const characterMixer = modelCharacter.mixer
+   const clipIdle = modelCharacter.clips['HumanArmature|Idle']
+   const clipWalk = modelCharacter.clips['HumanArmature|Run_swordRight']
+   const clipAttack = modelCharacter.clips['HumanArmature|Run_swordAttack']
 
-
+   if (c3.checkKey(87).held || modelCharacter.isAttacking) {
+      player.accel = Math.min(accel + 1, 8)
+   } else {
+      player.accel = Math.max(0, accel - 0.5)
+   }
 
    if (c3.checkKey(87).down) {
-      clipWalk.setEffectiveWeight(1)
-      clipWalk.crossFadeFrom(clipIdle, 0.25)
-      clipWalk.time = 0
-      clipWalk.enabled = true
-      idleMixer.removeEventListener('loop', this.models.character.changeToIdle)
+      if (!modelCharacter.isAttacking) {
+         clipWalk.setEffectiveWeight(1)
+         clipWalk.crossFadeFrom(clipIdle, 0.1)
+         clipWalk.enabled = true
+      }
    }
 
    if (c3.checkKey(87).up) {
-      idleMixer.addEventListener('loop', this.models.character.changeToIdle)
+      if (!modelCharacter.isAttacking) {
+         clipIdle.setEffectiveWeight(1)
+         clipIdle.crossFadeFrom(clipWalk, 0.2)
+         clipIdle.enabled = true
+      }
    }
 
    if (c3.checkKey(32).down) {
       if (player.isOnGround) {
-         body.velocity.y = 15
+         body.velocity.y = 18
          player.isOnGround = false
       }
+   }
+
+   if (c3.checkKey(16).up) {
+      // we could get pretty detailed here with the animatios but I'm not ready
+      modelCharacter.isAttacking = true
+      const clipToStop = c3.checkKey(87).held ? clipWalk : clipIdle
+      clipAttack.reset()
+      clipAttack.setEffectiveWeight(1)
+      clipAttack.crossFadeFrom(clipToStop, 0.2)
+
+      const stopAttackAnimation = (e) => {
+         const clipToStart = c3.checkKey(87).held ? clipWalk : clipIdle
+         modelCharacter.isAttacking = false
+         characterMixer.removeEventListener('loop', stopAttackAnimation)
+         clipToStart.reset()
+         clipToStart.setEffectiveWeight(1)
+         clipToStart.crossFadeFrom(clipAttack, 0.2)
+      }
+
+      characterMixer.addEventListener('loop', (e) => {
+         if (e.action.getClip().name === 'HumanArmature|Run_swordAttack') {
+            stopAttackAnimation()
+         }
+      })
    }
 
    const playerDirection = mesh.getWorldDirection(new THREE.Vector3())
@@ -319,9 +405,49 @@ const render = function({ c3, time, clock }) {
       playerDirection.z*player.accel,
    )
 
-   // cheap camera follow
-   this.orbitControls.target.set(player.mesh.position.x, player.mesh.position.y, player.mesh.position.z)
-   this.orbitControls.update()
+
+   // camera
+   if (player.accel > 0) {
+      this.cameraLookY.rotation.y -= this.cameraLookY.rotation.y * 0.1
+   }
+
+   if (c3.checkKey(39).held) {
+      this.cameraLookY.rotation.y += 0.1
+   }
+
+   if (c3.checkKey(37).held) {
+      this.cameraLookY.rotation.y -= 0.1
+   }
+
+   if (c3.checkKey(38).held) {
+      this.cameraLookX.rotation.x += 0.1
+
+   }
+
+   if (c3.checkKey(40).held) {
+      this.cameraLookX.rotation.x -= 0.1
+   }
+
+   // constrain
+   if (cameraLookY.rotation.y < -Math.PI) {
+      cameraLookY.rotation.y = Math.PI*2 + cameraLookY.rotation.y
+   }
+
+   if (cameraLookY.rotation.y > Math.PI) {
+      cameraLookY.rotation.y = -Math.PI*2 + cameraLookY.rotation.y
+   }
+
+   cameraLookX.rotation.x = Math.max(-0.8, cameraLookX.rotation.x)
+   cameraLookX.rotation.x = Math.min(0.8, cameraLookX.rotation.x)
+
+   // moved this to the bottom. it fixes some weirdness i was experiencing with changing some values
+   // and not seeing them immediately or camera not picking them up
+   this.world.step(1/60)
+
+   for (const { mesh, body } of this.physicsObjects) {
+      mesh.position.copy(body.position)
+      mesh.quaternion.copy(body.quaternion)
+   }
 }
 
 
