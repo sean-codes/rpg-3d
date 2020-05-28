@@ -76,6 +76,32 @@ body.addEventListener('collide', (event) => {
    // bi, bj = colliding bodies
 
 })
+```
 
 
+### Cylinders
+To match up a physics cylinder to three we need to rotate it
+```js
+// Make a threejs cylinder
+const cylinderGeo = new THREE.CylinderGeometry( 1, 1, 5, 10 )
+const cylinderMat = new THREE.MeshPhongMaterial({ color: '#465' })
+const cylinderMesh = new THREE.Mesh(cylinderGeo, cylinderMat)
+scene.add(cylinderMesh)
+
+
+// Make a cannon cylinder shape and rotate its points
+const shapeCylinder = new CANNON.Cylinder(1, 1, 5, 10);
+const quat = new CANNON.Quaternion();
+quat.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI/2);
+const translation = new CANNON.Vec3(0, 0, 0);
+shapeCylinder.transformAllPoints(translation, quat);
+
+const cylBody = new CANNON.Body({
+   mass: 2,
+   shape: shapeCylinder,
+   position: new CANNON.Vec3(5, 10, 0),
+   material: new CANNON.Material({ friction: 0.1, restitution: 0 })
+})
+
+world.addBody(cylBody)
 ```

@@ -296,6 +296,33 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    world.addBody(platform2Body)
    physicsObjects.push({ name: 'platform2', body: platform2Body, mesh: platform2Mes })
 
+   // TESTING match cannon cylinder to three
+   {
+      // Make a threejs cylinder
+      const cylinderGeo = new THREE.CylinderGeometry( 1, 1, 5, 10 )
+      const cylinderMat = new THREE.MeshPhongMaterial({ color: '#99a' })
+      const cylinderMesh = new THREE.Mesh(cylinderGeo, cylinderMat)
+      scene.add(cylinderMesh)
+
+
+      // Make a cannon cylinder shape and rotate its points
+      const shapeCylinder = new CANNON.Cylinder(1, 1, 5, 10);
+      const quatToRotateCylinder = new CANNON.Quaternion();
+      quatToRotateCylinder.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI/2);
+      const translationCylinder = new CANNON.Vec3(0, 0, 0);
+      shapeCylinder.transformAllPoints(translationCylinder, quatToRotateCylinder);
+
+      const cylBody = new CANNON.Body({
+         mass: 2,
+         shape: shapeCylinder,
+         position: new CANNON.Vec3(5, 10, 0),
+         material: new CANNON.Material({ friction: 0.1, restitution: 0 })
+      })
+
+      cylBody.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI * 0.1)
+      world.addBody(cylBody)
+      physicsObjects.push({ name: 'cylTest', body: cylBody, mesh: cylinderMesh })
+   }
 
    // globals
    this.models = models
