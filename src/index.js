@@ -38,8 +38,9 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       helmet: { file: './assets/models/knight/Helmet1.fbx', scale: 0.01, offset: [0.08, 0.05, 0.65] },
       sword: { file: './assets/models/knight/Sword.fbx', scale: 0.01, rotation: [0, -Math.PI*0.5, 0], offset: [0.1, 0.05, -0.15] },
       shield: { file: './assets/models/knight/Shield_Round.fbx', scale: 0.01, rotation: [-0.1, Math.PI*0.5, 0], offset: [0.2, -0.3, 0] },
-      character: { file: './assets/models/knight/KnightCharacter.fbx', scale: 0.01 },
+      character: { file: './assets/models/knight/KnightCharacter_edited.fbx', scale: 0.01 },
       shoulderPads: { file: './assets/models/knight/ShoulderPads.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
+      dragon: { file: './assets/models/monsters/FBX/Dragon.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
    }
 
    const loader = new THREE.FBXLoader()
@@ -93,6 +94,10 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
             model.mixer = new THREE.AnimationMixer(model.object)
             model.clips = {}
             model.object.animations.forEach((animation) => {
+               if (animation.name === 'HumanArmature|Run_swordAttack') {
+                  console.log(animation)
+                  THREE.AnimationUtils.makeClipAdditive(animation)
+               }
                const clip = model.mixer.clipAction(animation)
                clip.setEffectiveWeight(0)
                clip.play()
@@ -111,9 +116,13 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    models.character.bones.Neck.add(models.shoulderPads.object)
    // scene.add(models.character.object) // Adding this to the physics box
 
-   models.character.clips['HumanArmature|Idle'].enabled = true
-   models.character.clips['HumanArmature|Idle'].setEffectiveWeight(1)
-   models.character.clips['HumanArmature|Idle'].play()
+   models.character.clips['HumanArmature|Idle_swordRight'].enabled = true
+   models.character.clips['HumanArmature|Idle_swordRight'].setEffectiveWeight(1)
+   models.character.clips['HumanArmature|Idle_swordRight'].play()
+
+   models.dragon.clips['DragonArmature|Dragon_Flying'].enabled = true
+   models.dragon.clips['DragonArmature|Dragon_Flying'].setEffectiveWeight(1)
+   models.dragon.clips['DragonArmature|Dragon_Flying'].play()
 
    datGui.add({ equip: true }, 'equip').name('Equip Helmet').onChange((value) => {
       models.character.bones.Head[value ? 'add' : 'remove'](models.helmet.object)
@@ -146,13 +155,13 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
 
    // I'm not going to use the model for this. Will create a cube and attach the model to it!
    const playerGeo = new THREE.SphereGeometry(0.75)
-   const playerMat = new THREE.MeshBasicMaterial({
+   const wireFrameMat = new THREE.MeshBasicMaterial({
       color: '#000',
       wireframe: true,
       opacity: 0.1,
       transparent: true,
    })
-   const playerMes = new THREE.Mesh(playerGeo, playerMat)
+   const playerMes = new THREE.Mesh(playerGeo, wireFrameMat)
    playerMes.position.y += 4
    playerMes.add(models.character.object)
    models.character.object.position.y -= 0.75
@@ -185,7 +194,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    })
 
    const playerBodyTopGeo = new THREE.CylinderGeometry( 1, 1, 5, 10 )
-   const playerBodyTopMes = new THREE.Mesh(playerBodyTopGeo, playerMat)
+   const playerBodyTopMes = new THREE.Mesh(playerBodyTopGeo, wireFrameMat)
 
    playerMes.add(playerBodyTopMes)
    playerBodyTopMes.position.y += 2
@@ -324,6 +333,23 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       physicsObjects.push({ name: 'cylTest', body: cylBody, mesh: cylinderMesh })
    }
 
+   // A monster
+   const dragonGeo = new THREE.SphereGeometry()
+   const dragonMes = new THREE.Mesh(dragonGeo, wireFrameMat)
+
+   dragonMes.position.set(15, 3, 0)
+   dragonMes.add(models.dragon.object)
+   models.dragon.object.position.y -= 2
+   scene.add(dragonMes)
+
+   const dragonBody = new CANNON.Body({
+      mass: 0,
+      shape: new CANNON.Sphere(0.5),
+      position: new CANNON.Vec3(dragonMes.position.x, dragonMes.position.y, dragonMes.position.z)
+   })
+   world.addBody(dragonBody)
+   physicsObjects.push({ name: 'dragon', body: dragonBody, mesh: dragonMes })
+
    // globals
    this.models = models
    this.world = world
@@ -367,30 +393,26 @@ const render = function({ c3, time, clock, camera }) {
    // changing animation
    const modelCharacter = this.models.character
    const characterMixer = modelCharacter.mixer
-   const clipIdle = modelCharacter.clips['HumanArmature|Idle']
+   const clipIdle = modelCharacter.clips['HumanArmature|Idle_swordRight']
    const clipWalk = modelCharacter.clips['HumanArmature|Run_swordRight']
    const clipAttack = modelCharacter.clips['HumanArmature|Run_swordAttack']
 
-   if (c3.checkKey(87).held || modelCharacter.isAttacking) {
-      player.accel = Math.min(accel + 1, 8)
+   if (c3.checkKey(87).held) {
+      player.accel = Math.min(accel + 1, 12)
    } else {
       player.accel = Math.max(0, accel - 0.5)
    }
 
    if (c3.checkKey(87).down) {
-      if (!modelCharacter.isAttacking) {
-         clipWalk.setEffectiveWeight(1)
-         clipWalk.crossFadeFrom(clipIdle, 0.1)
-         clipWalk.enabled = true
-      }
+      clipWalk.setEffectiveWeight(1)
+      clipWalk.crossFadeFrom(clipIdle, 0.1)
+      clipWalk.enabled = true
    }
 
    if (c3.checkKey(87).up) {
-      if (!modelCharacter.isAttacking) {
-         clipIdle.setEffectiveWeight(1)
-         clipIdle.crossFadeFrom(clipWalk, 0.2)
-         clipIdle.enabled = true
-      }
+      clipIdle.setEffectiveWeight(1)
+      clipIdle.crossFadeFrom(clipWalk, 0.2)
+      clipIdle.enabled = true
    }
 
    if (c3.checkKey(32).down) {
@@ -400,21 +422,22 @@ const render = function({ c3, time, clock, camera }) {
       }
    }
 
-   if (c3.checkKey(16).up) {
+   if (c3.checkKey(16).up && !modelCharacter.isAttacking) {
       // we could get pretty detailed here with the animatios but I'm not ready
       modelCharacter.isAttacking = true
       const clipToStop = c3.checkKey(87).held ? clipWalk : clipIdle
       clipAttack.reset()
       clipAttack.setEffectiveWeight(1)
-      clipAttack.crossFadeFrom(clipToStop, 0.2)
+      // clipAttack.crossFadeFrom(clipToStop, 0.2)
 
       const stopAttackAnimation = (e) => {
-         const clipToStart = c3.checkKey(87).held ? clipWalk : clipIdle
+         clipAttack.setEffectiveWeight(0)
+         // const clipToStart = c3.checkKey(87).held ? clipWalk : clipIdle
          modelCharacter.isAttacking = false
-         characterMixer.removeEventListener('loop', stopAttackAnimation)
-         clipToStart.reset()
-         clipToStart.setEffectiveWeight(1)
-         clipToStart.crossFadeFrom(clipAttack, 0.2)
+         // characterMixer.removeEventListener('loop', stopAttackAnimation)
+         // clipToStart.reset()
+         // clipToStart.setEffectiveWeight(1)
+         // clipToStart.crossFadeFrom(clipAttack, 0.2)
       }
 
       characterMixer.addEventListener('loop', (e) => {
@@ -434,8 +457,8 @@ const render = function({ c3, time, clock, camera }) {
 
 
    // camera
-   if (player.accel > 0) {
-      this.cameraLookY.rotation.y -= this.cameraLookY.rotation.y * 0.1
+   if (c3.checkKey(87).held) {
+      this.cameraLookY.rotation.y -= this.cameraLookY.rotation.y * 0.01
    }
 
    if (c3.checkKey(39).held) {
@@ -448,7 +471,6 @@ const render = function({ c3, time, clock, camera }) {
 
    if (c3.checkKey(38).held) {
       this.cameraLookX.rotation.x += 0.1
-
    }
 
    if (c3.checkKey(40).held) {

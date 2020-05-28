@@ -105,3 +105,48 @@ const cylBody = new CANNON.Body({
 
 world.addBody(cylBody)
 ```
+
+
+### Turning a body
+```js
+// 1. Create a blank object to rotate
+const rotatorObject = new THREE.Object3D()
+
+// 2. On keypress rotate that object and set it to the body
+// I ran into weird issues trying to rotate the actual player mesh directly
+function render() {
+   if (leftKeyDown) {
+      this.playerRotator.rotation.y -= 0.1
+      body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
+   }
+
+   if (rightKeyDown) {
+      this.playerRotator.rotation.y += 0.1
+      body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
+   }
+}
+```
+
+### Moving a body forward
+```js
+// 1. Create an acceleration
+let accel = 0
+
+function render() {
+   // 2. Increase / Decrease when forward key is down
+   if (forwardKeyDown) {
+      accel = Math.min(accel + 1, 12)
+   } else {
+      accel = Math.max(0, accel - 0.5)
+   }
+
+   // 3. Set the velocity!
+   const playerDirection = mesh.getWorldDirection(new THREE.Vector3())
+
+   body.velocity.set(
+      playerDirection.x*accel,
+      body.velocity.y,
+      playerDirection.z*accel,
+   )
+}
+```
