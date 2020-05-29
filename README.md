@@ -14,6 +14,8 @@
 - [Animation Additive Blending](./notes/animation-additive-blending.md)
 - [Physics](./notes/physics.md)
 - [Equipment Points (equiping sword/shield/etc)](./notes/equipment-points.md)
+- [Third Person Camera](./notes/third-person-camera.md)
+- [Map Loader](./notes/mapLoader.md)
 
 # Would like to figure out
 - [x] Render a basic cube

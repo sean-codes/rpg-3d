@@ -3,7 +3,7 @@
 class C3 {
    constructor({ init, render }) {
       this.renderer = new THREE.WebGLRenderer({ antialias: true });
-      // this.renderer.shadowMap.enabled = true;
+      this.renderer.shadowMap.enabled = true;
       this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.001, 1000);
       this.scene = new THREE.Scene();
       this.datGui = new dat.GUI();

@@ -105,3 +105,14 @@ directionalLight.shadow.mapSize.height = 2048
 // root.scale.z = 0.01
 ```
 ![Black Banding](./images/shadows-black-bands-gone.png)
+
+
+# Adjusting the size of shadow camera
+```js
+light.shadow.mapSize.width = 512;  // default
+light.shadow.mapSize.height = 512; // default
+light.shadow.camera.right = 1000;     // default
+light.shadow.camera.left = -1000;    // default
+light.shadow.camera.top = 1000;    // default
+light.shadow.camera.bottom = -1000;     // default
+```
