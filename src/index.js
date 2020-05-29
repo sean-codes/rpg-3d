@@ -18,21 +18,35 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    const ambientLight = new THREE.AmbientLight('#FFF', 1)
    scene.add(ambientLight)
 
-   const dirLight = new THREE.DirectionalLight('#FFF', 0.75)
-   dirLight.position.set(12, 6, 10)
+   const dirLight = new THREE.DirectionalLight('#FFF', 1)
+   dirLight.castShadow = true
+   dirLight.position.set(12, 20, 10)
+   dirLight.shadow.mapSize.width = 2048
+   dirLight.shadow.mapSize.height = 2048
+   dirLight.shadow.camera.right = 30;
+   dirLight.shadow.camera.left = -30;
+   dirLight.shadow.camera.top = 30;
+   dirLight.shadow.camera.bottom = -30;
    scene.add(dirLight)
 
+   // const dirLightHelper = new THREE.DirectionalLightHelper(dirLight)
+   // scene.add(dirLightHelper)
+   //
+   // const dirLightShadowHelper = new THREE.CameraHelper(dirLight.shadow.camera)
+   // scene.add(dirLightShadowHelper)
+
    // a plane under
-   const planeGeo = new THREE.PlaneBufferGeometry(50, 50)
-   const planeMat = new THREE.MeshBasicMaterial({ color: '#cdcdff' })
+   const planeGeo = new THREE.PlaneBufferGeometry(100, 100)
+   const planeMat = new THREE.MeshPhongMaterial({ color: '#4b7' })
    this.planeMes = new THREE.Mesh(planeGeo, planeMat)
+   this.planeMes.receiveShadow = true
    this.planeMes.rotation.x -= Math.PI * 0.5
    this.planeMes.position.y -= 0.001
    scene.add(this.planeMes)
 
    // a grid
-   const gridHelper = new THREE.GridHelper(50, 50)
-   scene.add(gridHelper)
+   // const gridHelper = new THREE.GridHelper(50, 50)
+   // scene.add(gridHelper)
 
    const models = {
       helmet: { file: './assets/models/knight/Helmet1.fbx', scale: 0.01, offset: [0.08, 0.05, 0.65] },
@@ -72,6 +86,9 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
                }
 
                if (part.type === 'Mesh' || part.type === 'SkinnedMesh') {
+                  part.receiveShadow = true
+                  part.castShadow = true
+
                   if (model.offset) {
                      part.geometry.translate(...model.offset)
                   }
@@ -154,7 +171,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    const wireFrameMat = new THREE.MeshBasicMaterial({
       color: '#000',
       wireframe: true,
-      opacity: 0.1,
+      opacity: 0.05,
       transparent: true,
    })
    const playerMes = new THREE.Mesh(playerGeo, wireFrameMat)
@@ -262,6 +279,8 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       const size = Math.random() * 3 + 1
       const boxGeo = new THREE.BoxGeometry(size, size, size)
       const boxMes = new THREE.Mesh(boxGeo, boxMat)
+      boxMes.receiveShadow = true
+      boxMes.castShadow = true
       const boxBody = new CANNON.Body({
          mass: 0,
          position: new CANNON.Vec3(Math.random()*-10, size/2, Math.random()*20-10),
@@ -277,6 +296,8 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    const rampGeo = new THREE.BoxGeometry(10, 1, 10)
    const rampMat = new THREE.MeshPhongMaterial({ color: '#F66' })
    const rampMes = new THREE.Mesh(rampGeo, rampMat)
+   rampMes.receiveShadow = true
+   rampMes.castShadow = true
    scene.add(rampMes)
 
    const rampBodyMaterial = new CANNON.Material({ friction: 0.1 })
@@ -300,6 +321,8 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    const platformGeo = new THREE.BoxGeometry(10, 1, 10)
    const platformMat = new THREE.MeshPhongMaterial({ color: '#F66' })
    const platformMes = new THREE.Mesh(platformGeo, platformMat)
+   platformMes.receiveShadow = true
+   platformMes.castShadow = true
    scene.add(platformMes)
 
    const platformBodyMaterial = new CANNON.Material({ friction: 0 })
@@ -315,6 +338,8 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    const platform2Geo = new THREE.BoxGeometry(10, 1, 10)
    const platform2Mat = new THREE.MeshPhongMaterial({ color: '#F66' })
    const platform2Mes = new THREE.Mesh(platform2Geo, platform2Mat)
+   platform2Mes.receiveShadow = true
+   platform2Mes.castShadow = true
    scene.add(platform2Mes)
 
    const platform2BodyMaterial = new CANNON.Material({ friction: 0 })
@@ -333,6 +358,8 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       const cylinderGeo = new THREE.CylinderGeometry( 1, 1, 5, 10 )
       const cylinderMat = new THREE.MeshPhongMaterial({ color: '#99a', flatShading: true })
       const cylinderMesh = new THREE.Mesh(cylinderGeo, cylinderMat)
+      cylinderMesh.receiveShadow = true
+      cylinderMesh.castShadow = true
       scene.add(cylinderMesh)
 
 
@@ -357,7 +384,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
 
    // A monster bunch of monsters
    // It's certainly getting to the point we need a game object class! :]
-   for (let i = 0; i < 5; i++) {
+   for (let i = 0; i < 2; i++) {
       for (let o = 0; o < 2; o++) {
          const dragonGeo = new THREE.SphereGeometry(2)
          const dragonMes = new THREE.Mesh(dragonGeo, wireFrameMat)
