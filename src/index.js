@@ -38,6 +38,9 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    // a plane under
    const planeGeo = new THREE.PlaneBufferGeometry(100, 100)
    const planeMat = new THREE.MeshPhongMaterial({ color: '#4b7' })
+   planeMat.flatShading = true
+   planeMat.reflectivity = 0
+   planeMat.shininess = 0
    this.planeMes = new THREE.Mesh(planeGeo, planeMat)
    this.planeMes.receiveShadow = true
    this.planeMes.rotation.x -= Math.PI * 0.5

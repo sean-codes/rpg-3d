@@ -15,9 +15,26 @@
       canvas {
         display: block;
       }
+
+      .info {
+         position: fixed;
+         top: 0;
+         left: 0;
+         font-size: 16px;
+         font-family: monospace;
+         font-weight: 600;
+         background: rgba(0, 0, 0, 0.25);
+         padding: 0.5rem;
+         color: #FFF;
+      }
     </style>
   </head>
   <body>
+     <div class="info">
+        Move = WASD <br>
+        Camera = arrows <br>
+        Attack = shift
+     </div>
     <script src="./node_modules/three/build/three.min.js"></script>
     <script src="./node_modules/cannon/build/cannon.js"></script>
     <script src="./node_modules/three/examples/js/controls/OrbitControls.js"></script>
