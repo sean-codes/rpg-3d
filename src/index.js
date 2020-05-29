@@ -258,17 +258,33 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       mass: 1,
       shape: new CANNON.Box(new CANNON.Vec3(2, 0.5, 0.5)),
       position: new CANNON.Vec3(weaponMes.position.x, weaponMes.position.y, weaponMes.position.z),
-      // type: CANNON.Body.STATIC
    })
    weaponBody.collisionResponse = false
 
    world.add(weaponBody)
    physicsObjects.push({ name: 'sword', body: weaponBody, mesh: weaponMes, linkToMesh: true })
    weaponBody.addEventListener('collide', (e) => {
-      const dragon = physicsObjects.find(o => o.name === 'dragon')
-      if (e.body.id === dragon.body.id) {
+      if (!models.character.isAttacking) return
+      const dragons = physicsObjects.filter(o => o.name === 'dragon')
+      for (const dragon of dragons) {
+         if (e.body.id === dragon.body.id) {
+            const clipFlying = dragon.clips['DragonArmature|Dragon_Flying']
+            const clipDeath = dragon.clips['DragonArmature|Dragon_Death']
 
-         console.log('sword collision', e, playerBody.id, e.target.id, e.body.id)
+            clipDeath.enabled = true
+            clipDeath.time = 0
+            clipDeath.setEffectiveWeight(1)
+            clipDeath.crossFadeFrom(clipFlying, 0.5)
+
+            const whenDead = (e) => {
+               if (e.action.getClip().name === 'DragonArmature|Dragon_Death') {
+                  dragon.mixer.removeEventListener('loop', whenDead)
+                  scene.remove(dragon.mesh)
+                  world.remove(dragon.body)
+               }
+            }
+            dragon.mixer.addEventListener('loop', whenDead)
+         }
       }
    })
 
@@ -392,6 +408,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
          // console.log(dragonModel)
          // skeleton utils does not clone AnimationMixer
          const mixer = new THREE.AnimationMixer(dragonModel)
+         const clips = {}
          models.dragon.object.animations.forEach((animation) => {
             const clip = mixer.clipAction(animation)
             clip.setEffectiveWeight(0)
@@ -402,6 +419,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
                clip.setEffectiveWeight(1)
                clip.enabled = true
             }
+            clips[animation.name] = clip
          })
 
          models[`dragon_${i}-${o}`] = { mixer: mixer}
@@ -418,7 +436,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
             material: new CANNON.Material({ friction: 0 })
          })
          world.addBody(dragonBody)
-         physicsObjects.push({ name: 'dragon', body: dragonBody, mesh: dragonMes })
+         physicsObjects.push({ name: 'dragon', body: dragonBody, mesh: dragonMes, mixer: mixer, clips: clips })
       }
    }
 
