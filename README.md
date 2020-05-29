@@ -19,17 +19,17 @@
 - [x] Render a basic cube
 - [x] Adding a light
 - [x] A Texture
-- [ ] shadows
-- [ ] arcball camera
-- [ ] Movement
-- [ ] Physics
-- [ ] Jumping
-- [ ] Load a model
-- [ ] Animate that model
-- [ ] Putting animations together
-- [ ] model anchors
+- [x] shadows
+- [x] arcball camera
+- [x] Movement
+- [x] Physics
+- [x] Jumping
+- [x] Load a model
+- [x] Animate that model
+- [x] Putting animations together
+- [x] model anchors
 - [ ] An inventory
-- [ ] Equip an item
+- [x] Equip an item
 - [ ] Targeting
 - [ ] Make a monster
 - [ ] Make the monster chase the player

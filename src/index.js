@@ -120,10 +120,6 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    models.character.clips['HumanArmature|Idle_swordRight'].setEffectiveWeight(1)
    models.character.clips['HumanArmature|Idle_swordRight'].play()
 
-   models.dragon.clips['DragonArmature|Dragon_Flying'].enabled = true
-   models.dragon.clips['DragonArmature|Dragon_Flying'].setEffectiveWeight(1)
-   models.dragon.clips['DragonArmature|Dragon_Flying'].play()
-
    datGui.add({ equip: true }, 'equip').name('Equip Helmet').onChange((value) => {
       models.character.bones.Head[value ? 'add' : 'remove'](models.helmet.object)
    })
@@ -335,7 +331,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    {
       // Make a threejs cylinder
       const cylinderGeo = new THREE.CylinderGeometry( 1, 1, 5, 10 )
-      const cylinderMat = new THREE.MeshPhongMaterial({ color: '#99a' })
+      const cylinderMat = new THREE.MeshPhongMaterial({ color: '#99a', flatShading: true })
       const cylinderMesh = new THREE.Mesh(cylinderGeo, cylinderMat)
       scene.add(cylinderMesh)
 
@@ -359,22 +355,45 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       physicsObjects.push({ name: 'cylTest', body: cylBody, mesh: cylinderMesh })
    }
 
-   // A monster
-   const dragonGeo = new THREE.SphereGeometry(2)
-   const dragonMes = new THREE.Mesh(dragonGeo, wireFrameMat)
+   // A monster bunch of monsters
+   // It's certainly getting to the point we need a game object class! :]
+   for (let i = 0; i < 5; i++) {
+      const dragonGeo = new THREE.SphereGeometry(2)
+      const dragonMes = new THREE.Mesh(dragonGeo, wireFrameMat)
+      const dragonModel = THREE.SkeletonUtils.clone(models.dragon.object)
+      console.log(dragonModel)
+      // skeleton utils does not clone AnimationMixer
+      const mixer = new THREE.AnimationMixer(dragonModel)
+      models.dragon.object.animations.forEach((animation) => {
+         const clip = mixer.clipAction(animation)
+         clip.setEffectiveWeight(0)
+         clip.play()
+         // model.clips[animation.name] = clip
+         if (animation.name === 'DragonArmature|Dragon_Flying') {
+            clip.time = Math.random() * 15
+            clip.setEffectiveWeight(1)
+            clip.enabled = true
+         }
+      })
 
-   dragonMes.position.set(15, 3, 0)
-   dragonMes.add(models.dragon.object)
-   models.dragon.object.position.y -= 2
-   scene.add(dragonMes)
+      models['dragon_'+i] = { mixer: mixer}
+      //
+      // models.dragon.clips['DragonArmature|Dragon_Flying'].enabled = true
+      // models.dragon.clips['DragonArmature|Dragon_Flying'].setEffectiveWeight(1)
+      // models.dragon.clips['DragonArmature|Dragon_Flying'].play()
+      dragonMes.position.set(15, 3, -15+i*6)
+      dragonMes.add(dragonModel)
+      dragonModel.position.y -= 2
+      scene.add(dragonMes)
 
-   const dragonBody = new CANNON.Body({
-      mass: 0,
-      shape: new CANNON.Sphere(2),
-      position: new CANNON.Vec3(dragonMes.position.x, dragonMes.position.y, dragonMes.position.z)
-   })
-   world.addBody(dragonBody)
-   physicsObjects.push({ name: 'dragon', body: dragonBody, mesh: dragonMes })
+      const dragonBody = new CANNON.Body({
+         mass: 0,
+         shape: new CANNON.Sphere(2),
+         position: new CANNON.Vec3(dragonMes.position.x, dragonMes.position.y, dragonMes.position.z)
+      })
+      world.addBody(dragonBody)
+      physicsObjects.push({ name: 'dragon', body: dragonBody, mesh: dragonMes })
+   }
 
    // globals
    this.models = models
