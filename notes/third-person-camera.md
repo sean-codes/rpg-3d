@@ -48,3 +48,8 @@ function render() {
    cameraLookX.rotation.x = Math.min(0.8, cameraLookX.rotation.x)
 }
 ```
+
+Also we might be able to not attach the camera directly to the object and use getWorldPosition
+```js
+this.cameraLookY.position.copy(player.mesh.position)
+```

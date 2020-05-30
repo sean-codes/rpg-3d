@@ -13,7 +13,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    cameraLookY = new THREE.Object3D()
    cameraLookY.add(cameraLookX)
    cameraLookX.add(camera)
-
+   scene.add(cameraLookY)
    // a light
    const ambientLight = new THREE.AmbientLight('#FFF', 1)
    scene.add(ambientLight)
@@ -57,7 +57,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       shield: { file: './assets/models/knight/Shield_Round.fbx', scale: 0.01, rotation: [-0.1, Math.PI*0.5, 0], offset: [0.2, -0.3, 0] },
       character: { file: './assets/models/knight/KnightCharacter_edited.fbx', scale: 0.01 },
       shoulderPads: { file: './assets/models/knight/ShoulderPads.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
-      dragon: { file: './assets/models/monsters/FBX/Dragon.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
+      dragon: { file: './assets/models/monsters/FBX/Dragon_Edited.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
    }
 
    const loader = new THREE.FBXLoader()
@@ -179,6 +179,8 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    })
    const playerMes = new THREE.Mesh(playerGeo, wireFrameMat)
    playerMes.position.y += 4
+   playerMes.position.x += 10
+   playerMes.position.z -= 5
    playerMes.add(models.character.object)
    models.character.object.position.y -= 0.75
 
@@ -271,8 +273,8 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       const dragons = physicsObjects.filter(o => o.name === 'dragon')
       for (const dragon of dragons) {
          if (e.body.id === dragon.body.id) {
-            const clipFlying = dragon.clips['DragonArmature|Dragon_Flying']
-            const clipDeath = dragon.clips['DragonArmature|Dragon_Death']
+            const clipFlying = dragon.clips['DragonModel|Dragon_Flying']
+            const clipDeath = dragon.clips['DragonModel|Dragon_Death']
 
             clipDeath.enabled = true
             clipDeath.time = 0
@@ -280,7 +282,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
             clipDeath.crossFadeFrom(clipFlying, 0.5)
 
             const whenDead = (e) => {
-               if (e.action.getClip().name === 'DragonArmature|Dragon_Death') {
+               if (e.action.getClip().name === 'DragonModel|Dragon_Death') {
                   dragon.mixer.removeEventListener('loop', whenDead)
                   scene.remove(dragon.mesh)
                   world.remove(dragon.body)
@@ -417,7 +419,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
             clip.setEffectiveWeight(0)
             clip.play()
             // model.clips[animation.name] = clip
-            if (animation.name === 'DragonArmature|Dragon_Flying') {
+            if (animation.name === 'DragonModel|Dragon_Flying') {
                clip.time = Math.random() * 15
                clip.setEffectiveWeight(1)
                clip.enabled = true
@@ -443,42 +445,139 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       }
    }
 
+   // target pointer
+   const targetGeo = new THREE.SphereGeometry()
+   const targetMat = new THREE.MeshBasicMaterial({ color: '#FFF', depthTest: false, flatShading: true})
+   const targetMes = new THREE.Mesh(targetGeo, targetMat)
+   targetMes.renderOrder = 1000
+
    // globals
    this.models = models
    this.world = world
    this.playerRotator = playerRotatorMesh
    this.models = models
    this.physicsObjects = physicsObjects
+   this.targetMes = targetMes
+   this.target = undefined
 
-   playerMes.add(cameraLookY)
    this.cameraLookY = cameraLookY
    this.cameraLookX = cameraLookX
 }
 
-const render = function({ c3, time, clock, camera }) {
+const render = function({ c3, time, clock, camera, scene }) {
    const delta = clock.getDelta()
    for (const modelName in this.models) {
       const model = this.models[modelName]
       model.mixer.update(delta)
    }
 
-   // Player keyboard movement
    const player = this.physicsObjects.find(o => o.name === 'player')
 
+   this.cameraLookY.position.copy(player.mesh.position)
+   // Player keyboard movement
 
+   // targeting
+   if (c3.checkKey(69).down) {
+      if (this.target) {
+         this.target = undefined
+      } else {
+         // find nearest dragon
+         const player = this.physicsObjects.find(o => o.name === 'player')
+
+         let closestDragon = undefined
+         let closestDistance = 100000000000
+         for (const object of this.physicsObjects) {
+            if (object.name === 'dragon') {
+               const distanceFromPlayer = player.mesh.position.distanceTo(object.mesh.position)
+               if (distanceFromPlayer < 20 && distanceFromPlayer < closestDistance) {
+                  closestDragon = object
+                  closestDistance = distanceFromPlayer
+               }
+            }
+         }
+
+         if (closestDragon) {
+            this.target = closestDragon
+         }
+      }
+   }
+
+   this.targetMes.rotation.y += 0.01
+   this.targetMes.rotation.x += 0.01
+   if (this.target) {
+      scene.add(this.targetMes)
+      this.targetMes.position.copy(this.target.mesh.position)
+      const cameraPosition = camera
+      const distanceFromCamera = this.target.mesh.position.distanceTo(c3.camera.getWorldPosition(new THREE.Vector3()))
+      const targetScale = distanceFromCamera/100
+      this.targetMes.scale.set(targetScale, targetScale, targetScale)
+
+      // point player
+      const direction = this.target.mesh.position.clone().sub(player.mesh.position)
+      const angle = new THREE.Vector2(-direction.x, direction.z).angle() + Math.PI*2*0.75 // idk I guessed a bunch of times
+
+      this.playerRotator.rotation.y = angle
+      player.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
+      this.cameraLookY.rotation.y = angle
+   } else {
+      scene.remove(this.targetMes)
+   }
+
+   // these are goign to get twisted / player will rotate > 180 deg sometimes
    if (c3.checkKey(68).held) {
       const { body, mesh } = player
-      this.playerRotator.rotation.y -= 0.1
-      this.cameraLookY.rotation.y += 0.1
+      if (!this.target) {
+         const targetAngle = this.cameraLookY.rotation.y - Math.PI/2
+         let angleDiff = this.playerRotator.rotation.y - targetAngle
+         this.playerRotator.rotation.y -= angleDiff / 2
+      } else {
+         const direction = this.target.mesh.position.clone().sub(player.mesh.position)
+         const angle = new THREE.Vector2(-direction.x, direction.z).angle() + Math.PI*2*0.75 // idk I guessed a bunch of times
+         this.playerRotator.rotation.y = angle - Math.PI/2
+      }
+
       body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
    }
 
    if (c3.checkKey(65).held) {
       const { body, mesh } = player
-      this.playerRotator.rotation.y += 0.1
-      this.cameraLookY.rotation.y -= 0.1
+
+      if (!this.target) {
+         const targetAngle = this.cameraLookY.rotation.y + Math.PI/2
+         const angleDiff = this.playerRotator.rotation.y - targetAngle
+         this.playerRotator.rotation.y -= angleDiff / 2
+      } else {
+         const direction = this.target.mesh.position.clone().sub(player.mesh.position)
+         const angle = new THREE.Vector2(-direction.x, direction.z).angle() + Math.PI*2*0.75 // idk I guessed a bunch of times
+         this.playerRotator.rotation.y = angle + Math.PI/2
+      }
+
+      player.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
+   }
+
+   if (c3.checkKey(87).held && !this.target) {
+      const { body, mesh } = player
+      const targetAngle = this.cameraLookY.rotation.y
+      const angleDiff = this.playerRotator.rotation.y - targetAngle
+      this.playerRotator.rotation.y -= angleDiff / 2
       body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
    }
+
+   if (c3.checkKey(83).held) {
+      const { body, mesh } = player
+      if (!this.target) {
+         const targetAngle = this.cameraLookY.rotation.y + Math.PI
+         const angleDiff = this.playerRotator.rotation.y - targetAngle
+         this.playerRotator.rotation.y -= angleDiff / 2
+      } else {
+         const direction = this.target.mesh.position.clone().sub(player.mesh.position)
+         const angle = new THREE.Vector2(-direction.x, direction.z).angle() + Math.PI*2*0.75 // idk I guessed a bunch of times
+         this.playerRotator.rotation.y = angle - Math.PI
+      }
+
+      body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
+   }
+
 
    const { body, mesh, accel } = player
 
@@ -489,22 +588,30 @@ const render = function({ c3, time, clock, camera }) {
    const clipWalk = modelCharacter.clips['HumanArmature|Run_swordRight']
    const clipAttack = modelCharacter.clips['HumanArmature|Run_swordAttack']
 
-   if (c3.checkKey(87).held) {
+   if (c3.checkKey(87).held || c3.checkKey(68).held || c3.checkKey(65).held || c3.checkKey(83).held) {
       player.accel = Math.min(accel + 1, 12)
    } else {
       player.accel = Math.max(0, accel - 0.5)
    }
 
-   if (c3.checkKey(87).down) {
-      clipWalk.setEffectiveWeight(1)
-      clipWalk.crossFadeFrom(clipIdle, 0.1)
-      clipWalk.enabled = true
+   if (
+      (c3.checkKey(87).down && (!c3.checkKey(68).held && !c3.checkKey(65).held && !c3.checkKey(83).held)) //lazy
+      || (c3.checkKey(68).down && (!c3.checkKey(87).held && !c3.checkKey(65).held && !c3.checkKey(83).held))
+      || (c3.checkKey(65).down && (!c3.checkKey(87).held && !c3.checkKey(68).held && !c3.checkKey(83).held))
+      || (c3.checkKey(65).down && (!c3.checkKey(87).held && !c3.checkKey(68).held && !c3.checkKey(83).held))
+      || (c3.checkKey(83).down && (!c3.checkKey(87).held && !c3.checkKey(68).held && !c3.checkKey(65).held))
+   ) {
+         clipWalk.setEffectiveWeight(1)
+         clipWalk.crossFadeFrom(clipIdle, 0.1)
+         clipWalk.enabled = true
    }
 
-   if (c3.checkKey(87).up) {
-      clipIdle.setEffectiveWeight(1)
-      clipIdle.crossFadeFrom(clipWalk, 0.2)
-      clipIdle.enabled = true
+   if (c3.checkKey(87).up || c3.checkKey(68).up || c3.checkKey(65).up || c3.checkKey(83).up) {
+      if (!c3.checkKey(87).held && !c3.checkKey(68).held && !c3.checkKey(65).held && !c3.checkKey(83).held) {
+         clipIdle.setEffectiveWeight(1)
+         clipIdle.crossFadeFrom(clipWalk, 0.2)
+         clipIdle.enabled = true
+      }
    }
 
    if (c3.checkKey(32).down) {
@@ -535,6 +642,8 @@ const render = function({ c3, time, clock, camera }) {
 
    const playerDirection = mesh.getWorldDirection(new THREE.Vector3())
    // console.log(playerDirection)
+
+   //hmmmmmmmmm!
    body.velocity.set(
       playerDirection.x*player.accel,
       body.velocity.y,//playerDirection.y*player.accel,
@@ -542,16 +651,18 @@ const render = function({ c3, time, clock, camera }) {
    )
 
 
+
+
    // camera
    if (c3.checkKey(87).held) {
-      this.cameraLookY.rotation.y -= this.cameraLookY.rotation.y * 0.01
-   }
-
-   if (c3.checkKey(39).held) {
-      this.cameraLookY.rotation.y += 0.1
+      // this.cameraLookY.rotation.y -= this.cameraLookY.rotation.y * 0.01
    }
 
    if (c3.checkKey(37).held) {
+      this.cameraLookY.rotation.y += 0.1
+   }
+
+   if (c3.checkKey(39).held) {
       this.cameraLookY.rotation.y -= 0.1
    }
 
@@ -574,6 +685,9 @@ const render = function({ c3, time, clock, camera }) {
 
    cameraLookX.rotation.x = Math.max(-0.8, cameraLookX.rotation.x)
    cameraLookX.rotation.x = Math.min(0.8, cameraLookX.rotation.x)
+
+
+
 
    // moved this to the bottom. it fixes some weirdness i was experiencing with changing some values
    // and not seeing them immediately or camera not picking them up
