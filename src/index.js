@@ -405,6 +405,13 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
 
    // A monster bunch of monsters
    // It's certainly getting to the point we need a game object class! :]
+   const dragonBodyMaterial = new CANNON.Material({ friction: 0 })
+
+   world.addContactMaterial(new CANNON.ContactMaterial(dragonBodyMaterial, groundBodyMaterial, {
+      friction: 0,
+      restitution: 0
+   }))
+
    for (let i = 0; i < 2; i++) {
       for (let o = 0; o < 2; o++) {
          const dragonGeo = new THREE.SphereGeometry(2)
@@ -435,13 +442,16 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
          scene.add(dragonMes)
 
          const dragonBody = new CANNON.Body({
-            mass: 0,
+            mass: 0.1,
             shape: new CANNON.Sphere(2),
             position: new CANNON.Vec3(dragonMes.position.x, dragonMes.position.y, dragonMes.position.z),
-            material: new CANNON.Material({ friction: 0 })
+            material: dragonBodyMaterial,
+            fixedRotation: true
          })
+         // dragonBody.fixedRotation = true
+         // dragonBody.updateMassProperties()
          world.addBody(dragonBody)
-         physicsObjects.push({ name: 'dragon', body: dragonBody, mesh: dragonMes, mixer: mixer, clips: clips })
+         physicsObjects.push({ name: 'dragon', body: dragonBody, mesh: dragonMes, mixer: mixer, clips: clips, accel: 0 })
       }
    }
 
@@ -471,7 +481,36 @@ const render = function({ c3, time, clock, camera, scene }) {
       model.mixer.update(delta)
    }
 
+
+   // Dragon chase player
    const player = this.physicsObjects.find(o => o.name === 'player')
+   const dragons = this.physicsObjects.filter(o => o.name === 'dragon')
+
+   for (const dragon of dragons) {
+      const distanceFromPlayer = dragon.mesh.position.distanceTo(player.mesh.position)
+      // console.log(distanceFromPlayer)
+      if (distanceFromPlayer < 10 && distanceFromPlayer > 4) {
+         const direction = player.mesh.position.clone().sub(dragon.mesh.position)
+         const targetAngle = new THREE.Vector2(-direction.x, direction.z).angle() - (Math.PI/2)
+         let angleDiff = angleToAngle(dragon.mesh.rotation.y, targetAngle)
+         const newAngle = loopAngle(dragon.mesh.rotation.y + angleDiff / 10)
+         dragon.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), newAngle);
+         dragon.accel = Math.min(5, dragon.accel + 1)
+      } else {
+         dragon.accel = Math.max(0, dragon.accel - 0.5)
+      }
+
+      const dragonDirection = dragon.mesh.getWorldDirection(new THREE.Vector3())
+      // console.log(dragonDirection, dragon.accel)
+      dragon.body.velocity.set(
+         dragonDirection.x*dragon.accel,
+         dragon.body.velocity.y,//playerDirection.y*player.accel,
+         dragonDirection.z*dragon.accel,
+      )
+   }
+
+
+
 
    this.cameraLookY.position.copy(player.mesh.position)
    // Player keyboard movement
@@ -514,10 +553,15 @@ const render = function({ c3, time, clock, camera, scene }) {
 
       // point player
       const direction = this.target.mesh.position.clone().sub(player.mesh.position)
-      const angle = new THREE.Vector2(-direction.x, direction.z).angle() + Math.PI*2*0.75 // idk I guessed a bunch of times
-
+      // const angle = new THREE.Vector2(-direction.x, direction.z).angle() + Math.PI*2*0.75 // see below
+      const angle = new THREE.Vector2(-direction.x, direction.z).angle() - (Math.PI/2)
       this.playerRotator.rotation.y = angle
       this.cameraLookY.rotation.y = angle
+
+      // check if target is dead
+      if (!this.target.mesh.parent) {
+         this.target = undefined
+      }
    } else {
       scene.remove(this.targetMes)
    }
@@ -533,7 +577,10 @@ const render = function({ c3, time, clock, camera, scene }) {
          this.playerRotator.rotation.y = loopAngle(this.playerRotator.rotation.y + angleDiff / spinSpeed)
       } else {
          const direction = this.target.mesh.position.clone().sub(player.mesh.position)
-         const angle = new THREE.Vector2(-direction.x, direction.z).angle() + Math.PI*2*0.75 // idk I guessed a bunch of times
+         // const angle = new THREE.Vector2(-direction.x, direction.z).angle() + Math.PI*2*0.75 // idk I guessed a bunch of times
+         // it was because (0, 1) = 90 deg in vector2. Lets only subtract 90 from the angle
+         // and the x axis is flipped!
+         const angle = new THREE.Vector2(-direction.x, direction.z).angle() - (Math.PI/2)
          this.playerRotator.rotation.y = angle - Math.PI/2
       }
    }
