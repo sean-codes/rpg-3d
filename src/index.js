@@ -517,65 +517,61 @@ const render = function({ c3, time, clock, camera, scene }) {
       const angle = new THREE.Vector2(-direction.x, direction.z).angle() + Math.PI*2*0.75 // idk I guessed a bunch of times
 
       this.playerRotator.rotation.y = angle
-      player.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
       this.cameraLookY.rotation.y = angle
    } else {
       scene.remove(this.targetMes)
    }
 
    // these are goign to get twisted / player will rotate > 180 deg sometimes
+   const spinSpeed = 10
    if (c3.checkKey(68).held) {
       const { body, mesh } = player
       if (!this.target) {
-         const targetAngle = this.cameraLookY.rotation.y - Math.PI/2
-         let angleDiff = this.playerRotator.rotation.y - targetAngle
-         this.playerRotator.rotation.y -= angleDiff / 2
+         const targetAngle = loopAngle(this.cameraLookY.rotation.y - Math.PI/2)
+         // let angleDiff = this.playerRotator.rotation.y - targetAngle
+         let angleDiff = angleToAngle(this.playerRotator.rotation.y, targetAngle)
+         this.playerRotator.rotation.y = loopAngle(this.playerRotator.rotation.y + angleDiff / spinSpeed)
       } else {
          const direction = this.target.mesh.position.clone().sub(player.mesh.position)
          const angle = new THREE.Vector2(-direction.x, direction.z).angle() + Math.PI*2*0.75 // idk I guessed a bunch of times
          this.playerRotator.rotation.y = angle - Math.PI/2
       }
-
-      body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
    }
 
    if (c3.checkKey(65).held) {
       const { body, mesh } = player
 
       if (!this.target) {
-         const targetAngle = this.cameraLookY.rotation.y + Math.PI/2
-         const angleDiff = this.playerRotator.rotation.y - targetAngle
-         this.playerRotator.rotation.y -= angleDiff / 2
+         const targetAngle = loopAngle(this.cameraLookY.rotation.y + Math.PI/2)
+         // const angleDiff = this.playerRotator.rotation.y - targetAngle
+         const angleDiff = angleToAngle(this.playerRotator.rotation.y, targetAngle)
+         this.playerRotator.rotation.y = loopAngle(this.playerRotator.rotation.y + angleDiff / spinSpeed)
       } else {
          const direction = this.target.mesh.position.clone().sub(player.mesh.position)
          const angle = new THREE.Vector2(-direction.x, direction.z).angle() + Math.PI*2*0.75 // idk I guessed a bunch of times
          this.playerRotator.rotation.y = angle + Math.PI/2
       }
-
-      player.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
    }
 
    if (c3.checkKey(87).held && !this.target) {
       const { body, mesh } = player
       const targetAngle = this.cameraLookY.rotation.y
-      const angleDiff = this.playerRotator.rotation.y - targetAngle
-      this.playerRotator.rotation.y -= angleDiff / 2
-      body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
+      const angleDiff = angleToAngle(this.playerRotator.rotation.y, targetAngle)
+      if (angleDiff > Math.PI) console.log('something is wrong', angleDiff, this.playerRotator.rotation.y, this.cameraLookY.rotation.y)
+      this.playerRotator.rotation.y = loopAngle(this.playerRotator.rotation.y + angleDiff / spinSpeed)
    }
 
    if (c3.checkKey(83).held) {
       const { body, mesh } = player
       if (!this.target) {
-         const targetAngle = this.cameraLookY.rotation.y + Math.PI
-         const angleDiff = this.playerRotator.rotation.y - targetAngle
-         this.playerRotator.rotation.y -= angleDiff / 2
+         const targetAngle = loopAngle(this.cameraLookY.rotation.y + Math.PI)
+         const angleDiff = angleToAngle(this.playerRotator.rotation.y, targetAngle)
+         this.playerRotator.rotation.y = loopAngle(this.playerRotator.rotation.y + angleDiff / spinSpeed)
       } else {
          const direction = this.target.mesh.position.clone().sub(player.mesh.position)
          const angle = new THREE.Vector2(-direction.x, direction.z).angle() + Math.PI*2*0.75 // idk I guessed a bunch of times
          this.playerRotator.rotation.y = angle - Math.PI
       }
-
-      body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
    }
 
 
@@ -640,6 +636,9 @@ const render = function({ c3, time, clock, camera, scene }) {
       })
    }
 
+   // rotate player
+   player.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), this.playerRotator.rotation.y);
+
    const playerDirection = mesh.getWorldDirection(new THREE.Vector3())
    // console.log(playerDirection)
 
@@ -675,13 +674,8 @@ const render = function({ c3, time, clock, camera, scene }) {
    }
 
    // constrain
-   if (cameraLookY.rotation.y < -Math.PI) {
-      cameraLookY.rotation.y = Math.PI*2 + cameraLookY.rotation.y
-   }
+   cameraLookY.rotation.y = loopAngle(cameraLookY.rotation.y)
 
-   if (cameraLookY.rotation.y > Math.PI) {
-      cameraLookY.rotation.y = -Math.PI*2 + cameraLookY.rotation.y
-   }
 
    cameraLookX.rotation.x = Math.max(-0.8, cameraLookX.rotation.x)
    cameraLookX.rotation.x = Math.min(0.8, cameraLookX.rotation.x)
@@ -706,6 +700,32 @@ const render = function({ c3, time, clock, camera, scene }) {
    }
 }
 
+function angleToAngle(a1, a2) {
+   let right = a2 - a1
+   if (right < 0) {
+      right = Math.PI*2 + right
+   }
+
+   let left = a1 - a2
+   if (left < 0) {
+      left = Math.PI*2 + left
+   }
+
+   return right > left ? -left : right
+}
+
+function loopAngle(a) {
+   let modAngle = a % (Math.PI*2)
+   if (modAngle < 0) {
+      modAngle = Math.PI*2 + modAngle
+   }
+
+   if (modAngle > Math.PI*2) {
+      modAngle = -Math.PI*2 + modAngle
+   }
+
+   return modAngle
+}
 
 window.c3 = new C3({ init, render })
 window.c3.init()
