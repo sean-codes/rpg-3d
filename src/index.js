@@ -1,32 +1,40 @@
 // Not sure yet how we will structure this :]
 // Lets figure out the basics of using three first
 const init = async function({ c3, camera, scene, renderer, datGui }) {
-   scene.background = new THREE.Color('#cdcdff')
-   camera.position.set(0, 15, -15)
+   scene.background = new THREE.Color('#FFF')
+   scene.fog = new THREE.Fog('#FFF', 20, 50);
+   camera.position.set(0, 0, -25)
    camera.near = 1
-   camera.far = 100
+   camera.far = 5000
    camera.updateProjectionMatrix()
    camera.lookAt(0, 0, 0)
 
 
    cameraLookX = new THREE.Object3D()
+   cameraLookX.rotation.x += 10
    cameraLookY = new THREE.Object3D()
    cameraLookY.add(cameraLookX)
    cameraLookX.add(camera)
    scene.add(cameraLookY)
+
+   window.addEventListener('mousewheel', (e) => {
+      cameraLookX.rotation.x -= e.deltaY/100
+      cameraLookY.rotation.y += e.deltaX/100
+   })
    // a light
    const ambientLight = new THREE.AmbientLight('#FFF', 1)
    scene.add(ambientLight)
 
    const dirLight = new THREE.DirectionalLight('#FFF', 1)
    dirLight.castShadow = true
-   dirLight.position.set(12, 20, 10)
-   dirLight.shadow.mapSize.width = 2048
-   dirLight.shadow.mapSize.height = 2048
-   dirLight.shadow.camera.right = 30;
-   dirLight.shadow.camera.left = -30;
-   dirLight.shadow.camera.top = 30;
-   dirLight.shadow.camera.bottom = -30;
+   dirLight.position.set(12, 40, 10)
+   dirLight.shadow.mapSize.width = 3072
+   dirLight.shadow.mapSize.height = 3072
+   dirLight.shadow.camera.right = 80;
+   dirLight.shadow.camera.left = -80;
+   dirLight.shadow.camera.top = 80;
+   dirLight.shadow.camera.bottom = -80;
+   dirLight.shadow.camera.far = 100;
    scene.add(dirLight)
 
    // const dirLightHelper = new THREE.DirectionalLightHelper(dirLight)
@@ -34,10 +42,19 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    //
    // const dirLightShadowHelper = new THREE.CameraHelper(dirLight.shadow.camera)
    // scene.add(dirLightShadowHelper)
+   
+   const textureLoader = new THREE.TextureLoader()
+   const textureGrass = textureLoader.load('./assets/grass.png')
+   textureGrass.wrapS = THREE.RepeatWrapping
+   textureGrass.wrapT = THREE.RepeatWrapping
+   textureGrass.repeat.set(10, 10);
+   textureGrass.magFilter = THREE.NearestFilter
+
+   console.log(textureGrass)
 
    // a plane under
-   const planeGeo = new THREE.PlaneBufferGeometry(100, 100)
-   const planeMat = new THREE.MeshPhongMaterial({ color: '#4b7' })
+   const planeGeo = new THREE.PlaneBufferGeometry(200, 200)
+   const planeMat = new THREE.MeshPhongMaterial({ color: '#4b7', map: textureGrass })
    planeMat.flatShading = true
    planeMat.reflectivity = 0
    planeMat.shininess = 0
@@ -50,6 +67,26 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    // a grid
    // const gridHelper = new THREE.GridHelper(50, 50)
    // scene.add(gridHelper)
+   // const textures = {
+   //    grass: { file: './assets/grass.png' },
+   // }
+   //
+   // await new Promise((yay, nay) => {
+   //    let loading = Object.keys(textures).length
+   //    for (const textureName in textures) {
+   //       const texture = textures[textureName]
+   //       const img = new Image()
+   //       img.src = texture.file
+   //
+   //       img.addEventListener('load', () => {
+   //          texture.image = img
+   //          loading -= 1
+   //
+   //          if (!loading) yay()
+   //       })
+   //    }
+   // })
+
 
    const models = {
       helmet: { file: './assets/models/knight/Helmet1.fbx', scale: 0.01, offset: [0.08, 0.05, 0.65] },
@@ -58,6 +95,10 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       character: { file: './assets/models/knight/KnightCharacter_edited.fbx', scale: 0.01 },
       shoulderPads: { file: './assets/models/knight/ShoulderPads.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
       dragon: { file: './assets/models/monsters/FBX/Dragon_Edited.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
+      // heightmap: { file: './assets/models/heightmap.fbx', scale: 1, },
+      tree: { file: './assets/models/environment/PineTree_Autumn_4.fbx', scale: 0.035, },
+      rock: { file: './assets/models/environment/Rock_6.fbx', scale: 0.035, },
+      bush: { file: './assets/models/environment/BushBerries_2.fbx', scale: 0.035, },
    }
 
    const loader = new THREE.FBXLoader()
@@ -152,6 +193,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    datGui.add({ equip: true }, 'equip').name('Equip Shoulders').onChange((value) => {
       models.character.bones.Neck[value ? 'add' : 'remove'](models.shoulderPads.object)
    })
+
 
 
    // wonder if we can add physics to this!
@@ -293,6 +335,56 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       }
    })
 
+   const frictionlessMaterial = new CANNON.Material({ friction: 0, restitution: 0 })
+
+   // add some random trees
+   // const boxMat = new THREE.MeshPhongMaterial({ color: '#465' })
+   // const boxBodyMaterial = new CANNON.Material({ friction: 0 })
+   for (var i = 0; i < 100; i++) {
+      const model = ['tree','rock', 'bush'][Math.floor(Math.random() * 3)]
+      const modelMesh = THREE.SkeletonUtils.clone(models[model].object)
+      modelMesh.position.x = Math.random() * 150 - 75
+      modelMesh.position.z = Math.random() * 150 - 75
+      scene.add(modelMesh)
+
+      // create a collider
+      if (model === 'rock' || model== 'bush') {
+         const mat = wireFrameMat
+         const geo = new THREE.SphereGeometry(2)
+         const mesh = new THREE.Mesh(geo, mat)
+         mesh.position.copy(modelMesh.position)
+         scene.add(mesh)
+         const body = new CANNON.Body({
+            mass: 0,
+            position: new CANNON.Vec3().copy(mesh.position),
+            shape: new CANNON.Sphere(2),
+            material: frictionlessMaterial
+         })
+
+         world.add(body)
+         physicsObjects.push({ name: 'randModel_'+i, body: body, mesh: mesh })
+      }
+
+      if (model === 'tree') {
+         // Make a threejs cylinder
+         const cylinderGeo = new THREE.BoxGeometry( 1, 20, 1 )
+         const cylinderMesh = new THREE.Mesh(cylinderGeo, wireFrameMat)
+         scene.add(cylinderMesh)
+         cylinderMesh.position.copy(modelMesh.position)
+
+         // Make a cannon cylinder shape and rotate its points
+         const cylBody = new CANNON.Body({
+            mass: 0,
+            shape: new CANNON.Box(new CANNON.Vec3(0.5, 10, 0.5)),
+            position: new CANNON.Vec3().copy(cylinderMesh.position),
+            material: frictionlessMaterial
+         })
+
+         world.addBody(cylBody)
+         physicsObjects.push({ name: 'randModel_'+i, body: cylBody, mesh: cylinderMesh })
+      }
+   }
+
    // add some random boxes
    const boxMat = new THREE.MeshPhongMaterial({ color: '#465' })
    const boxBodyMaterial = new CANNON.Material({ friction: 0 })
@@ -405,53 +497,55 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
 
    // A monster bunch of monsters
    // It's certainly getting to the point we need a game object class! :]
-   const dragonBodyMaterial = new CANNON.Material({ friction: 0 })
+   {
+      const dragonBodyMaterial = new CANNON.Material({ friction: 0 })
 
-   world.addContactMaterial(new CANNON.ContactMaterial(dragonBodyMaterial, groundBodyMaterial, {
-      friction: 0,
-      restitution: 0
-   }))
+      world.addContactMaterial(new CANNON.ContactMaterial(dragonBodyMaterial, groundBodyMaterial, {
+         friction: 0,
+         restitution: 0
+      }))
 
-   for (let i = 0; i < 2; i++) {
-      for (let o = 0; o < 2; o++) {
-         const dragonGeo = new THREE.SphereGeometry(2)
-         const dragonMes = new THREE.Mesh(dragonGeo, wireFrameMat)
-         const dragonModel = THREE.SkeletonUtils.clone(models.dragon.object)
-         // console.log(dragonModel)
-         // skeleton utils does not clone AnimationMixer
-         const mixer = new THREE.AnimationMixer(dragonModel)
-         const clips = {}
-         models.dragon.object.animations.forEach((animation) => {
-            const clip = mixer.clipAction(animation)
-            clip.setEffectiveWeight(0)
-            clip.play()
-            // model.clips[animation.name] = clip
-            if (animation.name === 'DragonModel|Dragon_Flying') {
-               clip.time = Math.random() * 15
-               clip.setEffectiveWeight(1)
-               clip.enabled = true
-            }
-            clips[animation.name] = clip
-         })
+      for (let i = 0; i < 2; i++) {
+         for (let o = 0; o < 2; o++) {
+            const dragonGeo = new THREE.SphereGeometry(2)
+            const dragonMes = new THREE.Mesh(dragonGeo, wireFrameMat)
+            const dragonModel = THREE.SkeletonUtils.clone(models.dragon.object)
+            // console.log(dragonModel)
+            // skeleton utils does not clone AnimationMixer
+            const mixer = new THREE.AnimationMixer(dragonModel)
+            const clips = {}
+            models.dragon.object.animations.forEach((animation) => {
+               const clip = mixer.clipAction(animation)
+               clip.setEffectiveWeight(0)
+               clip.play()
+               // model.clips[animation.name] = clip
+               if (animation.name === 'DragonModel|Dragon_Flying') {
+                  clip.time = Math.random() * 15
+                  clip.setEffectiveWeight(1)
+                  clip.enabled = true
+               }
+               clips[animation.name] = clip
+            })
 
-         models[`dragon_${i}-${o}`] = { mixer: mixer}
+            models[`dragon_${i}-${o}`] = { mixer: mixer}
 
-         dragonMes.position.set(15+o*6, 3, -15+i*6)
-         dragonMes.add(dragonModel)
-         dragonModel.position.y -= 2
-         scene.add(dragonMes)
+            dragonMes.position.set(15+o*6, 3, -15+i*6)
+            dragonMes.add(dragonModel)
+            dragonModel.position.y -= 2
+            scene.add(dragonMes)
 
-         const dragonBody = new CANNON.Body({
-            mass: 0.1,
-            shape: new CANNON.Sphere(2),
-            position: new CANNON.Vec3(dragonMes.position.x, dragonMes.position.y, dragonMes.position.z),
-            material: dragonBodyMaterial,
-            fixedRotation: true
-         })
-         // dragonBody.fixedRotation = true
-         // dragonBody.updateMassProperties()
-         world.addBody(dragonBody)
-         physicsObjects.push({ name: 'dragon', body: dragonBody, mesh: dragonMes, mixer: mixer, clips: clips, accel: 0 })
+            const dragonBody = new CANNON.Body({
+               mass: 0.1,
+               shape: new CANNON.Sphere(2),
+               position: new CANNON.Vec3(dragonMes.position.x, dragonMes.position.y, dragonMes.position.z),
+               material: dragonBodyMaterial,
+               fixedRotation: true
+            })
+            // dragonBody.fixedRotation = true
+            // dragonBody.updateMassProperties()
+            world.addBody(dragonBody)
+            physicsObjects.push({ name: 'dragon', body: dragonBody, mesh: dragonMes, mixer: mixer, clips: clips, accel: 0 })
+         }
       }
    }
 
