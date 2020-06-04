@@ -42,7 +42,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    //
    // const dirLightShadowHelper = new THREE.CameraHelper(dirLight.shadow.camera)
    // scene.add(dirLightShadowHelper)
-   
+
    const textureLoader = new THREE.TextureLoader()
    const textureGrass = textureLoader.load('./assets/grass.png')
    textureGrass.wrapS = THREE.RepeatWrapping
@@ -50,7 +50,6 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    textureGrass.repeat.set(10, 10);
    textureGrass.magFilter = THREE.NearestFilter
 
-   console.log(textureGrass)
 
    // a plane under
    const planeGeo = new THREE.PlaneBufferGeometry(200, 200)
@@ -544,7 +543,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
             // dragonBody.fixedRotation = true
             // dragonBody.updateMassProperties()
             world.addBody(dragonBody)
-            physicsObjects.push({ name: 'dragon', body: dragonBody, mesh: dragonMes, mixer: mixer, clips: clips, accel: 0 })
+            physicsObjects.push({ name: 'dragon', body: dragonBody, mesh: dragonMes, mixer: mixer, clips: clips, accel: 0, rotationY: 0 })
          }
       }
    }
@@ -583,12 +582,21 @@ const render = function({ c3, time, clock, camera, scene }) {
    for (const dragon of dragons) {
       const distanceFromPlayer = dragon.mesh.position.distanceTo(player.mesh.position)
       // console.log(distanceFromPlayer)
-      if (distanceFromPlayer < 10 && distanceFromPlayer > 4) {
+      if (distanceFromPlayer < 10) {
          const direction = player.mesh.position.clone().sub(dragon.mesh.position)
-         const targetAngle = new THREE.Vector2(-direction.x, direction.z).angle() - (Math.PI/2)
-         let angleDiff = angleToAngle(dragon.mesh.rotation.y, targetAngle)
-         const newAngle = loopAngle(dragon.mesh.rotation.y + angleDiff / 10)
+         const targetAngle = loopAngle(new THREE.Vector2(-direction.x, direction.z).angle() - (Math.PI/2))
+         const angleDiff = angleToAngle(dragon.rotationY, targetAngle)
+         const newAngle = loopAngle(dragon.rotationY + angleDiff / 10)
+         //
+         // console.log('ummm', dragon.mesh.rotation.y, angleDiff, newAngle)
+         //
+         dragon.rotationY = newAngle
          dragon.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), newAngle);
+
+         // console.log(dragon.mesh.rotation.y, newAngle, targetAngle, angleDiff)
+      }
+
+      if (distanceFromPlayer < 10 && distanceFromPlayer > 4) {
          dragon.accel = Math.min(5, dragon.accel + 1)
       } else {
          dragon.accel = Math.max(0, dragon.accel - 0.5)
@@ -828,7 +836,7 @@ const render = function({ c3, time, clock, camera, scene }) {
    // and not seeing them immediately or camera not picking them up
    this.world.step(1/60)
 
-   for (const { mesh, body, linkToMesh } of this.physicsObjects) {
+   for (const { mesh, body, linkToMesh, name } of this.physicsObjects) {
       if (linkToMesh) {
          // console.log('inking')
          const meshWorldPosition = mesh.getWorldPosition(new THREE.Vector3())
@@ -837,6 +845,16 @@ const render = function({ c3, time, clock, camera, scene }) {
       } else {
          mesh.position.copy(body.position)
          mesh.quaternion.copy(body.quaternion)
+         if (name === 'dragon') {
+            // const rot =
+            const rotX = body.quaternion.toAxisAngle(new CANNON.Vec3(1, 0, 0))[1]
+            const rotY = body.quaternion.toAxisAngle(new CANNON.Vec3(0, 1, 0))[1]
+            const rotZ = body.quaternion.toAxisAngle(new CANNON.Vec3(0, 0, 1))[1]
+            // mesh.rotation.x = rotX
+            // mesh.rotation.y = rotY
+            // mesh.rotation.z = rotZ
+            // console.log(rotX, rotY, rotZ)
+         }
       }
    }
 }

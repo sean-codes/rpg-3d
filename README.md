@@ -1,7 +1,7 @@
 # RPG 3D
 > Exploring 3d development
 
-![Example image](./notes/images/equipment-points.gif)
+![Example image](./notes/images/status_02.gif)
 
 # Notes
 - [Rendering a basic box](./notes/rendering-a-basic-box.md)
