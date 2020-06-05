@@ -21,6 +21,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       cameraLookX.rotation.x -= e.deltaY/100
       cameraLookY.rotation.y += e.deltaX/100
    })
+
    // a light
    const ambientLight = new THREE.AmbientLight('#FFF', 1)
    scene.add(ambientLight)
@@ -98,6 +99,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       tree: { file: './assets/models/environment/PineTree_Autumn_4.fbx', scale: 0.035, },
       rock: { file: './assets/models/environment/Rock_6.fbx', scale: 0.035, },
       bush: { file: './assets/models/environment/BushBerries_2.fbx', scale: 0.035, },
+      fence: { file: './assets/models/environment/Fence.fbx', scale: 0.035, },
    }
 
    const loader = new THREE.FBXLoader()
@@ -562,6 +564,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    this.physicsObjects = physicsObjects
    this.targetMes = targetMes
    this.target = undefined
+   this.wireFrameMat = wireFrameMat
 
    this.cameraLookY = cameraLookY
    this.cameraLookX = cameraLookX
@@ -587,13 +590,9 @@ const render = function({ c3, time, clock, camera, scene }) {
          const targetAngle = loopAngle(new THREE.Vector2(-direction.x, direction.z).angle() - (Math.PI/2))
          const angleDiff = angleToAngle(dragon.rotationY, targetAngle)
          const newAngle = loopAngle(dragon.rotationY + angleDiff / 10)
-         //
-         // console.log('ummm', dragon.mesh.rotation.y, angleDiff, newAngle)
-         //
+
          dragon.rotationY = newAngle
          dragon.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), newAngle);
-
-         // console.log(dragon.mesh.rotation.y, newAngle, targetAngle, angleDiff)
       }
 
       if (distanceFromPlayer < 10 && distanceFromPlayer > 4) {
@@ -656,9 +655,16 @@ const render = function({ c3, time, clock, camera, scene }) {
       // point player
       const direction = this.target.mesh.position.clone().sub(player.mesh.position)
       // const angle = new THREE.Vector2(-direction.x, direction.z).angle() + Math.PI*2*0.75 // see below
-      const angle = new THREE.Vector2(-direction.x, direction.z).angle() - (Math.PI/2)
-      this.playerRotator.rotation.y = angle
-      this.cameraLookY.rotation.y = angle
+      const angleToTarget = new THREE.Vector2(-direction.x, direction.z).angle() - (Math.PI/2)
+      const angleDifference = angleToAngle(this.playerRotator.rotation.y, angleToTarget)
+      const angleNew = loopAngle(this.playerRotator.rotation.y + angleDifference/5)
+      this.playerRotator.rotation.y = angleNew
+
+
+      const camAngleToTarget = new THREE.Vector2(-direction.x, direction.z).angle() - (Math.PI/2)
+      const camAngleDifference = angleToAngle(this.cameraLookY.rotation.y, camAngleToTarget)
+      const camAngleNew = loopAngle(this.cameraLookY.rotation.y + camAngleDifference/5)
+      this.cameraLookY.rotation.y = camAngleNew
 
       // check if target is dead
       if (!this.target.mesh.parent) {
@@ -829,7 +835,34 @@ const render = function({ c3, time, clock, camera, scene }) {
    cameraLookX.rotation.x = Math.max(-0.8, cameraLookX.rotation.x)
    cameraLookX.rotation.x = Math.min(0.8, cameraLookX.rotation.x)
 
+   // create a fence
+   if (c3.checkKey(49).down) {
+      const fenceGeo = new THREE.BoxGeometry(10, 10, 1)
+      const fenceMes = new THREE.Mesh(fenceGeo, this.wireFrameMat)
+      const fenceModel = THREE.SkeletonUtils.clone(this.models.fence.object)
+      fenceMes.add(fenceModel)
+      scene.add(fenceMes)
 
+      // put in front of player
+      const playerDirection = player.mesh.getWorldDirection()
+      fenceMes.position.x = player.mesh.position.x + playerDirection.x * 3
+      fenceMes.position.z = player.mesh.position.z + playerDirection.z * 3
+      fenceMes.rotation.y = this.playerRotator.rotation.y
+
+
+      const fenceBody = new CANNON.Body({
+         mass: 0,
+         shape: new CANNON.Box(new CANNON.Vec3(5, 5, 0.5)), 
+         position: new CANNON.Vec3(fenceMes.position.x, fenceMes.position.y, fenceMes.position.z),
+         material: new CANNON.Material({ friction: 0, restitution: 0 }),
+         fixedRotation: true
+      })
+
+      fenceBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), fenceMes.rotation.y)
+
+      this.world.addBody(fenceBody)
+      this.physicsObjects.push({ name: 'fence', body: fenceBody, mesh: fenceMes })
+   }
 
 
    // moved this to the bottom. it fixes some weirdness i was experiencing with changing some values
@@ -845,16 +878,6 @@ const render = function({ c3, time, clock, camera, scene }) {
       } else {
          mesh.position.copy(body.position)
          mesh.quaternion.copy(body.quaternion)
-         if (name === 'dragon') {
-            // const rot =
-            const rotX = body.quaternion.toAxisAngle(new CANNON.Vec3(1, 0, 0))[1]
-            const rotY = body.quaternion.toAxisAngle(new CANNON.Vec3(0, 1, 0))[1]
-            const rotZ = body.quaternion.toAxisAngle(new CANNON.Vec3(0, 0, 1))[1]
-            // mesh.rotation.x = rotX
-            // mesh.rotation.y = rotY
-            // mesh.rotation.z = rotZ
-            // console.log(rotX, rotY, rotZ)
-         }
       }
    }
 }

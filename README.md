@@ -7,8 +7,7 @@
 - [Rendering a basic box](./notes/rendering-a-basic-box.md)
 - [Adding a light](./notes/adding-a-light.md)
 - [Shadows](./notes/shadows.md)
-- [Flat Models](./notes/flat-models.md)
-- [Importing Models FBX](./notes/importing-fbx.md)
+w- [Importing Models FBX](./notes/importing-fbx.md)
 - [Combining FBX Animations into a GLTF](./notes/convert-fbx-to-gltf-with-animations.md)
 - [Animations and blending](./notes/animations.md)
 - [Animation Additive Blending](./notes/animation-additive-blending.md)
@@ -32,8 +31,8 @@
 - [x] model anchors
 - [ ] An inventory
 - [x] Equip an item
-- [ ] Targeting
-- [ ] Make a monster
+- [x] Targeting
+- [x] Make a monster
 - [ ] Make the monster chase the player
 - [ ] Fight the monster
 - [ ] Drop items from a monster
