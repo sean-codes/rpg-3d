@@ -1,4 +1,5 @@
-# make an object appear on top of everything
+# Make an object appear on top of everything
+
 ```js
 // Set depthTest to false either in constructor
 const material = new MeshPhongMaterial({
@@ -8,4 +9,10 @@ const material = new MeshPhongMaterial({
 
 // or outside
 material.depthTest = false
+```
+
+# Get size of threeJS object
+```js
+const box = new THREE.Box3().setFromObject(someMeshOrObject)
+console.log(box)
 ```
