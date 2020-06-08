@@ -2,13 +2,13 @@
 // Cats, Code, and Coffee
 class C3 {
    constructor({ init, render }) {
-      this.renderer = new THREE.WebGLRenderer({ antialias: true });
-      this.renderer.shadowMap.enabled = true;
-      this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.001, 1000);
-      this.scene = new THREE.Scene();
+      this.renderer = new THREE.WebGLRenderer({ antialias: true })
+      this.renderer.shadowMap.enabled = true
+      this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.001, 1000)
+      this.scene = new THREE.Scene()
+      this.clock = new THREE.Clock()
       this.datGui = new dat.GUI();
       this.keys = {}
-      this.clock = new THREE.Clock()
 
       this.userObject = {};
       this.userInitFunction = init.bind(this.userObject);

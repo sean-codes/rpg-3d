@@ -157,7 +157,6 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
             model.clips = {}
             model.object.animations.forEach((animation) => {
                if (animation.name === 'HumanArmature|Run_swordAttack') {
-                  console.log(animation)
                   THREE.AnimationUtils.makeClipAdditive(animation)
                }
                const clip = model.mixer.clipAction(animation)
@@ -549,6 +548,31 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
          }
       }
    }
+   
+   // A transparent model to act as a guide for building
+   {
+      const buildGuide = new THREE.Object3D()
+      const modelFence = THREE.SkeletonUtils.clone(models.fence.object)
+      modelFence.traverse((part) => {
+         if (part.material) {
+            // clone does not detach the material
+            const clonedMaterial = part.material.clone()
+            clonedMaterial.transparent = true
+            clonedMaterial.opacity = 0.5
+            part.material = clonedMaterial
+         }
+         
+         if (part.type === 'Mesh' || part.type === 'SkinnedMesh') {
+            part.receiveShadow = false
+            part.castShadow = false
+         }
+      })
+      buildGuide.add(modelFence)
+      // playerMes.add(buildGuide)
+      buildGuide.position.z += 3
+      buildGuide.position.y -= 0.875
+      this.buildGuide = buildGuide
+   }
 
    // target pointer
    const targetGeo = new THREE.SphereGeometry()
@@ -862,6 +886,12 @@ const render = function({ c3, time, clock, camera, scene }) {
 
       this.world.addBody(fenceBody)
       this.physicsObjects.push({ name: 'fence', body: fenceBody, mesh: fenceMes })
+   }
+   
+   if (c3.checkKey(50).down) { // show fence
+      this.buildGuide.parent 
+         ? player.mesh.remove(this.buildGuide)
+         : player.mesh.add(this.buildGuide)
    }
 
 
