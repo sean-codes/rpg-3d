@@ -6,12 +6,16 @@ class C3_GameObjects {
    
    create({ type = '', attr = {} }) {
       const Template = this.types[type]
-      const object = new Template({ attr })
+      const object = new Template({ attr, type })
       this.list.push(object)
       
       c3.scene.add(object.mesh)
       
       return object
+   }
+   
+   find(type) {
+      return this.list.find(o => o.type === type)
    }
 }
 

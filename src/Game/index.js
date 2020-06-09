@@ -2,7 +2,8 @@ const c3 = new C3({
    keyMap: {
       forward: 87,
       left: 65,
-      attack: 16
+      attack: 16,
+      equip_helmet: 49
    },
    
    objects: [

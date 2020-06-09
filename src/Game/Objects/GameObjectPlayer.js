@@ -1,14 +1,23 @@
 c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
    mesh() {
-      const model = c3.models.find('character')
-      this.model = model
+      this.model = c3.models.find('character')
       this.model.animateStart('idle')
+      
+      const modelHelmet = c3.models.find('helmet')
+      const modelSword = c3.models.find('sword')
+      const modelShield = c3.models.find('shield')
+      const modelShoulders = c3.models.find('shoulderPads')
+      this.model.boneToggle('Head', modelHelmet)
+      this.model.boneToggle('PalmR', modelSword)
+      this.model.boneToggle('PalmL', modelShield)
+      this.model.boneToggle('Neck', modelShoulders)
+      
       // console.log('model', model)
       // const geo = new THREE.SphereGeometry(1)
       // const mat = new THREE.MeshPhongMaterial({ color: '#999', flatShading: true })
       // const mes = new THREE.Mesh(geo, mat)
       
-      return model.object
+      return this.model.object
    }
    
    create({ pos }) {
@@ -34,8 +43,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
    }
    
    step() {
-      
-      // this.rotate(0.01, 0.02, 0.01)
+      // Movement
       if (c3.keyboard.check('forward').down) {
          this.model.animateTo('run', 0.1)
       }
@@ -44,16 +52,16 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          this.model.animateTo('idle', 0.1)
       }
       
+      // Attack
       if (c3.keyboard.check('attack').down && !this.isAttacking) {
          this.isAttacking = true
-         this.model.animateOnce('attack', () => {
-            this.isAttacking = false
-         })
+         this.model.animateOnce('attack', () => { this.isAttacking = false })
       }
-      // if (c3.key('equip_helmet').down) {
-      //    this.modelPlayer.addToBone('Head', this.modelSword)
-      //    // this.modelPlayer.bones.Head.add(this.modelSword)
-      // }
+      
+      if (c3.keyboard.check('equip_helmet').down) {
+         const modelHelmet = c3.models.find('helmet')
+         this.model.boneToggle('Head', modelHelmet)
+      }
       // this.accel > 0
       //    ? this.modelPlayer.transition('run', 100)
       //    : this.modelPlayer.transition('idle', 100)

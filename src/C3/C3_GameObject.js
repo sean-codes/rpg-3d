@@ -1,6 +1,7 @@
 class C3_GameObject {
-   constructor({ c3, attr }) {
+   constructor({ c3, attr, type }) {
       this.attr = attr
+      this.type = type
       this.mesh = this.mesh ? this.mesh() : new THREE.Object3D()
       this.create(this.attr)
    }

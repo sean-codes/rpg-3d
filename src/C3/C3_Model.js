@@ -67,6 +67,26 @@ class C3_Model {
       return THREE.SkeletonUtils.clone(this.object)
    }
    
+   boneToggle(boneName, model) {
+      const bone = this.bones[boneName]
+      let isToggled = false
+      bone.traverse((part) => {
+         if (part.uuid === model.object.uuid) isToggled = true
+      })
+      
+      isToggled 
+         ? this.boneRemove(boneName, model) 
+         : this.boneAdd(boneName, model)
+   }
+   
+   boneAdd(boneName, model) {
+      this.bones[boneName].add(model.object)
+   }
+   
+   boneRemove(boneName, model) {
+      this.bones[boneName].remove(model.object)
+   }
+   
    animateStart(clipName) {
       const clip = this.clips[clipName]
       clip.enabled = true
