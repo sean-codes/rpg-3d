@@ -1,6 +1,5 @@
 class C3_GameObject {
    constructor({ c3, attr }) {
-      console.log(attr)
       this.attr = attr
       this.mesh = this.mesh ? this.mesh() : new THREE.Object3D()
       this.create(this.attr)
@@ -30,13 +29,8 @@ class C3_GameObject {
       
    }
    
-   create() {
-      console.log('default create')
-   }
-   
-   step() {
-      
-   }
+   create() {}
+   step() {}
    
    handleResize(width, height) {}
 }

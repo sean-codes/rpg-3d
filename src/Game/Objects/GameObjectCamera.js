@@ -2,7 +2,7 @@ c3.objectTypes.Camera = class GameObjectCamera extends c3.GameObject {
    mesh() {
       const { camera } = c3
       
-      camera.position.set(0, 0, -5)
+      camera.position.set(0, 0, -15)
       camera.near = 1
       camera.far = 5000
       camera.updateProjectionMatrix()
@@ -10,15 +10,15 @@ c3.objectTypes.Camera = class GameObjectCamera extends c3.GameObject {
       
       this.xRot = new THREE.Object3D()
       this.yRot = new THREE.Object3D()
+      this.xRot.rotation.x += 0.2
       this.yRot.add(this.xRot)
       this.xRot.add(camera)
-      
       return this.yRot
    }
    
    create({ player }) {
       this.player = player
-      console.log(player)
+      
       window.addEventListener('mousewheel', (e) => {
          this.xRot.rotation.x -= e.deltaY/100
          this.xRot.rotation.x = Math.min(this.xRot.rotation.x, Math.PI/2)

@@ -5,7 +5,6 @@ class C3_GameObjects {
    }
    
    create({ type = '', attr = {} }) {
-      console.log('creating an object')
       const Template = this.types[type]
       const object = new Template({ attr })
       this.list.push(object)

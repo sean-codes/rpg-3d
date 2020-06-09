@@ -1,10 +1,14 @@
 c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
    mesh() {
-      const geo = new THREE.SphereGeometry(1)
-      const mat = new THREE.MeshPhongMaterial({ color: '#999', flatShading: true })
-      const mes = new THREE.Mesh(geo, mat)
+      const model = c3.models.find('character')
+      this.model = model
+      this.model.animateStart('idle')
+      // console.log('model', model)
+      // const geo = new THREE.SphereGeometry(1)
+      // const mat = new THREE.MeshPhongMaterial({ color: '#999', flatShading: true })
+      // const mes = new THREE.Mesh(geo, mat)
       
-      return mes
+      return model.object
    }
    
    create({ pos }) {
@@ -26,12 +30,25 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       // 
       // // Others
       this.accel = 0
+      this.isAttacking = false
    }
    
    step() {
+      
       // this.rotate(0.01, 0.02, 0.01)
       if (c3.keyboard.check('forward').down) {
-         console.log('forward')
+         this.model.animateTo('run', 0.1)
+      }
+      
+      if (c3.keyboard.check('forward').up) {
+         this.model.animateTo('idle', 0.1)
+      }
+      
+      if (c3.keyboard.check('attack').down && !this.isAttacking) {
+         this.isAttacking = true
+         this.model.animateOnce('attack', () => {
+            this.isAttacking = false
+         })
       }
       // if (c3.key('equip_helmet').down) {
       //    this.modelPlayer.addToBone('Head', this.modelSword)

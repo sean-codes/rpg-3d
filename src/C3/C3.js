@@ -21,6 +21,7 @@ class C3 {
          // External
          { src: './node_modules/three/examples/js/loaders/FBXLoader.js' },
          { src: './node_modules/three/examples/js/utils/SkeletonUtils.js' },
+         { src: './node_modules/zlibjs/bin/inflate.min.js' },
          // Core
          { src: './src/C3/C3_GameObjects.js' },
          { src: './src/C3/C3_GameObject.js' },
@@ -70,6 +71,7 @@ class C3 {
    }
    
    render(time) {
+      const delta = this.clock.getDelta()
       // console.log('meow')
       window.requestAnimationFrame((time) => this.render(time))
       this.renderer.render(this.scene, this.camera)
@@ -78,6 +80,7 @@ class C3 {
          object.step()
       }
       
+      c3.models.loop(delta)
       c3.keyboard.resetKeys()
    }
 
@@ -130,13 +133,20 @@ class C3 {
    
    
    loadModels() {
+      const loader = new THREE.FBXLoader()
+      
       return new Promise((yay, nay) => {   
          let loading = this.listModels.length
-         for (const model of this.listModels) {
-            
+         for (const loadInfo of this.listModels) {
+            // const model = models[modelName]
+            loader.load(loadInfo.file, (object) => {
+               const c3Model = new c3.Model({ loadInfo, object })
+               c3.models.list.push(c3Model)
+
+               loading -= 1
+               if (!loading) yay()
+            }, null, (e) => { throw e })
          }
-         
-         yay()
       })
    }
    

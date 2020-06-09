@@ -799,7 +799,6 @@ const render = function({ c3, time, clock, camera, scene }) {
    if (c3.checkKey(16).up && !modelCharacter.isAttacking) {
       // we could get pretty detailed here with the animatios but I'm not ready
       modelCharacter.isAttacking = true
-      const clipToStop = c3.checkKey(87).held ? clipWalk : clipIdle
       clipAttack.reset()
       clipAttack.setEffectiveWeight(1)
 
