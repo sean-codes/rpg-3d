@@ -1,6 +1,6 @@
 class C3_GameObjects {
    constructor() {
-      this.types = {}
+      this.types = c3.objectTypes
       this.list = []
    }
    

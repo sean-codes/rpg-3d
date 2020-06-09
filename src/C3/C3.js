@@ -3,11 +3,14 @@ class C3 {
       scripts = [], 
       objects = [], 
       models = [],
-      init = () => { console.log('C3: No init function defined') }
+      keyMap = {},
+      init = () => { console.log('C3: No init function defined') },
    }) {
+      this.keyMap = keyMap
       this.userInit = init
       this.global = {}
       this.scripts = {}
+      this.objectTypes = {}
       
       this.listDependancies = [
          { src: './node_modules/three/build/three.min.js' },
@@ -21,6 +24,7 @@ class C3 {
          // Core
          { src: './src/C3/C3_GameObjects.js' },
          { src: './src/C3/C3_GameObject.js' },
+         { src: './src/C3/C3_Keyboard.js' },
          { src: './src/C3/C3_Math.js' },
          { src: './src/C3/C3_Models.js' },
          { src: './src/C3/C3_Model.js' },
@@ -61,9 +65,6 @@ class C3 {
       window.onresize = () => this.handleResize();
       this.handleResize();
       
-      document.body.addEventListener('keydown', e => { !e.repeat && this.onKeyDown(e.keyCode)})
-      document.body.addEventListener('keyup', e => { this.onKeyUp(e.keyCode) })
-      
       this.userInit()
       this.render()
    }
@@ -76,6 +77,8 @@ class C3 {
       for (const object of this.gameObjects.list) {
          object.step()
       }
+      
+      c3.keyboard.resetKeys()
    }
 
    

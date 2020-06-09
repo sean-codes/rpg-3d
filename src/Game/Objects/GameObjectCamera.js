@@ -1,4 +1,4 @@
-c3.gameObjects.types.Camera = class GameObjectCamera extends c3.GameObject {
+c3.objectTypes.Camera = class GameObjectCamera extends c3.GameObject {
    mesh() {
       const { camera } = c3
       

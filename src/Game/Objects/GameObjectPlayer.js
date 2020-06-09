@@ -1,4 +1,4 @@
-c3.gameObjects.types.player = class GameObjectPlayer extends c3.GameObject {
+c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
    mesh() {
       const geo = new THREE.SphereGeometry(1)
       const mat = new THREE.MeshPhongMaterial({ color: '#999', flatShading: true })
@@ -7,7 +7,7 @@ c3.gameObjects.types.player = class GameObjectPlayer extends c3.GameObject {
       return mes
    }
    
-   create({ c3, pos }) {
+   create({ pos }) {
       // this.setShape({ type: 'sphere', size: 1 })
       // Position
       this.setPosition(pos)
@@ -28,8 +28,11 @@ c3.gameObjects.types.player = class GameObjectPlayer extends c3.GameObject {
       this.accel = 0
    }
    
-   step(c3) {
+   step() {
       // this.rotate(0.01, 0.02, 0.01)
+      if (c3.keyboard.check('forward').down) {
+         console.log('forward')
+      }
       // if (c3.key('equip_helmet').down) {
       //    this.modelPlayer.addToBone('Head', this.modelSword)
       //    // this.modelPlayer.bones.Head.add(this.modelSword)
