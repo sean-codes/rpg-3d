@@ -11,6 +11,7 @@ c3.objectTypes.Camera = class GameObjectCamera extends c3.GameObject {
       this.xRot = new THREE.Object3D()
       this.yRot = new THREE.Object3D()
       this.xRot.rotation.x += 0.2
+      this.xRot.position.y += 3
       this.yRot.add(this.xRot)
       this.xRot.add(camera)
       return this.yRot

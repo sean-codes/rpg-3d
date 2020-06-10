@@ -73,7 +73,7 @@ class C3_Model {
       bone.traverse((part) => {
          if (part.uuid === model.object.uuid) isToggled = true
       })
-      
+      1
       isToggled 
          ? this.boneRemove(boneName, model) 
          : this.boneAdd(boneName, model)

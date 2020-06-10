@@ -7,6 +7,7 @@ const c3 = new C3({
    },
    
    objects: [
+      { src: './src/Game/Objects/GameObjectBox.js' },
       { src: './src/Game/Objects/GameObjectPlayer.js' },
       { src: './src/Game/Objects/GameObjectAmbientLight.js' },
       { src: './src/Game/Objects/GameObjectDirectionalLight.js' },
@@ -42,22 +43,23 @@ const c3 = new C3({
    
    init: function() {
       const { camera, scene } = this
-      
       scene.background = new THREE.Color('#FFF')
+      
+      // Setup materials
+      c3.physics.addMaterial('BOX', { friction: 0.1 })
+      c3.physics.addMaterial('GROUND', { friction: 0.1 })
+
       // lights
       c3.gameObjects.create({ type: 'AmbientLight' })
       c3.gameObjects.create({ type: 'DirectionalLight' })
-      // player
-      const player = c3.gameObjects.create({ type: 'Player', attr: { pos: c3.vector.create([0, 0, 0]) } })
-      // camera
-      c3.gameObjects.create({ type: 'Camera', attr: { player } })
    
+      const player = c3.gameObjects.create({ type: 'Player', attr: { pos: c3.vector.create([0, 0, 0]) } })
+      c3.gameObjects.create({ type: 'Camera', attr: { player } })
       c3.gameObjects.create({ type: 'Ground' })
-      // c3.camera.setup({
-      //    far: 100,
-      //    near: 0.1,
-      // })
-      // c3.camera.attachToObject(player)
+
+      for (let i = 0; i < 10; i++) {
+         c3.gameObjects.create({ type: 'Box' })
+      }
    },
    
    step: function(c3) {

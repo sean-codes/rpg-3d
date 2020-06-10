@@ -15,4 +15,8 @@ c3.objectTypes.Ground = class GameObjectGround extends c3.GameObject {
       
       return mes
    }
+   
+   create() {
+      c3.physics.addObject(this, { material: 'GROUND', mass: 0 })
+   }
 }

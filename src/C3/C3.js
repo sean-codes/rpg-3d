@@ -31,6 +31,7 @@ class C3 {
          { src: './src/C3/C3_Model.js' },
          { src: './src/C3/C3_Scene.js' },
          { src: './src/C3/C3_Vector.js' },
+         { src: './src/C3/C3_Physics.js' },
          // User
          ...scripts
       ]
@@ -80,6 +81,7 @@ class C3 {
          object.step()
       }
       
+      c3.physics.loop(delta)
       c3.models.loop(delta)
       c3.keyboard.resetKeys()
    }

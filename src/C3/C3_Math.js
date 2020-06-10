@@ -1,4 +1,9 @@
 class C3_Math {
+   randomRange(min, max) {
+      const range = max-min
+      return Math.random()*range + min
+   }
+   
    angleToAngle(a1, a2) {
       let right = a2 - a1
       if (right < 0) {
