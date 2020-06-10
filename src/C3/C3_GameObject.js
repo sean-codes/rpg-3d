@@ -1,14 +1,12 @@
 class C3_GameObject {
-   constructor({ c3, attr, type }) {
+   constructor({ attr, type }) {
       this.attr = attr
       this.type = type
-      this.physics = { meshes: [] }
+      
       this.mesh = this.mesh ? this.mesh() : new THREE.Object3D()
+      this.physics = this.physics ? this.physics() : { meshes: [] }
+      this.rotation = c3.vector.create(0, 0, 0)
       this.create(this.attr)
-   }
-   
-   physicsMeshAdd(mesh) {
-      this.physics.meshes.push({ mesh: mesh })
    }
    
    setPosition({ x, y, z }) {

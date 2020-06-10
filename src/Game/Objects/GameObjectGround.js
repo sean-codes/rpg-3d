@@ -13,11 +13,18 @@ c3.objectTypes.Ground = class GameObjectGround extends c3.GameObject {
       mes.rotation.x -= Math.PI * 0.5
       mes.position.y -= 0.001
       
-      this.physicsMeshAdd(mes)
       return mes
    }
    
+   physics() {
+      return {
+         meshes: [this.mesh],
+         material: 'GROUND',
+         mass: 0
+      }
+   }
+   
    create() {
-      c3.physics.addObject(this, { material: 'GROUND', mass: 0 })
+      
    }
 }

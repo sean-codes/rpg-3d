@@ -11,8 +11,9 @@ class C3_Physics {
       this.materials[name] = new CANNON.Material(options)
    }
    
-   addObject(object, { material, mass=1, fixedRotation=false }) {
-      const { mesh } = object.physics.meshes[0]
+   addObject(object) {
+      const { meshes, material, mass=1, fixedRotation=false } = object.physics
+      const mesh = meshes[0]
       const geoType = mesh.geometry.type
       let body = undefined
       
@@ -58,7 +59,7 @@ class C3_Physics {
       
       // Additional Bodies
       for (let i = 1; i < object.physics.meshes.length; i++) {
-         const { mesh } = object.physics.meshes[i]
+         const mesh = object.physics.meshes[i]
          const geoType = mesh.geometry.type
          
          if (geoType.startsWith('Box')) {

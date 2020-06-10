@@ -3,8 +3,14 @@ class GameObjectBox extends c3.GameObject {
       const geo = new THREE.BoxGeometry(2, 2, 2)
       const mat = new THREE.MeshPhongMaterial({ color: '#ddd' })
       const mes = new THREE.Mesh(geo, mat)
-      this.physicsMeshAdd(mes)
       return mes
+   }
+   
+   physics() {
+      return {
+         meshes: [ this.mesh ],
+         material: 'BOX'
+      }
    }
    
    create() {
@@ -13,8 +19,6 @@ class GameObjectBox extends c3.GameObject {
          c3.math.randomRange(3, 20), 
          c3.math.randomRange(-8, 8)
       ))
-      
-      c3.physics.addObject(this, { material: 'BOX' })
    }
    
    step() {

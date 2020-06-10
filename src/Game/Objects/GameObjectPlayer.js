@@ -1,6 +1,20 @@
 c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
    mesh() {
+      // Bodies for physics
+      const geoBodyBottom = new THREE.SphereGeometry(1)
+      const matBodyBottom = c3.models.materialFind('WIREFRAME')
+      this.meshBodyBottom = new THREE.Mesh(geoBodyBottom, matBodyBottom)
+      
+      const geoBodyTop = new THREE.SphereGeometry(1)
+      const matBodyTop = c3.models.materialFind('WIREFRAME')
+      this.meshBodyTop = new THREE.Mesh(geoBodyTop, matBodyTop)
+      this.meshBodyTop.position.y += 2
+      this.meshBodyBottom.add(this.meshBodyTop)
+      
+      // Character Model
       this.model = c3.models.find('character')
+      this.meshBodyBottom.add(this.model.object)
+      this.model.object.position.y -= 1
       this.model.animateStart('idle')
       
       const modelHelmet = c3.models.find('helmet')
@@ -12,45 +26,20 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.model.boneToggle('PalmL', modelShield)
       this.model.boneToggle('Neck', modelShoulders)
       
-      // console.log('model', model)
-      
-      const geo = new THREE.SphereGeometry(1)
-      const mat = c3.models.materialFind('WIREFRAME')
-      const mes = new THREE.Mesh(geo, mat)
-      mes.add(this.model.object)
-      this.model.object.position.y -= 1
-      this.physicsMeshAdd(mes)
-      
-      const geo2 = new THREE.SphereGeometry(1)
-      const mat2 = c3.models.materialFind('WIREFRAME')
-      const mes2 = new THREE.Mesh(geo2, mat2)
-      mes2.position.y += 2
-      mes.add(mes2)
-      this.physicsMeshAdd(mes2)
-      
-      return mes
+      return this.meshBodyBottom
+   }
+   
+   physics() {
+      return {
+         meshes: [ this.meshBodyBottom, this.meshBodyTop ],
+         material: 'BOX',
+         fixedRotation: true
+      }
    }
    
    create({ pos }) {
-      c3.physics.addObject(this, { material: 'BOX', fixedRotation: true })
-      
       this.setPosition(pos)
       
-      // this.setShape({ type: 'sphere', size: 1 })
-      // Position
-      
-      // // Models
-      // this.modelPlayer = c3.Models.clone('player')
-      // this.modelSword = c3.Models.clone('sword')
-      // this.add(modelPlayer)
-      // 
-      // // Physics
-      // this.setPhysics({
-      //    shape: c3.SHAPE_CIRCLE,
-      //    material: c3.materials.GENERAL,
-      //    size: 5,
-      // })
-      // 
       // // Others
       this.accel = 0
       this.isAttacking = false

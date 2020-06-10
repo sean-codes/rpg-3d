@@ -11,6 +11,10 @@ class C3_GameObjects {
       
       c3.scene.add(object.mesh)
       
+      if (object.physics.meshes.length) {
+         c3.physics.addObject(object)
+      }
+      
       return object
    }
    
