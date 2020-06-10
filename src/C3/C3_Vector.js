@@ -1,12 +1,11 @@
 class C3_Vector {
-   create(components) {
-      if (components.length === 3) {
-         return new THREE.Vector3(...components)
+   create(x=0, y=0, z) {
+      if (z !== null) {
+         return new THREE.Vector3(x, y, z)
       }
       
-      if (components.length === 2) {
-         return new THREE.Vector2(...components)
-      }
+
+      return new THREE.Vector2(x, y)
    }
 }
 

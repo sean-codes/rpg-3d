@@ -13,17 +13,31 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.model.boneToggle('Neck', modelShoulders)
       
       // console.log('model', model)
-      // const geo = new THREE.SphereGeometry(1)
-      // const mat = new THREE.MeshPhongMaterial({ color: '#999', flatShading: true })
-      // const mes = new THREE.Mesh(geo, mat)
       
-      return this.model.object
+      const geo = new THREE.SphereGeometry(1)
+      const mat = c3.models.materialFind('WIREFRAME')
+      const mes = new THREE.Mesh(geo, mat)
+      mes.add(this.model.object)
+      this.model.object.position.y -= 1
+      this.physicsMeshAdd(mes)
+      
+      const geo2 = new THREE.SphereGeometry(1)
+      const mat2 = c3.models.materialFind('WIREFRAME')
+      const mes2 = new THREE.Mesh(geo2, mat2)
+      mes2.position.y += 2
+      mes.add(mes2)
+      this.physicsMeshAdd(mes2)
+      
+      return mes
    }
    
    create({ pos }) {
+      c3.physics.addObject(this, { material: 'BOX', fixedRotation: true })
+      
+      this.setPosition(pos)
+      
       // this.setShape({ type: 'sphere', size: 1 })
       // Position
-      this.setPosition(pos)
       
       // // Models
       // this.modelPlayer = c3.Models.clone('player')

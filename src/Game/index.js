@@ -45,6 +45,13 @@ const c3 = new C3({
       const { camera, scene } = this
       scene.background = new THREE.Color('#FFF')
       
+      c3.models.materialAdd('WIREFRAME', new THREE.MeshBasicMaterial({
+         color: '#000',
+         wireframe: true,
+         opacity: 0.1,
+         transparent: true,
+      }))
+      
       // Setup materials
       c3.physics.addMaterial('BOX', { friction: 0.1 })
       c3.physics.addMaterial('GROUND', { friction: 0.1 })
@@ -53,7 +60,7 @@ const c3 = new C3({
       c3.gameObjects.create({ type: 'AmbientLight' })
       c3.gameObjects.create({ type: 'DirectionalLight' })
    
-      const player = c3.gameObjects.create({ type: 'Player', attr: { pos: c3.vector.create([0, 0, 0]) } })
+      const player = c3.gameObjects.create({ type: 'Player', attr: { pos: c3.vector.create(0, 1, 0) } })
       c3.gameObjects.create({ type: 'Camera', attr: { player } })
       c3.gameObjects.create({ type: 'Ground' })
 

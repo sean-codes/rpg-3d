@@ -13,6 +13,7 @@ c3.objectTypes.Ground = class GameObjectGround extends c3.GameObject {
       mes.rotation.x -= Math.PI * 0.5
       mes.position.y -= 0.001
       
+      this.physicsMeshAdd(mes)
       return mes
    }
    
