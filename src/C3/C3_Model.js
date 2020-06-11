@@ -69,22 +69,24 @@ class C3_Model {
    
    boneToggle(boneName, model) {
       const bone = this.bones[boneName]
+      const object = model.uuid ? model : model.object
+      
       let isToggled = false
-      bone.traverse((part) => {
-         if (part.uuid === model.object.uuid) isToggled = true
+      bone.traverse((part) => {   
+         if (part.uuid === object.uuid) isToggled = true
       })
-      1
+      
       isToggled 
          ? this.boneRemove(boneName, model) 
          : this.boneAdd(boneName, model)
    }
    
    boneAdd(boneName, model) {
-      this.bones[boneName].add(model.object)
+      this.bones[boneName].add(model.object ? model.object : model)
    }
    
    boneRemove(boneName, model) {
-      this.bones[boneName].remove(model.object)
+      this.bones[boneName].remove(model.object ? model.object : model)
    }
    
    animateStart(clipName) {

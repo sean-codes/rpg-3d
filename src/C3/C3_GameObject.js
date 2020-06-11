@@ -3,10 +3,18 @@ class C3_GameObject {
       this.attr = attr
       this.type = type
       
+      this.rotation = c3.vector.create(0, 0, 0)
       this.mesh = this.mesh ? this.mesh() : new THREE.Object3D()
       this.physics = this.physics ? this.physics() : { meshes: [] }
-      this.rotation = c3.vector.create(0, 0, 0)
+      this.body = undefined
+      
       this.create(this.attr)
+      
+      c3.scene.add(this.mesh)
+      
+      if (this.physics.meshes.length) {
+         this.body = c3.physics.addObject(this)
+      }
    }
    
    setPosition({ x, y, z }) {
@@ -19,18 +27,33 @@ class C3_GameObject {
       this.mesh.rotation.x += x
       this.mesh.rotation.y += y
       this.mesh.rotation.z += z
+      this.rotateUpdate()
    }
    
    rotateX(degrees) {
-      
+      this.rotation.x += Math.PI/180 * degrees
+      this.rotateUpdate()
    }
    
    rotateY(degrees) {
-      
+      this.rotation.y += Math.PI/180 * degrees
+      this.rotateUpdate()
    }
    
    rotateZ(degrees) {
-      
+      this.rotation.z += Math.PI/180 * degrees
+      this.rotateUpdate()
+   }
+   
+   rotateUpdate() {
+      if (this.body) {
+         this.body.quaternion.setFromEuler(this.rotation.x, this.rotation.y, this.rotation.z, 'XYZ')
+      } else {
+         this.mesh.rotation.x = this.rotation.x
+         this.mesh.rotation.y = this.rotation.y
+         this.mesh.rotation.z = this.rotation.z
+         console.log('updating rotation', this.mesh.rotation)
+      }
    }
    
    create() {}

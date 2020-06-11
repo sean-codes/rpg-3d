@@ -9,12 +9,6 @@ class C3_GameObjects {
       const object = new Template({ attr, type })
       this.list.push(object)
       
-      c3.scene.add(object.mesh)
-      
-      if (object.physics.meshes.length) {
-         c3.physics.addObject(object)
-      }
-      
       return object
    }
    

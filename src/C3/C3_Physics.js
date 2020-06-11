@@ -12,18 +12,31 @@ class C3_Physics {
    }
    
    addObject(object) {
-      const { meshes, material, mass=1, fixedRotation=false } = object.physics
+      const { 
+         meshes, 
+         material, 
+         mass=1, 
+         fixedRotation=false, 
+         linkToMesh=false,
+         collisionResponse=true
+      } = object.physics
+      
       const mesh = meshes[0]
       const geoType = mesh.geometry.type
       let body = undefined
       
+      const quaternion = new CANNON.Quaternion()
+      quaternion.setFromEuler(mesh.rotation.x, mesh.rotation.y, mesh.rotation.z, 'XYZ')
+
       if (geoType.startsWith('Box')) {
          const { width, height, depth } = object.mesh.geometry.parameters
          const { x, y, z } = object.mesh.position
          
          body = new CANNON.Body({
+            collisionResponse,
             fixedRotation,
             mass,
+            quaternion,
             material: this.materials[material],
             position: new CANNON.Vec3(x, y, z),
             shape: new CANNON.Box(new CANNON.Vec3(width/2, height/2, depth/2)),
@@ -34,8 +47,10 @@ class C3_Physics {
          const { x, y, z } = object.mesh.position
          
          body = new CANNON.Body({
+            collisionResponse,
             fixedRotation,
             mass,
+            quaternion,
             material: this.materials[material],
             position: new CANNON.Vec3(x, y, z),
             shape: new CANNON.Plane(),
@@ -49,11 +64,13 @@ class C3_Physics {
          const { x, y, z } = object.mesh.position
          
          body = new CANNON.Body({
+            collisionResponse,
             fixedRotation,
             mass,
+            quaternion,
             position: new CANNON.Vec3(x, y, z),
-            shape: new CANNON.Sphere(radius),
-            material: this.materials[material]
+            shape: new CANNON.Sphere(radius/2),
+            material: this.materials[material],
          })
       }
       
@@ -72,22 +89,30 @@ class C3_Physics {
          if (geoType.startsWith('Sphere')) {
             const { radius } = mesh.geometry.parameters
             const { x, y, z } = mesh.position
-            const shape = new CANNON.Sphere(radius)
+            const shape = new CANNON.Sphere(radius/2)
             body.addShape(shape, new CANNON.Vec3(x, y, z))
          }
       }
       
       this.world.addBody(body)
-      this.list.push({ body, mesh })
+      this.list.push({ body, mesh, linkToMesh })
+      
+      return body
    }
    
    loop() {
       this.world.step(1/60)
 
-      for (const { mesh, body } of this.list) {
-         // console.log('meow', mesh.position)
-         mesh.position.copy(body.position)
-         mesh.quaternion.copy(body.quaternion)
+      for (const { mesh, body, linkToMesh } of this.list) {
+         if(linkToMesh) {
+            const meshWorldPosition = mesh.getWorldPosition(new THREE.Vector3())
+            body.position.copy(meshWorldPosition)
+            body.quaternion.copy(body.quaternion)
+         } else {
+            mesh.position.copy(body.position)
+            mesh.quaternion.copy(body.quaternion)
+         }
+         
       }
    }
 }

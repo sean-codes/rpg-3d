@@ -40,7 +40,9 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
    create({ pos }) {
       this.setPosition(pos)
       
-      // // Others
+      this.weapon = c3.gameObjects.create({ type: 'Weapon' })
+      this.model.boneToggle('PalmR', this.weapon.mesh)
+      // Others
       this.accel = 0
       this.isAttacking = false
    }

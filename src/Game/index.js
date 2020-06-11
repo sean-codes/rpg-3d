@@ -13,6 +13,7 @@ const c3 = new C3({
       { src: './src/Game/Objects/GameObjectDirectionalLight.js' },
       { src: './src/Game/Objects/GameObjectCamera.js' },
       { src: './src/Game/Objects/GameObjectGround.js' },
+      { src: './src/Game/Objects/GameObjectWeapon.js' },
    ],
    
    scripts: [
@@ -60,13 +61,13 @@ const c3 = new C3({
       c3.gameObjects.create({ type: 'AmbientLight' })
       c3.gameObjects.create({ type: 'DirectionalLight' })
    
-      const player = c3.gameObjects.create({ type: 'Player', attr: { pos: c3.vector.create(0, 1, 0) } })
+      const player = c3.gameObjects.create({ type: 'Player', attr: { pos: c3.vector.create(0, 2, 0) } })
       c3.gameObjects.create({ type: 'Camera', attr: { player } })
       c3.gameObjects.create({ type: 'Ground' })
 
-      for (let i = 0; i < 10; i++) {
-         c3.gameObjects.create({ type: 'Box' })
-      }
+      // for (let i = 0; i < 10; i++) {
+      //    c3.gameObjects.create({ type: 'Box' })
+      // }
    },
    
    step: function(c3) {
