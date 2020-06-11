@@ -4,6 +4,13 @@ class C3_Models {
       this.materials = {}
    }
    
+   add({ loadInfo, object }) {
+      const newModel = new c3.Model({ loadInfo, object })
+      this.list.push(newModel)
+      
+      return newModel
+   }
+   
    find(modelName) {
       return this.list.find(m => m.name === modelName)
    }

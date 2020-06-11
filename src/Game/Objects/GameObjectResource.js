@@ -4,6 +4,10 @@ c3.objectTypes.Resource = class GameObjectResource extends c3.GameObject {
       const mat = c3.models.materialFind('WIREFRAME')
       const mes = new THREE.Mesh(geo, mat)
       
+      const type = c3.math.choose(['tree', 'rock', 'bush'])
+      const model = c3.models.find(type).clone()
+      
+      mes.add(model.object)
       return mes
    }
    

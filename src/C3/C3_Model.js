@@ -1,5 +1,6 @@
 class C3_Model {
    constructor({ loadInfo, object }) {
+      this.loadInfo = loadInfo
       this.name = loadInfo.name
       this.object = object
       this.bones = {}
@@ -63,8 +64,26 @@ class C3_Model {
       })
    }
    
-   clone() {
-      return THREE.SkeletonUtils.clone(this.object)
+   clone(name) {
+      const clone = THREE.SkeletonUtils.clone(this.object)
+      clone.animations = this.object.animations
+      // const mixer = new THREE.AnimationMixer(clone)
+      // const clips = {}
+      // this.object.animations.forEach((animation) => {
+      // 
+      //    const clip = mixer.clipAction(animation)
+      //    clip.setEffectiveWeight(0)
+      //    clip.play()
+      //    clips[animation.name] = clip
+      // })
+      
+      
+      const newModel = c3.models.add({
+         loadInfo: { ...this.loadInfo, name },
+         object: clone
+      })
+      
+      return newModel
    }
    
    boneToggle(boneName, model) {

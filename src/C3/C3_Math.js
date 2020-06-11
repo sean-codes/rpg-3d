@@ -4,6 +4,10 @@ class C3_Math {
       return Math.random()*range + min
    }
    
+   iRandomRange(min, max) {
+      return Math.round(this.randomRange(min, max))
+   }
+   
    iRandom(num) {
       return Math.round(Math.random() * num)
    }
@@ -15,6 +19,10 @@ class C3_Math {
          point.y,
          point.z + Math.sin(angle) * radius
       )
+   }
+   
+   choose(array) {
+      return array[this.iRandomRange(0, array.length - 1)]
    }
    
    angleToAngle(a1, a2) {

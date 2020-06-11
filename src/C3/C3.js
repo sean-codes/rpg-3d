@@ -142,8 +142,7 @@ class C3 {
          for (const loadInfo of this.listModels) {
             // const model = models[modelName]
             loader.load(loadInfo.file, (object) => {
-               const c3Model = new c3.Model({ loadInfo, object })
-               c3.models.list.push(c3Model)
+               c3.models.add({ loadInfo, object })
 
                loading -= 1
                if (!loading) yay()
