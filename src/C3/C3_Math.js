@@ -4,6 +4,10 @@ class C3_Math {
       return Math.random()*range + min
    }
    
+   iRandom(num) {
+      return Math.round(Math.random() * num)
+   }
+   
    angleToAngle(a1, a2) {
       let right = a2 - a1
       if (right < 0) {

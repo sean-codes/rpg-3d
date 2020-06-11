@@ -5,7 +5,8 @@ const c3 = new C3({
       right: 68,
       backward: 83,
       attack: 16,
-      equip_helmet: 49
+      equip_helmet: 49,
+      jump: 32
    },
    
    objects: [
@@ -67,7 +68,7 @@ const c3 = new C3({
       const player = c3.gameObjects.create({ type: 'Player', attr: { pos: c3.vector.create(0, 2, 0) } })
       c3.gameObjects.create({ type: 'Ground' })
 
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 20; i++) {
          c3.gameObjects.create({ type: 'Box' })
       }
    },

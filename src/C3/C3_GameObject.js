@@ -6,21 +6,23 @@ class C3_GameObject {
       this.rotation = c3.vector.create(0, 0, 0)
       this.mesh = this.mesh ? this.mesh() : new THREE.Object3D()
       this.physics = this.physics ? this.physics() : { meshes: [] }
-      this.body = undefined
+      this.body = this.physics.meshes.length ? c3.physics.addObject(this) : undefined
       
       this.create(this.attr)
       
       c3.scene.add(this.mesh)
-      
-      if (this.physics.meshes.length) {
-         this.body = c3.physics.addObject(this)
-      }
    }
    
    setPosition({ x, y, z }) {
-      this.mesh.position.x = x
-      this.mesh.position.y = y
-      this.mesh.position.z = z
+      if (this.body && !this.physics.linkToMesh) {
+         this.body.position.x = x
+         this.body.position.y = y
+         this.body.position.z = z
+      } else {
+         this.mesh.position.x = x
+         this.mesh.position.y = y
+         this.mesh.position.z = z
+      }
    }
    
    rotate(x, y, z) {

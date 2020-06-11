@@ -23,7 +23,7 @@ c3.objectTypes.Camera = class GameObjectCamera extends c3.GameObject {
       window.addEventListener('mousewheel', (e) => {
          this.xRot.rotation.x -= e.deltaY/100
          this.xRot.rotation.x = Math.min(this.xRot.rotation.x, Math.PI/2)
-         this.xRot.rotation.x = Math.max(this.xRot.rotation.x, -Math.PI/2)
+         this.xRot.rotation.x = Math.max(this.xRot.rotation.x, -0.25)
          this.yRot.rotation.y += e.deltaX/100
          this.yRot.rotation.y = c3.math.loopAngle(this.yRot.rotation.y)
       })

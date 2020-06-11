@@ -33,7 +33,6 @@ class C3_Physics {
          const { x, y, z } = object.mesh.position
          
          body = new CANNON.Body({
-            collisionResponse,
             fixedRotation,
             mass,
             quaternion,
@@ -47,7 +46,6 @@ class C3_Physics {
          const { x, y, z } = object.mesh.position
          
          body = new CANNON.Body({
-            collisionResponse,
             fixedRotation,
             mass,
             quaternion,
@@ -64,7 +62,6 @@ class C3_Physics {
          const { x, y, z } = object.mesh.position
          
          body = new CANNON.Body({
-            collisionResponse,
             fixedRotation,
             mass,
             quaternion,
@@ -93,6 +90,9 @@ class C3_Physics {
             body.addShape(shape, new CANNON.Vec3(x, y, z))
          }
       }
+      
+      // cannot be applied in body constructor :,(
+      body.collisionResponse = collisionResponse
       
       this.world.addBody(body)
       this.list.push({ body, mesh, linkToMesh })

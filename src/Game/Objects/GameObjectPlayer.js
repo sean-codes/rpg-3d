@@ -52,6 +52,9 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.speed = 20
       this.isAttacking = false
       this.spinSpeed = 10
+      this.isOnGround = false
+      
+      this.body.addEventListener('collide', event => this.setIsOnGround(event))
    }
    
    step() {
@@ -80,7 +83,6 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          this.setRotationY(c3.math.loopAngle(this.rotation.y + angleDiff / this.spinSpeed))
       }
 
-      
       // Run / Idle Animation
       if (c3.keyboard.check(['forward', 'backward', 'left', 'right']).down
          && !c3.keyboard.check(['forward', 'backward', 'left', 'right']).held
@@ -105,6 +107,12 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          this.model.animateOnce('attack', () => { this.isAttacking = false })
       }
       
+      // Jump
+      if (c3.keyboard.check('jump').down && this.isOnGround) {
+         this.body.velocity.y = 18
+         this.isOnGround = false
+      }
+      
       if (c3.keyboard.check('equip_helmet').down) {
          const modelHelmet = c3.models.find('helmet')
          this.model.boneToggle('Head', modelHelmet)
@@ -116,5 +124,18 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          this.body.velocity.y,
          playerDirection.z*this.accel,
       )
+   }
+   
+   setIsOnGround(event) {
+      const { contact, body, target, type } = event
+      const { ni, bj, bi } = contact
+
+      const contactNormal = new CANNON.Vec3()
+      const upAxis = new CANNON.Vec3(0, 1, 0)
+      const directionOfCollision = bi.id === this.body.id ? -ni.y : ni.y
+
+      if (directionOfCollision > 0.9) {
+         this.isOnGround = true
+      }
    }
 }
