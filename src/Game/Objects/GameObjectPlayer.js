@@ -108,6 +108,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       }
       
       // Jump
+      if (this.body.velocity.y > 5) this.isOnGround = false
       if (c3.keyboard.check('jump').down && this.isOnGround) {
          this.body.velocity.y = 18
          this.isOnGround = false

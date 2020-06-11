@@ -10,12 +10,13 @@ const c3 = new C3({
    },
    
    objects: [
-      { src: './src/Game/Objects/GameObjectBox.js' },
-      { src: './src/Game/Objects/GameObjectPlayer.js' },
       { src: './src/Game/Objects/GameObjectAmbientLight.js' },
       { src: './src/Game/Objects/GameObjectDirectionalLight.js' },
+      { src: './src/Game/Objects/GameObjectBox.js' },
       { src: './src/Game/Objects/GameObjectCamera.js' },
+      { src: './src/Game/Objects/GameObjectPlayer.js' },
       { src: './src/Game/Objects/GameObjectGround.js' },
+      { src: './src/Game/Objects/GameObjectResource.js' },
       { src: './src/Game/Objects/GameObjectWeapon.js' },
    ],
    
@@ -57,9 +58,9 @@ const c3 = new C3({
       }))
       
       // Setup materials
-      c3.physics.addMaterial('BOX', { friction: 0.1 })
-      c3.physics.addMaterial('PLAYER', { friction: 0 })
-      c3.physics.addMaterial('GROUND', { friction: 0.1 })
+      c3.physics.addMaterial('BOX', { friction: 0.1, restitution: 0  })
+      c3.physics.addMaterial('PLAYER', { friction: 0, restitution: 0 })
+      c3.physics.addMaterial('GROUND', { friction: 0.1, restitution: 0 })
 
       // lights
       c3.gameObjects.create({ type: 'AmbientLight' })
@@ -70,6 +71,10 @@ const c3 = new C3({
 
       for (let i = 0; i < 20; i++) {
          c3.gameObjects.create({ type: 'Box' })
+      }
+      
+      for (let i = 0; i < 100; i++) {
+         c3.gameObjects.create({ type: 'Resource' })
       }
    },
    

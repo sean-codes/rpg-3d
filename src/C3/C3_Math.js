@@ -8,6 +8,15 @@ class C3_Math {
       return Math.round(Math.random() * num)
    }
    
+   randomPointFromPoint(point, radius) {
+      const angle = Math.PI*2 * Math.random()
+      return c3.vector.create(
+         point.x + Math.cos(angle) * radius,
+         point.y,
+         point.z + Math.sin(angle) * radius
+      )
+   }
+   
    angleToAngle(a1, a2) {
       let right = a2 - a1
       if (right < 0) {
