@@ -18,6 +18,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    scene.add(cameraLookY)
 
    window.addEventListener('mousewheel', (e) => {
+      e.preventDefault()
       cameraLookX.rotation.x -= e.deltaY/100
       cameraLookY.rotation.y += e.deltaX/100
    })
