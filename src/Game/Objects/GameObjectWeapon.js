@@ -14,6 +14,7 @@ c3.objectTypes.Weapon = class GameObjectWeapon extends c3.GameObject {
          fixedRotation: true,
          mass: 0,
          collisionResponse: false,
+         linkToMesh: true,
       }
    }
    

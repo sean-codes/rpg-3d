@@ -17,7 +17,7 @@ class C3_Keyboard {
    
    onKeyDown(keyCode) {
       if (!this.keys[keyCode]) return
-      this.keys[keyCode] = { up: false, down: true, held: true }
+      this.keys[keyCode] = { up: false, down: true, held: false }
    }
 
    onKeyUp(keyCode) {
@@ -25,13 +25,30 @@ class C3_Keyboard {
       this.keys[keyCode] = { up: true, down: false, held: false }
    }
 
-   check(keyName) {
-      const key = this.keyMap[keyName]
-      return this.keys[key] || { up: false, down: false, help: false }
+   check(keyNameOrArrayOfKeys) {
+      const returnVal = { up: false, down: false, held: false }
+      const keyNames = Array.isArray(keyNameOrArrayOfKeys)
+         ? keyNameOrArrayOfKeys 
+         : [keyNameOrArrayOfKeys]
+   
+
+      for (const keyName of keyNames) {
+         const key = this.keyMap[keyName]
+         const status = this.keys[key]
+         if (!status) continue
+         
+         returnVal.up = returnVal.up || status.up
+         returnVal.down = returnVal.down || status.down
+         returnVal.held = returnVal.held || status.held
+      }
+      
+      return returnVal
    }
 
    resetKeys() {
       for (const keyId in this.keys) {
+         if (this.keys[keyId].down) this.keys[keyId].held = true
+         
          this.keys[keyId].up = false
          this.keys[keyId].down = false
       }

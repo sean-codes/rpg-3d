@@ -32,30 +32,72 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
    physics() {
       return {
          meshes: [ this.meshBodyBottom, this.meshBodyTop ],
-         material: 'BOX',
+         material: 'PLAYER',
          fixedRotation: true
       }
    }
    
-   create({ pos }) {
+   create({ pos, camera }) {
       this.setPosition(pos)
       
+      // Camera
+      this.camera = c3.gameObjects.create({ type: 'Camera', attr: { player: this } })
+      
+      // Weapon Collider
       this.weapon = c3.gameObjects.create({ type: 'Weapon' })
       this.model.boneToggle('PalmR', this.weapon.mesh)
+      
       // Others
       this.accel = 0
+      this.speed = 20
       this.isAttacking = false
+      this.spinSpeed = 10
    }
    
    step() {
       // Movement
-      if (c3.keyboard.check('forward').down) {
+      if (c3.keyboard.check('forward').held) {
+         const targetAngle = c3.math.loopAngle(this.camera.yRot.rotation.y)
+         let angleDiff = c3.math.angleToAngle(this.rotation.y, targetAngle)
+         this.setRotationY(c3.math.loopAngle(this.rotation.y + angleDiff / this.spinSpeed))
+      }
+      
+      if (c3.keyboard.check('backward').held) {
+         const targetAngle = c3.math.loopAngle(this.camera.yRot.rotation.y + Math.PI)
+         let angleDiff = c3.math.angleToAngle(this.rotation.y, targetAngle)
+         this.setRotationY(c3.math.loopAngle(this.rotation.y + angleDiff / this.spinSpeed))
+      }
+      
+      if (c3.keyboard.check('left').held) {
+         const targetAngle = c3.math.loopAngle(this.camera.yRot.rotation.y + Math.PI/2)
+         let angleDiff = c3.math.angleToAngle(this.rotation.y, targetAngle)
+         this.setRotationY(c3.math.loopAngle(this.rotation.y + angleDiff / this.spinSpeed))
+      }
+      
+      if (c3.keyboard.check('right').held) {
+         const targetAngle = c3.math.loopAngle(this.camera.yRot.rotation.y - Math.PI/2)
+         let angleDiff = c3.math.angleToAngle(this.rotation.y, targetAngle)
+         this.setRotationY(c3.math.loopAngle(this.rotation.y + angleDiff / this.spinSpeed))
+      }
+
+      
+      // Run / Idle Animation
+      if (c3.keyboard.check(['forward', 'backward', 'left', 'right']).down
+         && !c3.keyboard.check(['forward', 'backward', 'left', 'right']).held
+      ) {
          this.model.animateTo('run', 0.1)
       }
       
-      if (c3.keyboard.check('forward').up) {
+      if (c3.keyboard.check(['forward', 'backward', 'left', 'right']).up
+         && !c3.keyboard.check(['forward', 'backward', 'left', 'right']).held
+      ) {
          this.model.animateTo('idle', 0.1)
       }
+      
+      // Acceleration
+      this.accel = c3.keyboard.check(['forward', 'backward', 'left', 'right']).held
+         ? Math.min(this.accel + 0.5, this.speed)
+         : Math.max(this.accel - 0.5, 0)
       
       // Attack
       if (c3.keyboard.check('attack').down && !this.isAttacking) {
@@ -67,9 +109,12 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          const modelHelmet = c3.models.find('helmet')
          this.model.boneToggle('Head', modelHelmet)
       }
-      // this.accel > 0
-      //    ? this.modelPlayer.transition('run', 100)
-      //    : this.modelPlayer.transition('idle', 100)
-      // 
+      
+      const playerDirection = this.mesh.getWorldDirection(new THREE.Vector3())
+      this.body.velocity.set(
+         playerDirection.x*this.accel,
+         this.body.velocity.y,
+         playerDirection.z*this.accel,
+      )
    }
 }

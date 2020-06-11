@@ -2,6 +2,8 @@ const c3 = new C3({
    keyMap: {
       forward: 87,
       left: 65,
+      right: 68,
+      backward: 83,
       attack: 16,
       equip_helmet: 49
    },
@@ -55,6 +57,7 @@ const c3 = new C3({
       
       // Setup materials
       c3.physics.addMaterial('BOX', { friction: 0.1 })
+      c3.physics.addMaterial('PLAYER', { friction: 0 })
       c3.physics.addMaterial('GROUND', { friction: 0.1 })
 
       // lights
@@ -62,12 +65,11 @@ const c3 = new C3({
       c3.gameObjects.create({ type: 'DirectionalLight' })
    
       const player = c3.gameObjects.create({ type: 'Player', attr: { pos: c3.vector.create(0, 2, 0) } })
-      c3.gameObjects.create({ type: 'Camera', attr: { player } })
       c3.gameObjects.create({ type: 'Ground' })
 
-      // for (let i = 0; i < 10; i++) {
-      //    c3.gameObjects.create({ type: 'Box' })
-      // }
+      for (let i = 0; i < 10; i++) {
+         c3.gameObjects.create({ type: 'Box' })
+      }
    },
    
    step: function(c3) {

@@ -30,18 +30,23 @@ class C3_GameObject {
       this.rotateUpdate()
    }
    
-   rotateX(degrees) {
-      this.rotation.x += Math.PI/180 * degrees
+   rotateX(radians) {
+      this.rotation.x += radians
       this.rotateUpdate()
    }
    
-   rotateY(degrees) {
-      this.rotation.y += Math.PI/180 * degrees
+   rotateY(radians) {
+      this.rotation.y += radians
       this.rotateUpdate()
    }
    
-   rotateZ(degrees) {
-      this.rotation.z += Math.PI/180 * degrees
+   rotateZ(radians) {
+      this.rotation.z += radians
+      this.rotateUpdate()
+   }
+   
+   setRotationY(radians) {
+      this.rotation.y = radians
       this.rotateUpdate()
    }
    

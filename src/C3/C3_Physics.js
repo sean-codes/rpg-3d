@@ -69,7 +69,7 @@ class C3_Physics {
             mass,
             quaternion,
             position: new CANNON.Vec3(x, y, z),
-            shape: new CANNON.Sphere(radius/2),
+            shape: new CANNON.Sphere(radius),
             material: this.materials[material],
          })
       }
@@ -89,7 +89,7 @@ class C3_Physics {
          if (geoType.startsWith('Sphere')) {
             const { radius } = mesh.geometry.parameters
             const { x, y, z } = mesh.position
-            const shape = new CANNON.Sphere(radius/2)
+            const shape = new CANNON.Sphere(radius)
             body.addShape(shape, new CANNON.Vec3(x, y, z))
          }
       }
