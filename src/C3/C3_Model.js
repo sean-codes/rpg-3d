@@ -130,15 +130,19 @@ class C3_Model {
       const inClip = this.clips[clipName]
       if (outClip === inClip) return
       
+      
+      inClip.time = 0
+      inClip.enabled = true
       inClip.setEffectiveWeight(1)
       inClip.crossFadeFrom(outClip, 0.1)
-      inClip.enabled = true
       
       this.currentClip = inClip
    }
    
    animateOnce(clipName, onEnd) {
       const clip = this.clips[clipName]
+      clip.time = 0
+      clip.enabled = true
       clip.reset()
       clip.setEffectiveWeight(1)
 

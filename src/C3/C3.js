@@ -52,6 +52,10 @@ class C3 {
          .then(() => this.init())
    }
    
+   clone(object) {
+      return JSON.parse(JSON.stringify(object))
+   }
+   
    init() {
       this.renderer = new THREE.WebGLRenderer({ antialias: true })
       this.renderer.shadowMap.enabled = true
@@ -75,6 +79,8 @@ class C3 {
       const delta = this.clock.getDelta()
       window.requestAnimationFrame((time) => this.render(time))
       this.renderer.render(this.scene, c3.camera.object)
+      
+      c3.physics.loopApplyCollisions()
       
       for (const object of this.gameObjects.list) {
          object.step()

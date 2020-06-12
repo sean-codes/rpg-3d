@@ -33,7 +33,8 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       return {
          meshes: [ this.meshBodyBottom, this.meshBodyTop ],
          material: 'PLAYER',
-         fixedRotation: true
+         fixedRotation: true,
+         watchCollisions: true,
       }
    }
    
@@ -53,11 +54,11 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.isAttacking = false
       this.spinSpeed = 10
       this.isOnGround = false
-      
-      this.body.addEventListener('collide', event => this.setIsOnGround(event))
    }
    
    step() {
+      this.checkIsOnGround()
+      
       // Movement
       if (c3.keyboard.check('forward').held) {
          const targetAngle = c3.math.loopAngle(this.camera.yRot.rotation.y)
@@ -127,16 +128,11 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       )
    }
    
-   setIsOnGround(event) {
-      const { contact, body, target, type } = event
-      const { ni, bj, bi } = contact
-
-      const contactNormal = new CANNON.Vec3()
-      const upAxis = new CANNON.Vec3(0, 1, 0)
-      const directionOfCollision = bi.id === this.body.id ? -ni.y : ni.y
-
-      if (directionOfCollision > 0.9) {
-         this.isOnGround = true
+   checkIsOnGround() {
+      for (const collision of this.getCollisions()) {
+         const { isOnGround } = collision
+         
+         this.isOnGround = this.isOnGround || isOnGround
       }
    }
 }

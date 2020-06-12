@@ -15,20 +15,21 @@ c3.objectTypes.Weapon = class GameObjectWeapon extends c3.GameObject {
          mass: 0,
          collisionResponse: false,
          linkToMesh: true,
+         watchCollisions: true
       }
    }
    
    create({ pos }) {
       this.setPosition(c3.vector.create(-1.75, 0, 0))
-      
-      this.body.addEventListener('collide', () => {
-         // console.log('collision')
-      })
    }
    
    step() {
-      // for (const collision of this.collisions()) {
-      // 
-      // }
+      for (const collision of this.getCollisions()) {
+         const { other } = collision
+         
+         if (other.type === 'Dragon') {
+            other.killDragon()
+         }
+      }
    }
 }

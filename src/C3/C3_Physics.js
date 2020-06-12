@@ -1,6 +1,6 @@
 class C3_Physics {
    constructor() {
-      this.list = []
+      this.list = {}
       this.materials = {}
       
       this.world = new CANNON.World()
@@ -18,7 +18,8 @@ class C3_Physics {
          mass=1, 
          fixedRotation=false, 
          linkToMesh=false,
-         collisionResponse=true
+         collisionResponse=true,
+         watchCollisions=false
       } = object.physics
       
       const mesh = meshes[0]
@@ -93,17 +94,55 @@ class C3_Physics {
       
       // cannot be applied in body constructor :,(
       body.collisionResponse = collisionResponse
+      const physicObject = {
+         object,
+         body, 
+         mesh, 
+         linkToMesh,
+         tempCollisions: [],
+         collisions: []
+      }
+      
+      if (watchCollisions) {
+         body.addEventListener('collide', (event) => {
+            const biIsSelf = event.contact.bi.id === physicObject.body.id
+            const contactNormal = new CANNON.Vec3()
+            let obj1 = biIsSelf ? event.contact.bi : event.contact.bj
+            let obj2 = biIsSelf ? event.contact.bj : event.contact.bi
+            
+            const other = this.list[obj2.id].object
+            const normal = biIsSelf 
+               ? event.contact.ni.negate(contactNormal) 
+               : contactNormal.copy(contactNormal)
+               
+            const isOnGround = normal.y > 0.8
+            physicObject.tempCollisions.push({ other, normal, isOnGround })
+         })
+      }
       
       this.world.addBody(body)
-      this.list.push({ body, mesh, linkToMesh })
+      this.list[body.id] = physicObject
       
-      return body
+      return physicObject
+   }
+   
+   removeObject(physicsObject) {
+      this.world.removeBody(physicsObject.body)
+      delete this.list[physicsObject.body.id]
+   }
+   
+   loopApplyCollisions() {
+      for (const physicObjectId in this.list) {
+         this.list[physicObjectId].collisions = this.list[physicObjectId].tempCollisions
+         this.list[physicObjectId].tempCollisions = []
+      }
    }
    
    loop() {
       this.world.step(1/60)
 
-      for (const { mesh, body, linkToMesh } of this.list) {
+      for (const physicObjectId in this.list) {
+         const { mesh, body, linkToMesh } = this.list[physicObjectId]
          if(linkToMesh) {
             const meshWorldPosition = mesh.getWorldPosition(new THREE.Vector3())
             body.position.copy(meshWorldPosition)
