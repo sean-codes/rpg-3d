@@ -4,7 +4,7 @@ class C3_Physics {
       this.materials = {}
       
       this.world = new CANNON.World()
-      this.world.gravity.set(0, -40, 0)
+      this.world.gravity.set(0, -60, 0)
    }
    
    addMaterial(name, options) {
@@ -88,6 +88,20 @@ class C3_Physics {
             const { radius } = mesh.geometry.parameters
             const { x, y, z } = mesh.position
             const shape = new CANNON.Sphere(radius)
+            body.addShape(shape, new CANNON.Vec3(x, y, z))
+         }
+         
+         if (geoType.startsWith('Cylinder')) {
+            const { radiusTop, radiusBottom, height, radialSegments } = mesh.geometry.parameters
+            const { x, y, z } = mesh.position
+            
+            // rotate the cylinder to map with threejs
+            const shape = new CANNON.Cylinder(radiusTop, radiusBottom, height, radialSegments);
+            var quat = new CANNON.Quaternion();
+            quat.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+            var translation = new CANNON.Vec3(0,0,0);
+            shape.transformAllPoints(translation,quat);
+            
             body.addShape(shape, new CANNON.Vec3(x, y, z))
          }
       }

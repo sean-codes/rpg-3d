@@ -16,6 +16,7 @@ const c3 = new C3({
       { src: './src/Game/Objects/GameObjectCamera.js' },
       { src: './src/Game/Objects/GameObjectDragon.js' },
       { src: './src/Game/Objects/GameObjectPlayer.js' },
+      { src: './src/Game/Objects/GameObjectPlatform.js' },
       { src: './src/Game/Objects/GameObjectGround.js' },
       { src: './src/Game/Objects/GameObjectResource.js' },
       { src: './src/Game/Objects/GameObjectWeapon.js' },
@@ -51,6 +52,7 @@ const c3 = new C3({
       const { camera, scene } = this
       scene.background = new THREE.Color('#FFF')
       
+      c3.models.materialAdd('BOX', new THREE.MeshLambertMaterial({ color: '#F55' }))
       c3.models.materialAdd('WIREFRAME', new THREE.MeshBasicMaterial({
          color: '#000',
          wireframe: true,
@@ -70,7 +72,7 @@ const c3 = new C3({
       const player = c3.gameObjects.create({ type: 'Player', attr: { pos: c3.vector.create(0, 2, 0) } })
       c3.gameObjects.create({ type: 'Ground' })
 
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 40; i++) {
          c3.gameObjects.create({ type: 'Box' })
       }
       
@@ -83,6 +85,9 @@ const c3 = new C3({
             c3.gameObjects.create({ type: 'Dragon', attr: { pos: c3.vector.create(8+x*6, 2, -8+y*6) } })
          }
       }
+      
+      c3.gameObjects.create({ type: 'Platform', attr: { pos: c3.vector.create(-10, 3, 10) }})
+      c3.gameObjects.create({ type: 'Platform', attr: { pos: c3.vector.create(-14, 6, 10) }})
    },
    
    step: function(c3) {

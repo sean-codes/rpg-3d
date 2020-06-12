@@ -21,13 +21,14 @@ c3.objectTypes.Weapon = class GameObjectWeapon extends c3.GameObject {
    
    create({ pos }) {
       this.setPosition(c3.vector.create(-1.75, 0, 0))
+      this.isAttacking = false
    }
    
    step() {
       for (const collision of this.getCollisions()) {
          const { other } = collision
          
-         if (other.type === 'Dragon') {
+         if (other.type === 'Dragon' && this.isAttacking) {
             other.killDragon()
          }
       }

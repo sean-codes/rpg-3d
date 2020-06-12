@@ -1,11 +1,11 @@
 c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
    mesh() {
       // Bodies for physics
-      const geoBodyBottom = new THREE.SphereGeometry(1)
+      const geoBodyBottom = new THREE.SphereGeometry(0.9)
       const matBodyBottom = c3.models.materialFind('WIREFRAME')
       this.meshBodyBottom = new THREE.Mesh(geoBodyBottom, matBodyBottom)
       
-      const geoBodyTop = new THREE.SphereGeometry(1)
+      const geoBodyTop = new THREE.CylinderGeometry( 1, 1, 5, 10 )
       const matBodyTop = c3.models.materialFind('WIREFRAME')
       this.meshBodyTop = new THREE.Mesh(geoBodyTop, matBodyTop)
       this.meshBodyTop.position.y += 2
@@ -51,7 +51,6 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       // Others
       this.accel = 0
       this.speed = 20
-      this.isAttacking = false
       this.spinSpeed = 10
       this.isOnGround = false
    }
@@ -104,14 +103,14 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       
       // Attack
       if (c3.keyboard.check('attack').down && !this.isAttacking) {
-         this.isAttacking = true
-         this.model.animateOnce('attack', () => { this.isAttacking = false })
+         this.weapon.isAttacking = true
+         this.model.animateOnce('attack', () => { this.weapon.isAttacking = false })
       }
       
       // Jump
       if (this.body.velocity.y > 5) this.isOnGround = false
       if (c3.keyboard.check('jump').down && this.isOnGround) {
-         this.body.velocity.y = 18
+         this.body.velocity.y = 25
          this.isOnGround = false
       }
       
@@ -130,9 +129,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
    
    checkIsOnGround() {
       for (const collision of this.getCollisions()) {
-         const { isOnGround } = collision
-         
-         this.isOnGround = this.isOnGround || isOnGround
+         this.isOnGround = this.isOnGround || collision.isOnGround
       }
    }
 }

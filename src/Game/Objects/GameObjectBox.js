@@ -1,9 +1,13 @@
 class GameObjectBox extends c3.GameObject {
    mesh() {
-      const geo = new THREE.BoxGeometry(2, 2, 2)
+      const scale = c3.math.randomRange(0.5, 2)
+      const geo = new THREE.BoxGeometry(scale, scale, scale)
       const mat = new THREE.MeshLambertMaterial({ color: '#F66' })
       const mes = new THREE.Mesh(geo, mat)
       
+      // c3.material.create("BOX", { type: "Lambert", color: "#F44" })
+      // const mesh = c3.shape.create("BOX", { mat: "BOX", size: [1, 1, 1] })
+      // put this in a config to default?
       mes.receiveShadow = true
       mes.castShadow = true
       return mes
@@ -19,7 +23,7 @@ class GameObjectBox extends c3.GameObject {
    create() {
       this.xOff = 15
       this.zOff = 15
-      this.spread = 2
+      this.spread = 1
       
       this.setPosition(c3.vector.create(
          this.xOff + c3.math.randomRange(-this.spread, this.spread), 
