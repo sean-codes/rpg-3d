@@ -25,6 +25,14 @@ class C3_GameObject {
       }
    }
    
+   getPosition() {
+      return this.mesh.position
+   }
+   
+   getDirection() {
+      return this.mesh.getWorldDirection(new THREE.Vector3())
+   }
+   
    rotate(x, y, z) {
       this.mesh.rotation.x += x
       this.mesh.rotation.y += y

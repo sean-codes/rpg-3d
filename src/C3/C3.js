@@ -23,15 +23,16 @@ class C3 {
          { src: './node_modules/three/examples/js/utils/SkeletonUtils.js' },
          { src: './node_modules/zlibjs/bin/inflate.min.js' },
          // Core
+         { src: './src/C3/C3_Camera.js' },
          { src: './src/C3/C3_GameObjects.js' },
          { src: './src/C3/C3_GameObject.js' },
          { src: './src/C3/C3_Keyboard.js' },
          { src: './src/C3/C3_Math.js' },
          { src: './src/C3/C3_Models.js' },
          { src: './src/C3/C3_Model.js' },
+         { src: './src/C3/C3_Physics.js' },
          { src: './src/C3/C3_Scene.js' },
          { src: './src/C3/C3_Vector.js' },
-         { src: './src/C3/C3_Physics.js' },
          // User
          ...scripts
       ]
@@ -52,17 +53,16 @@ class C3 {
    }
    
    init() {
-      console.log('initializing c3')
       this.renderer = new THREE.WebGLRenderer({ antialias: true })
       this.renderer.shadowMap.enabled = true
+      this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
       this.renderer.domElement.tabIndex = 1
       document.body.appendChild(this.renderer.domElement);
       
       this.scene = new THREE.Scene()
       this.clock = new THREE.Clock()
       
-      this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.001, 1000)
-      this.scene.add(this.camera)
+      this.scene.add(c3.camera.object )
       
       window.onresize = () => this.handleResize();
       this.handleResize();
@@ -73,9 +73,8 @@ class C3 {
    
    render(time) {
       const delta = this.clock.getDelta()
-      // console.log('meow')
       window.requestAnimationFrame((time) => this.render(time))
-      this.renderer.render(this.scene, this.camera)
+      this.renderer.render(this.scene, c3.camera.object)
       
       for (const object of this.gameObjects.list) {
          object.step()
@@ -159,11 +158,6 @@ class C3 {
       this.renderer.domElement.width = width
       this.renderer.domElement.height = height
       this.renderer.setSize(width, height, false)
-      this.camera.aspect = width/height
-      this.camera.updateProjectionMatrix()
-      
-      // for (const object of this.gameObjects.list) {
-      //    object.handleResize(width, height)
-      // }
+      c3.camera.setAspect(width/height)
    }
 }

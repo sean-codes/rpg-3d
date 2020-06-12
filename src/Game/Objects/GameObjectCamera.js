@@ -1,19 +1,17 @@
 c3.objectTypes.Camera = class GameObjectCamera extends c3.GameObject {
    mesh() {
       const { camera } = c3
-      
-      camera.position.set(0, 0, -15)
-      camera.near = 1
-      camera.far = 5000
-      camera.updateProjectionMatrix()
+      camera.setPosition(0, 0, -15)
+      camera.setNearFar(1, 5000)
       camera.lookAt(0, 0, 0)
+      
       
       this.xRot = new THREE.Object3D()
       this.yRot = new THREE.Object3D()
       this.xRot.rotation.x += 0.2
       this.xRot.position.y += 3
       this.yRot.add(this.xRot)
-      this.xRot.add(camera)
+      this.xRot.add(camera.object)
       return this.yRot
    }
    

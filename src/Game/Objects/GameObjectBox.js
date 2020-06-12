@@ -1,8 +1,11 @@
 class GameObjectBox extends c3.GameObject {
    mesh() {
       const geo = new THREE.BoxGeometry(2, 2, 2)
-      const mat = new THREE.MeshPhongMaterial({ color: '#F66' })
+      const mat = new THREE.MeshLambertMaterial({ color: '#F66' })
       const mes = new THREE.Mesh(geo, mat)
+      
+      mes.receiveShadow = true
+      mes.castShadow = true
       return mes
    }
    
