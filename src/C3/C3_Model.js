@@ -51,16 +51,17 @@ class C3_Model {
       this.clips = {}
       this.object.animations.forEach((animation) => {
          const definedClip = loadInfo.clips && loadInfo.clips.find(c => c.map === animation.name)
+         let clipName = definedClip ? definedClip.name : animation.name
          if (definedClip) {
             if (definedClip.type === 'ADD') {            
                THREE.AnimationUtils.makeClipAdditive(animation)
             }
-            
-            const clip = this.mixer.clipAction(animation)
-            clip.setEffectiveWeight(0)
-            clip.play()
-            this.clips[definedClip.name] = clip
          }
+            
+         const clip = this.mixer.clipAction(animation)
+         clip.setEffectiveWeight(0)
+         clip.play()
+         this.clips[clipName] = clip
       })
    }
    
@@ -108,11 +109,18 @@ class C3_Model {
       this.bones[boneName].remove(model.object ? model.object : model)
    }
    
-   animateStart(clipName) {
+   animateSetClipTime(clipName, time) {
+      const clip = this.clips[clipName]
+      clip.time = time
+   }
+   
+   animateStart(clipName, { time = 0 } = {}) {
       const clip = this.clips[clipName]
       clip.enabled = true
       clip.setEffectiveWeight(1)
       clip.play()
+      
+      clip.time = time
       
       this.currentClip = clip
    }

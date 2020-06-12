@@ -14,6 +14,7 @@ const c3 = new C3({
       { src: './src/Game/Objects/GameObjectDirectionalLight.js' },
       { src: './src/Game/Objects/GameObjectBox.js' },
       { src: './src/Game/Objects/GameObjectCamera.js' },
+      { src: './src/Game/Objects/GameObjectDragon.js' },
       { src: './src/Game/Objects/GameObjectPlayer.js' },
       { src: './src/Game/Objects/GameObjectGround.js' },
       { src: './src/Game/Objects/GameObjectResource.js' },
@@ -29,11 +30,11 @@ const c3 = new C3({
       { name: 'sword', file: './assets/models/knight/Sword.fbx', scale: 0.01, rotation: [0, -Math.PI*0.5, 0], offset: [0.1, 0.05, -0.15] },
       { name: 'shield', file: './assets/models/knight/Shield_Round.fbx', scale: 0.01, rotation: [-0.1, Math.PI*0.5, 0], offset: [0.2, -0.3, 0] },
       { name: 'shoulderPads', file: './assets/models/knight/ShoulderPads.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
-      { name: 'dragon', file: './assets/models/monsters/FBX/Dragon_Edited.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
       { name: 'tree', file: './assets/models/environment/PineTree_Autumn_4.fbx', scale: 0.035, },
       { name: 'rock', file: './assets/models/environment/Rock_6.fbx', scale: 0.035, },
       { name: 'bush', file: './assets/models/environment/BushBerries_2.fbx', scale: 0.035, },
       { name: 'fence', file: './assets/models/environment/Fence.fbx', scale: 0.035, },
+      { name: 'dragon', file: './assets/models/monsters/FBX/Dragon_Edited.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
       { 
          name: 'character', 
          file: './assets/models/knight/KnightCharacter_edited.fbx', 
@@ -75,6 +76,12 @@ const c3 = new C3({
       
       for (let i = 0; i < 100; i++) {
          c3.gameObjects.create({ type: 'Resource' })
+      }
+      
+      for (let x = 0; x < 2; x++) {
+         for (let y = 0; y < 2; y++) {
+            c3.gameObjects.create({ type: 'Dragon', attr: { pos: c3.vector.create(8+x*6, 2, -8+y*6) } })
+         }
       }
    },
    
