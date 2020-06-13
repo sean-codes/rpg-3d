@@ -11,9 +11,14 @@ class C3_Camera {
       this.object.position.set(0, 0, -15)
    }
    
+   setFar(far) {
+      this.object.far = far
+      this.object.updateProjectionMatrix()
+   }
+   
    setNearFar(near, far) {
-      this.object.near = 1
-      this.object.far = 5000
+      this.object.near = near
+      this.object.far = far
       this.object.updateProjectionMatrix()
    }
    

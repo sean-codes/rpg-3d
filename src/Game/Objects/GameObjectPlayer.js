@@ -49,7 +49,8 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.model.boneToggle('PalmR', this.weapon.mesh)
       
       // Others
-      this.accel = 5
+      this.accel = 4
+      this.friction = 0.8
       this.speed = 20
       this.currentSpeed = c3.vector.create(0, 0)
       this.spinSpeed = 10
@@ -91,7 +92,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       ) {
          this.currentSpeed.add(c3.vector.create(0, this.accel).rotateAround(c3.vector.create(), -targetAngle))
       } else {
-         this.currentSpeed.multiplyScalar(0.9)
+         this.currentSpeed.multiplyScalar(this.friction)
       }
       
 
@@ -110,7 +111,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       }
       
       // Attack
-      if (c3.keyboard.check('attack').down && !this.isAttacking) {
+      if (c3.keyboard.check('attack').down && !this.weapon.isAttacking) {
          this.weapon.isAttacking = true
          this.model.animateOnce('attack', () => { this.weapon.isAttacking = false })
       }

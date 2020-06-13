@@ -2,7 +2,6 @@ c3.objectTypes.Camera = class GameObjectCamera extends c3.GameObject {
    mesh() {
       const { camera } = c3
       camera.setPosition(0, 0, -15)
-      camera.setNearFar(1, 5000)
       camera.lookAt(0, 0, 0)
       
       

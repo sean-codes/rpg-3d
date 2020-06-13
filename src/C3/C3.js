@@ -68,10 +68,8 @@ class C3 {
       this.renderer.domElement.tabIndex = 1
       document.body.appendChild(this.renderer.domElement);
       
-      this.scene = new THREE.Scene()
       this.clock = new THREE.Clock()
-      
-      this.scene.add(c3.camera.object )
+      this.scene.add(c3.camera.object)
       
       window.onresize = () => this.handleResize();
       this.handleResize();
@@ -83,7 +81,7 @@ class C3 {
    render(time) {
       const delta = this.clock.getDelta()
       window.requestAnimationFrame((time) => this.render(time))
-      this.renderer.render(this.scene, c3.camera.object)
+      this.renderer.render(this.scene.scene, c3.camera.object)
       
       c3.physics.loopApplyCollisions()
       

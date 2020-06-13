@@ -50,7 +50,10 @@ const c3 = new C3({
    
    init: function() {
       const { camera, scene } = this
-      scene.background = new THREE.Color('#FFF')
+      scene.setBackground('#FFF')
+      
+      camera.setNearFar(1, 75)
+      c3.scene.setFog(45, 75)
       
       c3.models.materialAdd('BOX', new THREE.MeshLambertMaterial({ color: '#F55' }))
       c3.models.materialAdd('WIREFRAME', new THREE.MeshBasicMaterial({

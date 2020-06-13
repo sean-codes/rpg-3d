@@ -17,6 +17,7 @@ class C3_Keyboard {
    }
    
    addEvent(keyCode, type) {
+      if (!this.keys[keyCode]) return
       this.events.push({
          key: this.keys[keyCode],
          type,
