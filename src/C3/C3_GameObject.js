@@ -69,7 +69,7 @@ class C3_GameObject {
    }
    
    addRotationY(radians) {
-      this.rotation.y += radians
+      this.rotation.y = c3.math.loopAngle(this.rotation.y + radians)
       this.rotateUpdate()
    }
    
