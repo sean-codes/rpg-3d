@@ -134,7 +134,7 @@ class C3_Model {
       inClip.time = 0
       inClip.enabled = true
       inClip.setEffectiveWeight(1)
-      inClip.crossFadeFrom(outClip, 0.1)
+      inClip.crossFadeFrom(outClip, time)
       
       this.currentClip = inClip
    }

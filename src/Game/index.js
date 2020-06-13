@@ -82,7 +82,7 @@ const c3 = new C3({
       
       for (let x = 0; x < 2; x++) {
          for (let y = 0; y < 2; y++) {
-            c3.gameObjects.create({ type: 'Dragon', attr: { pos: c3.vector.create(8+x*6, 2, -8+y*6) } })
+            c3.gameObjects.create({ type: 'Dragon', attr: { pos: c3.vector.create(12+x*6, 2, -12+y*6) } })
          }
       }
       

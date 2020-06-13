@@ -49,57 +49,65 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.model.boneToggle('PalmR', this.weapon.mesh)
       
       // Others
-      this.accel = 0
+      this.accel = 5
       this.speed = 20
+      this.currentSpeed = c3.vector.create(0, 0)
       this.spinSpeed = 10
       this.isOnGround = false
+      this.targetAngle = 0
    }
    
    step() {
       this.checkIsOnGround()
       
       // Movement
+      let targetAngle = null
       if (c3.keyboard.check('forward').held) {
-         const targetAngle = c3.math.loopAngle(this.camera.yRot.rotation.y)
-         let angleDiff = c3.math.angleToAngle(this.rotation.y, targetAngle)
-         this.setRotationY(c3.math.loopAngle(this.rotation.y + angleDiff / this.spinSpeed))
+         targetAngle = c3.math.loopAngle(this.camera.yRot.rotation.y)
       }
       
       if (c3.keyboard.check('backward').held) {
-         const targetAngle = c3.math.loopAngle(this.camera.yRot.rotation.y + Math.PI)
-         let angleDiff = c3.math.angleToAngle(this.rotation.y, targetAngle)
-         this.setRotationY(c3.math.loopAngle(this.rotation.y + angleDiff / this.spinSpeed))
+         targetAngle = c3.math.loopAngle(this.camera.yRot.rotation.y + Math.PI)
       }
       
       if (c3.keyboard.check('left').held) {
-         const targetAngle = c3.math.loopAngle(this.camera.yRot.rotation.y + Math.PI/2)
-         let angleDiff = c3.math.angleToAngle(this.rotation.y, targetAngle)
-         this.setRotationY(c3.math.loopAngle(this.rotation.y + angleDiff / this.spinSpeed))
+         const keyAngle = c3.math.loopAngle(this.camera.yRot.rotation.y + Math.PI/2)
+         targetAngle = targetAngle !== null
+             ? targetAngle + c3.math.angleToAngle(targetAngle, keyAngle) / 2
+             : keyAngle
       }
       
       if (c3.keyboard.check('right').held) {
-         const targetAngle = c3.math.loopAngle(this.camera.yRot.rotation.y - Math.PI/2)
-         let angleDiff = c3.math.angleToAngle(this.rotation.y, targetAngle)
-         this.setRotationY(c3.math.loopAngle(this.rotation.y + angleDiff / this.spinSpeed))
+         const keyAngle = c3.math.loopAngle(this.camera.yRot.rotation.y - Math.PI/2)
+         targetAngle = targetAngle !== null
+             ? targetAngle + c3.math.angleToAngle(targetAngle, keyAngle) / 2
+             : keyAngle
       }
+      
+      if (c3.keyboard.check('forward').held
+         || c3.keyboard.check('backward').held
+         || c3.keyboard.check('left').held
+         || c3.keyboard.check('right').held
+      ) {
+         this.currentSpeed.add(c3.vector.create(0, this.accel).rotateAround(c3.vector.create(), -targetAngle))
+      } else {
+         this.currentSpeed.multiplyScalar(0.9)
+      }
+      
+
+      if (targetAngle !== null) this.targetAngle = targetAngle
+      this.addRotationY(c3.math.angleToAngle(this.rotation.y, this.targetAngle)/5)
 
       // Run / Idle Animation
       if (c3.keyboard.check(['forward', 'backward', 'left', 'right']).down
          && !c3.keyboard.check(['forward', 'backward', 'left', 'right']).held
       ) {
          this.model.animateTo('run', 0.1)
-      }
-      
-      if (c3.keyboard.check(['forward', 'backward', 'left', 'right']).up
+      } else if (c3.keyboard.check(['forward', 'backward', 'left', 'right']).up
          && !c3.keyboard.check(['forward', 'backward', 'left', 'right']).held
       ) {
          this.model.animateTo('idle', 0.1)
       }
-      
-      // Acceleration
-      this.accel = c3.keyboard.check(['forward', 'backward', 'left', 'right']).held
-         ? Math.min(this.accel + 0.5, this.speed)
-         : Math.max(this.accel - 0.5, 0)
       
       // Attack
       if (c3.keyboard.check('attack').down && !this.isAttacking) {
@@ -119,11 +127,18 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          this.model.boneToggle('Head', modelHelmet)
       }
       
-      const playerDirection = this.mesh.getWorldDirection(new THREE.Vector3())
+      // clamp speed
+      
+      const speedDirection = this.currentSpeed.clone().normalize()
+      const speedLength = this.currentSpeed.distanceTo(c3.vector.create())
+      if (speedLength > this.speed) this.currentSpeed = speedDirection.multiplyScalar(this.speed)
+      
+      // const speedRotated = this.currentSpeed.clone().rotateAround(c3.vector.create(), targetAngle)
+      
       this.body.velocity.set(
-         playerDirection.x*this.accel,
+         this.currentSpeed.x,
          this.body.velocity.y,
-         playerDirection.z*this.accel,
+         this.currentSpeed.y,
       )
    }
    

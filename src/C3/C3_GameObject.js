@@ -68,6 +68,11 @@ class C3_GameObject {
       this.rotateUpdate()
    }
    
+   addRotationY(radians) {
+      this.rotation.y += radians
+      this.rotateUpdate()
+   }
+   
    rotateUpdate() {
       if (this.body) {
          this.body.quaternion.setFromEuler(this.rotation.x, this.rotation.y, this.rotation.z, 'XYZ')

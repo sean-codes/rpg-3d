@@ -52,6 +52,11 @@ class C3 {
          .then(() => this.init())
    }
    
+   default(a, b) {
+      if (a === null) return b
+      return a
+   }
+   
    clone(object) {
       return JSON.parse(JSON.stringify(object))
    }

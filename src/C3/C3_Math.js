@@ -25,6 +25,11 @@ class C3_Math {
       return array[this.iRandomRange(0, array.length - 1)]
    }
    
+   angleBetween(a1, a2) {
+      const angleDiff = c3.math.angleToAngle(a1, a2)
+      return a1 + angleDiff/2
+   }
+   
    angleToAngle(a1, a2) {
       let right = a2 - a1
       if (right < 0) {
