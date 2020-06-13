@@ -7,23 +7,51 @@ class C3_Keyboard {
          this.keys[keyCode] = { up: false, down: false, held: false }
       }
       
+      this.events = []
       this.listen()
    }
    
    listen() {
-      document.body.addEventListener('keydown', e => { !e.repeat && this.onKeyDown(e.keyCode)})
-      document.body.addEventListener('keyup', e => { this.onKeyUp(e.keyCode) })
+      document.body.addEventListener('keydown', e => { !e.repeat && this.addEvent(e.keyCode, 'down')})
+      document.body.addEventListener('keyup', e => { this.addEvent(e.keyCode, 'up') })
    }
    
-   onKeyDown(keyCode) {
-      if (!this.keys[keyCode]) return
-      this.keys[keyCode] = { up: false, down: true, held: false }
+   addEvent(keyCode, type) {
+      this.events.push({
+         key: this.keys[keyCode],
+         type,
+      })
    }
 
-   onKeyUp(keyCode) {
-      if (!this.keys[keyCode]) return
-      this.keys[keyCode] = { up: true, down: false, held: false }
+   execute() {
+      for (let i = 0; i < this.events.length; i += 1) {
+         const { key, type } = this.events[i]
+         this.processEvent(key, type)
+      }
+      this.events = []
    }
+   
+   processEvent(key, type) {
+      if (type === 'up') {
+         if (!key.held) return
+         key.up = performance.now()
+         key.held = false
+         return
+      }
+      
+      // type is down
+      key.down = performance.now()
+   }
+   
+   // onKeyDown(keyCode) {
+   //    if (!this.keys[keyCode]) return
+   //    this.keys[keyCode] = { up: false, down: true, held: false }
+   // }
+   // 
+   // onKeyUp(keyCode) {
+   //    if (!this.keys[keyCode]) return
+   //    this.keys[keyCode] = { up: true, down: false, held: false }
+   // }
 
    check(keyNameOrArrayOfKeys) {
       const returnVal = { up: false, down: false, held: false }
@@ -47,11 +75,14 @@ class C3_Keyboard {
 
    resetKeys() {
       for (const keyId in this.keys) {
-         if (this.keys[keyId].down) this.keys[keyId].held = true
+         const key = this.keys[keyId]
+         if (key.down) key.held = performance.now()
          
-         this.keys[keyId].up = false
-         this.keys[keyId].down = false
+         key.up = false
+         key.down = false
       }
+      
+      this.execute()
    }
 }
 
