@@ -3,6 +3,14 @@ class C3_Camera {
       this.object = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.001, 1000)
    }
    
+   getWorldPosition() {
+      return this.object.getWorldPosition(new THREE.Vector3())
+   }
+   
+   distanceFrom(mesh) {
+      return mesh.position.distanceTo(this.getWorldPosition())
+   }
+   
    setAspect(aspect) {
       this.object.aspect = aspect
       this.object.updateProjectionMatrix()

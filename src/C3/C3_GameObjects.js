@@ -21,6 +21,10 @@ class C3_GameObjects {
    find(type) {
       return this.list.find(o => o.type === type)
    }
+   
+   findAll(type) {
+      return this.list.filter(o => o.type === type)
+   }
 }
 
 c3.gameObjects = new C3_GameObjects

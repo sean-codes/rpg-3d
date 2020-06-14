@@ -11,6 +11,12 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.meshBodyTop.position.y += 2
       this.meshBodyBottom.add(this.meshBodyTop)
       
+      const targetGeo = new THREE.SphereGeometry()
+      const targetMat = new THREE.MeshBasicMaterial({ color: '#FFF', depthTest: false, flatShading: true})
+      const targetMes = new THREE.Mesh(targetGeo, targetMat)
+      targetMes.renderOrder = 1000
+      this.meshTarget = targetMes
+      
       // Character Model
       this.model = c3.models.find('character')
       this.meshBodyBottom.add(this.model.object)
@@ -56,11 +62,58 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.spinSpeed = 10
       this.isOnGround = false
       this.targetAngle = 0
+      this.target = undefined
    }
    
    step() {
-      this.checkIsOnGround()
+      this.stepJump()
+      this.stepMovement()
+      this.stepTargeting()
+      this.stepAttack()
       
+      // testing equip
+      if (c3.keyboard.check('equip_helmet').down) {
+         const modelHelmet = c3.models.find('helmet')
+         this.model.boneToggle('Head', modelHelmet)
+      }
+   }
+   
+   stepTargeting() {
+      if (c3.keyboard.check('target').down) {
+         if (this.target) {
+            this.target = undefined
+         } else {
+            const dragons = c3.gameObjects.findAll('Dragon')
+            let closestDragon = undefined
+            let closestDistance = 100000000000
+            for (const dragon of dragons) {
+               const distanceFromPlayer = this.mesh.position.distanceTo(dragon.mesh.position)
+   
+               if (distanceFromPlayer < 20 && distanceFromPlayer < closestDistance) {
+                  closestDragon = dragon
+                  closestDistance = distanceFromPlayer               
+               }
+            }
+
+            if (closestDragon) {
+               this.target = closestDragon
+            }
+         }
+      }
+      
+      
+      if (this.target) {
+         !this.meshTarget.parent && c3.scene.add(this.meshTarget)
+         this.meshTarget.position.copy(this.target.mesh.position)
+         const distanceFromCamera = c3.camera.distanceFrom(this.meshTarget)
+         const targetScale = distanceFromCamera/100
+         this.meshTarget.scale.set(targetScale, targetScale, targetScale)
+      } else {
+         c3.scene.remove(this.meshTarget)
+      }
+   }
+   
+   stepMovement() {
       // Movement
       let targetAngle = null
       if (c3.keyboard.check('forward').held) {
@@ -110,31 +163,10 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          this.model.animateTo('idle', 0.1)
       }
       
-      // Attack
-      if (c3.keyboard.check('attack').down && !this.weapon.isAttacking) {
-         this.weapon.isAttacking = true
-         this.model.animateOnce('attack', () => { this.weapon.isAttacking = false })
-      }
-      
-      // Jump
-      if (this.body.velocity.y > 5) this.isOnGround = false
-      if (c3.keyboard.check('jump').down && this.isOnGround) {
-         this.body.velocity.y = 25
-         this.isOnGround = false
-      }
-      
-      if (c3.keyboard.check('equip_helmet').down) {
-         const modelHelmet = c3.models.find('helmet')
-         this.model.boneToggle('Head', modelHelmet)
-      }
-      
       // clamp speed
-      
       const speedDirection = this.currentSpeed.clone().normalize()
       const speedLength = this.currentSpeed.distanceTo(c3.vector.create())
       if (speedLength > this.speed) this.currentSpeed = speedDirection.multiplyScalar(this.speed)
-      
-      // const speedRotated = this.currentSpeed.clone().rotateAround(c3.vector.create(), targetAngle)
       
       this.body.velocity.set(
          this.currentSpeed.x,
@@ -143,9 +175,24 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       )
    }
    
-   checkIsOnGround() {
+   stepAttack() {
+      // Attack
+      if (c3.keyboard.check('attack').down && !this.weapon.isAttacking) {
+         this.weapon.isAttacking = true
+         this.model.animateOnce('attack', () => { this.weapon.isAttacking = false })
+      }
+   }
+   
+   stepJump() {
       for (const collision of this.getCollisions()) {
          this.isOnGround = this.isOnGround || collision.isOnGround
+      }
+      
+      // Jump
+      if (this.body.velocity.y > 5) this.isOnGround = false
+      if (c3.keyboard.check('jump').down && this.isOnGround) {
+         this.body.velocity.y = 25
+         this.isOnGround = false
       }
    }
 }

@@ -6,7 +6,8 @@ const c3 = new C3({
       backward: 83,
       attack: 16,
       equip_helmet: 49,
-      jump: 32
+      jump: 32,
+      target: 81,
    },
    
    objects: [
