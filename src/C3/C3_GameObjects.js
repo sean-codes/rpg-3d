@@ -19,11 +19,12 @@ class C3_GameObjects {
    }
    
    find(type) {
-      return this.list.find(o => o.type === type)
+      return this.list.find(o => type === o.type)
    }
    
    findAll(type) {
-      return this.list.filter(o => o.type === type)
+      const arrTypes = typeof type === 'object' ? type : [type]
+      return this.list.filter(o => arrTypes.includes(o.type))
    }
 }
 

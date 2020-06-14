@@ -61,15 +61,16 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.currentSpeed = c3.vector.create(0, 0)
       this.spinSpeed = 10
       this.isOnGround = false
-      this.targetAngle = 0
+      this.targetMoveAngle = 0
+      this.targetLookAngle = 0
       this.target = undefined
    }
    
    step() {
-      this.stepJump()
-      this.stepMovement()
       this.stepTargeting()
       this.stepAttack()
+      this.stepMovement()
+      this.stepJump()
       
       // testing equip
       if (c3.keyboard.check('equip_helmet').down) {
@@ -83,7 +84,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          if (this.target) {
             this.target = undefined
          } else {
-            const dragons = c3.gameObjects.findAll('Dragon')
+            const dragons = c3.gameObjects.findAll(['Dragon', 'Target'])
             let closestDragon = undefined
             let closestDistance = 100000000000
             for (const dragon of dragons) {
@@ -115,42 +116,58 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
    
    stepMovement() {
       // Movement
-      let targetAngle = null
+      let targetMoveAngle = null
+      let targetLookAngle = null
+      let baseAngle = this.camera.yRot.rotation.y
+      
+      
+      if (this.target) {
+         const direction = this.target.mesh.position.clone().sub(this.mesh.position)
+         const angleToTarget = new THREE.Vector2(-direction.x, direction.z).angle() - (Math.PI/2)
+         
+         baseAngle = angleToTarget
+         targetLookAngle = angleToTarget
+      }
+      
       if (c3.keyboard.check('forward').held) {
-         targetAngle = c3.math.loopAngle(this.camera.yRot.rotation.y)
+         targetMoveAngle = c3.math.loopAngle(baseAngle)
       }
       
       if (c3.keyboard.check('backward').held) {
-         targetAngle = c3.math.loopAngle(this.camera.yRot.rotation.y + Math.PI)
+         targetMoveAngle = c3.math.loopAngle(baseAngle + Math.PI)
       }
       
       if (c3.keyboard.check('left').held) {
-         const keyAngle = c3.math.loopAngle(this.camera.yRot.rotation.y + Math.PI/2)
-         targetAngle = targetAngle !== null
-             ? targetAngle + c3.math.angleToAngle(targetAngle, keyAngle) / 2
+         const keyAngle = c3.math.loopAngle(baseAngle + Math.PI/2)
+         targetMoveAngle = targetMoveAngle !== null
+             ? targetMoveAngle + c3.math.angleToAngle(targetMoveAngle, keyAngle) / 2
              : keyAngle
       }
       
       if (c3.keyboard.check('right').held) {
-         const keyAngle = c3.math.loopAngle(this.camera.yRot.rotation.y - Math.PI/2)
-         targetAngle = targetAngle !== null
-             ? targetAngle + c3.math.angleToAngle(targetAngle, keyAngle) / 2
+         const keyAngle = c3.math.loopAngle(baseAngle - Math.PI/2)
+         targetMoveAngle = targetMoveAngle !== null
+             ? targetMoveAngle + c3.math.angleToAngle(targetMoveAngle, keyAngle) / 2
              : keyAngle
       }
       
+      if (!this.target) {
+         targetLookAngle = targetMoveAngle
+      }
       if (c3.keyboard.check('forward').held
          || c3.keyboard.check('backward').held
          || c3.keyboard.check('left').held
          || c3.keyboard.check('right').held
       ) {
-         this.currentSpeed.add(c3.vector.create(0, this.accel).rotateAround(c3.vector.create(), -targetAngle))
+         this.currentSpeed.add(c3.vector.create(0, this.accel).rotateAround(c3.vector.create(), -targetMoveAngle))
       } else {
          this.currentSpeed.multiplyScalar(this.friction)
       }
       
 
-      if (targetAngle !== null) this.targetAngle = targetAngle
-      this.addRotationY(c3.math.angleToAngle(this.rotation.y, this.targetAngle)/5)
+      if (targetMoveAngle !== null) this.targetMoveAngle = targetMoveAngle
+      if (targetLookAngle !== null) this.targetLookAngle = targetLookAngle
+      this.addRotationY(c3.math.angleToAngle(this.rotation.y, this.targetLookAngle)/5)
 
       // Run / Idle Animation
       if (c3.keyboard.check(['forward', 'backward', 'left', 'right']).down

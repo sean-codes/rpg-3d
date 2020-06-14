@@ -21,8 +21,8 @@ class GameObjectBox extends c3.GameObject {
    }
    
    create() {
-      this.xOff = 15
-      this.zOff = 15
+      this.xOff = 20
+      this.zOff = 20
       this.spread = 1
       
       this.setPosition(c3.vector.create(

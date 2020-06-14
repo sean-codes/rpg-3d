@@ -28,7 +28,7 @@ c3.objectTypes.Resource = class GameObjectResource extends c3.GameObject {
    }
    
    create() {
-      const randomPos = c3.math.randomPointFromPoint(this.body.position, c3.math.randomRange(20, 100))
+      const randomPos = c3.math.randomPointFromPoint(this.body.position, c3.math.randomRange(40, 100))
       this.setPosition(randomPos)
       
    }

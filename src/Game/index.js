@@ -20,6 +20,7 @@ const c3 = new C3({
       { src: './src/Game/Objects/GameObjectPlatform.js' },
       { src: './src/Game/Objects/GameObjectGround.js' },
       { src: './src/Game/Objects/GameObjectResource.js' },
+      { src: './src/Game/Objects/GameObjectTarget.js' },
       { src: './src/Game/Objects/GameObjectWeapon.js' },
    ],
    
@@ -57,6 +58,7 @@ const c3 = new C3({
       c3.scene.setFog(45, 75)
       
       c3.models.materialAdd('BOX', new THREE.MeshLambertMaterial({ color: '#F55' }))
+      c3.models.materialAdd('TARGET', new THREE.MeshLambertMaterial({ color: '#99f' }))
       c3.models.materialAdd('WIREFRAME', new THREE.MeshBasicMaterial({
          color: '#000',
          wireframe: true,
@@ -86,12 +88,13 @@ const c3 = new C3({
       
       for (let x = 0; x < 2; x++) {
          for (let y = 0; y < 2; y++) {
-            c3.gameObjects.create({ type: 'Dragon', attr: { pos: c3.vector.create(12+x*6, 2, -12+y*6) } })
+            c3.gameObjects.create({ type: 'Dragon', attr: { pos: c3.vector.create(15+x*6, 2, -15+y*6) } })
          }
       }
       
-      c3.gameObjects.create({ type: 'Platform', attr: { pos: c3.vector.create(-10, 3, 10) }})
-      c3.gameObjects.create({ type: 'Platform', attr: { pos: c3.vector.create(-14, 6, 10) }})
+      c3.gameObjects.create({ type: 'Platform', attr: { pos: c3.vector.create(-15, 3, -15) }})
+      c3.gameObjects.create({ type: 'Platform', attr: { pos: c3.vector.create(-20, 6, -15) }})
+      c3.gameObjects.create({ type: 'Target', attr: { pos: c3.vector.create(-8, 4, 8) }})
    },
    
    step: function(c3) {
