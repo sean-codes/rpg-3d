@@ -120,13 +120,14 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       let targetLookAngle = null
       let baseAngle = this.camera.yRot.rotation.y
       
-      
       if (this.target) {
          const direction = this.target.mesh.position.clone().sub(this.mesh.position)
          const angleToTarget = new THREE.Vector2(-direction.x, direction.z).angle() - (Math.PI/2)
          
          baseAngle = angleToTarget
          targetLookAngle = angleToTarget
+         
+         this.camera.pointTowards(targetLookAngle)
       }
       
       if (c3.keyboard.check('forward').held) {
@@ -138,14 +139,34 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       }
       
       if (c3.keyboard.check('left').held) {
-         const keyAngle = c3.math.loopAngle(baseAngle + Math.PI/2)
+         let pull = 2
+         
+         if (this.target) {
+            const distanceFromTarget = this.target.mesh.position.distanceTo(this.mesh.position)
+            const distanceAdjust = Math.min(distanceFromTarget, 20)
+            const maxAdjust = 0.6 // this probably depends on speed
+            const adjust = maxAdjust * ((20 - distanceAdjust) / 20)
+            pull = 2 + adjust
+         }
+         
+         const keyAngle = c3.math.loopAngle(baseAngle + Math.PI/pull)
          targetMoveAngle = targetMoveAngle !== null
              ? targetMoveAngle + c3.math.angleToAngle(targetMoveAngle, keyAngle) / 2
              : keyAngle
       }
       
       if (c3.keyboard.check('right').held) {
-         const keyAngle = c3.math.loopAngle(baseAngle - Math.PI/2)
+         let pull = 2
+         
+         if (this.target) {
+            const distanceFromTarget = this.target.mesh.position.distanceTo(this.mesh.position)
+            const distanceAdjust = Math.min(distanceFromTarget, 20)
+            const maxAdjust = 0.6 // this probably depends on speed
+            const adjust = maxAdjust * ((20 - distanceAdjust) / 20)
+            pull = 2 + adjust
+         }
+         
+         const keyAngle = c3.math.loopAngle(baseAngle - Math.PI/pull)
          targetMoveAngle = targetMoveAngle !== null
              ? targetMoveAngle + c3.math.angleToAngle(targetMoveAngle, keyAngle) / 2
              : keyAngle
@@ -154,6 +175,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       if (!this.target) {
          targetLookAngle = targetMoveAngle
       }
+      
       if (c3.keyboard.check('forward').held
          || c3.keyboard.check('backward').held
          || c3.keyboard.check('left').held

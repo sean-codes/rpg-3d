@@ -30,4 +30,9 @@ c3.objectTypes.Camera = class GameObjectCamera extends c3.GameObject {
       const { mesh } = this
       mesh.position.copy(this.player.mesh.position)
    }
+   
+   pointTowards(angle) {
+      this.yRot.rotation.y += c3.math.angleToAngle(this.yRot.rotation.y, angle) / 10
+      this.yRot.rotation.y = c3.math.loopAngle(this.yRot.rotation.y)
+   }
 }
