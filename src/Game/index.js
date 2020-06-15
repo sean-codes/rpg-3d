@@ -4,10 +4,11 @@ const c3 = new C3({
       left: 65,
       right: 68,
       backward: 83,
-      attack: 16,
+      attack: 69,
       equip_helmet: 49,
       jump: 32,
       target: 81,
+      sprint: 16,
    },
    
    objects: [

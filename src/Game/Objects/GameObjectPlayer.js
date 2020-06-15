@@ -88,6 +88,8 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
             let closestDragon = undefined
             let closestDistance = 100000000000
             for (const dragon of dragons) {
+               if (dragon.dead) continue
+               
                const distanceFromPlayer = this.mesh.position.distanceTo(dragon.mesh.position)
    
                if (distanceFromPlayer < 20 && distanceFromPlayer < closestDistance) {
@@ -116,19 +118,33 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
    
    stepMovement() {
       // Movement
+      let speed = this.speed
+      let isSprinting = c3.keyboard.check('sprint').held
+      if (isSprinting) {
+         this.model.clips.run.timeScale = 1.5
+         speed *= 1.25
+      } else {
+         this.model.clips.run.timeScale = 1   
+      }
+      
+      
       let targetMoveAngle = null
       let targetLookAngle = null
       let baseAngle = this.camera.yRot.rotation.y
       
-      if (this.target) {
+      if (this.target && !this.target.dead) {
          const direction = this.target.mesh.position.clone().sub(this.mesh.position)
          const angleToTarget = new THREE.Vector2(-direction.x, direction.z).angle() - (Math.PI/2)
          
-         baseAngle = angleToTarget
+         baseAngle = isSprinting ? baseAngle : angleToTarget
          targetLookAngle = angleToTarget
          
-         this.camera.pointTowards(targetLookAngle)
+         
+         !isSprinting && this.camera.pointTowards(targetLookAngle)
+      } else {
+         this.target = undefined
       }
+      
       
       if (c3.keyboard.check('forward').held) {
          targetMoveAngle = c3.math.loopAngle(baseAngle)
@@ -138,10 +154,11 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          targetMoveAngle = c3.math.loopAngle(baseAngle + Math.PI)
       }
       
+      
       if (c3.keyboard.check('left').held) {
          let pull = 2
          
-         if (this.target) {
+         if (this.target && !isSprinting) {
             const distanceFromTarget = this.target.mesh.position.distanceTo(this.mesh.position)
             const distanceAdjust = Math.min(distanceFromTarget, 20)
             const maxAdjust = 0.6 // this probably depends on speed
@@ -158,7 +175,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       if (c3.keyboard.check('right').held) {
          let pull = 2
          
-         if (this.target) {
+         if (this.target && !isSprinting) {
             const distanceFromTarget = this.target.mesh.position.distanceTo(this.mesh.position)
             const distanceAdjust = Math.min(distanceFromTarget, 20)
             const maxAdjust = 0.6 // this probably depends on speed
@@ -172,7 +189,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
              : keyAngle
       }
       
-      if (!this.target) {
+      if (!this.target || isSprinting) {
          targetLookAngle = targetMoveAngle
       }
       
@@ -205,7 +222,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       // clamp speed
       const speedDirection = this.currentSpeed.clone().normalize()
       const speedLength = this.currentSpeed.distanceTo(c3.vector.create())
-      if (speedLength > this.speed) this.currentSpeed = speedDirection.multiplyScalar(this.speed)
+      if (speedLength > speed) this.currentSpeed = speedDirection.multiplyScalar(speed)
       
       this.body.velocity.set(
          this.currentSpeed.x,
