@@ -242,6 +242,9 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
    stepJump() {
       for (const collision of this.getCollisions()) {
          this.isOnGround = this.isOnGround || collision.isOnGround
+         if (this.isOnGround) {
+            this.model.animateRemove('jump', 0.25)
+         }
       }
       
       // Jump
@@ -249,6 +252,8 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       if (c3.keyboard.check('jump').down && this.isOnGround) {
          this.body.velocity.y = 25
          this.isOnGround = false
+         
+         this.model.animateAdd('jump', 0.15)
       }
    }
 }

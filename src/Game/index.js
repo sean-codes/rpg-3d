@@ -41,11 +41,12 @@ const c3 = new C3({
       { name: 'dragon', file: './assets/models/monsters/FBX/Dragon_Edited.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
       { 
          name: 'character', 
-         file: './assets/models/knight/KnightCharacter_edited.fbx', 
+         file: './assets/models/knight/KnightCharacter_edited_2.fbx', 
          scale: 0.01,
          clips: [
             { name: 'run', map: 'HumanArmature|Run_swordRight' },
             { name: 'idle', map: 'HumanArmature|Idle_swordRight' },
+            { name: 'jump', map: 'HumanArmature|Jump_swordRight', type: 'ADD', pose: { at: 5 } },
             { name: 'attack', map: 'HumanArmature|Run_swordAttack', type: 'ADD' },
          ]
       },
