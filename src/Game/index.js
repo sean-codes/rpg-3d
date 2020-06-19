@@ -10,8 +10,9 @@ const c3 = new C3({
       target: 81,
       sprint: 16,
    },
-   
-   objects: [
+
+   scripts: [
+      // Objects
       { src: './src/Game/Objects/GameObjectAmbientLight.js' },
       { src: './src/Game/Objects/GameObjectDirectionalLight.js' },
       { src: './src/Game/Objects/GameObjectBox.js' },
@@ -23,9 +24,7 @@ const c3 = new C3({
       { src: './src/Game/Objects/GameObjectResource.js' },
       { src: './src/Game/Objects/GameObjectTarget.js' },
       { src: './src/Game/Objects/GameObjectWeapon.js' },
-   ],
-   
-   scripts: [
+      // Scripts
       { src: './src/Game/Scripts/ScriptCameraController.js' }, 
    ],
    

@@ -1,7 +1,7 @@
 class C3 {
    constructor({ 
       scripts = [], 
-      objects = [], 
+      objects = {}, 
       models = [],
       keyMap = {},
       init = () => { console.log('C3: No init function defined') },
@@ -10,7 +10,7 @@ class C3 {
       this.userInit = init
       this.global = {}
       this.scripts = {}
-      this.objectTypes = {}
+      this.objectTypes = objects
       
       this.listDependancies = [
          { src: './node_modules/three/build/three.min.js' },
@@ -37,17 +37,14 @@ class C3 {
          ...scripts
       ]
       
-      this.listObjects = [...objects]
       this.listModels = [...models]
       
       this.loading = this.listDependancies.length 
-         + this.listScripts.length 
-         + this.listObjects.length
+         + this.listScripts.length
          + this.listModels.length
       
       this.loadDependancies()
          .then(() => this.loadScripts())
-         .then(() => this.loadObjects())
          .then(() => this.loadModels())
          .then(() => this.init())
    }
@@ -114,33 +111,20 @@ class C3 {
    loadScripts() {
       return new Promise((yay, nay) => {   
          let loading = this.listScripts.length
-         for (const script of this.listScripts) {
-            const eleScript = document.createElement('script')
-            eleScript.src = script.src
-            eleScript.addEventListener('load', () => {
-               loading -= 1
-               if (!loading) yay()
-            })
-            document.body.appendChild(eleScript)
+         if (!loading) yay()
+         else {
+            for (const script of this.listScripts) {
+               const eleScript = document.createElement('script')
+               eleScript.src = script.src
+               eleScript.addEventListener('load', () => {
+                  loading -= 1
+                  if (!loading) yay()
+               })
+               document.body.appendChild(eleScript)
+            }
          }
       })
    }
-   
-   loadObjects() {
-      return new Promise((yay, nay) => {   
-         let loading = this.listObjects.length
-         for (const object of this.listObjects) {
-            const eleScript = document.createElement('script')
-            eleScript.src = object.src
-            eleScript.addEventListener('load', () => {
-               loading -= 1
-               if (!loading) yay()
-            })
-            document.body.appendChild(eleScript)
-         }
-      })
-   }
-   
    
    loadModels() {
       const loader = new THREE.FBXLoader()
