@@ -135,7 +135,8 @@ class C3 {
             // const model = models[modelName]
             loader.load(loadInfo.file, (object) => {
                c3.models.add({ loadInfo, object })
-
+               if (loadInfo.log) console.log('Loaded Model', loadInfo.name, object)
+               
                loading -= 1
                if (!loading) yay()
             }, null, (e) => { throw e })

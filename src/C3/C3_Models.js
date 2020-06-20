@@ -4,8 +4,8 @@ class C3_Models {
       this.materials = {}
    }
    
-   add({ loadInfo, object }) {
-      const newModel = new c3.Model({ loadInfo, object })
+   add({ loadInfo, object, isClone }) {
+      const newModel = new c3.Model({ loadInfo, object, isClone })
       this.list.push(newModel)
       
       return newModel

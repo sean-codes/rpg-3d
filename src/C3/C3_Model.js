@@ -1,5 +1,5 @@
 class C3_Model {
-   constructor({ loadInfo, object }) {
+   constructor({ loadInfo, object, isClone = false }) {
       this.loadInfo = loadInfo
       this.name = loadInfo.name
       this.object = object
@@ -33,9 +33,11 @@ class C3_Model {
             }
 
             if (loadInfo.rotation) {
-               part.geometry.rotateX(loadInfo.rotation[0])
-               part.geometry.rotateY(loadInfo.rotation[1])
-               part.geometry.rotateZ(loadInfo.rotation[2])
+               if (!isClone) {   
+                  part.geometry.rotateX(loadInfo.rotation[0])
+                  part.geometry.rotateY(loadInfo.rotation[1])
+                  part.geometry.rotateZ(loadInfo.rotation[2])
+               }
             }
          }
       })
@@ -78,20 +80,11 @@ class C3_Model {
    clone(name) {
       const clone = THREE.SkeletonUtils.clone(this.object)
       clone.animations = this.object.animations
-      // const mixer = new THREE.AnimationMixer(clone)
-      // const clips = {}
-      // this.object.animations.forEach((animation) => {
-      // 
-      //    const clip = mixer.clipAction(animation)
-      //    clip.setEffectiveWeight(0)
-      //    clip.play()
-      //    clips[animation.name] = clip
-      // })
-      
-      
+   
       const newModel = c3.models.add({
          loadInfo: { ...this.loadInfo, name },
-         object: clone
+         object: clone,
+         isClone: true
       })
       
       return newModel
