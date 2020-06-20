@@ -58,7 +58,7 @@ c3.gameObjects.types.Dragon = class Dragon extends c3.GameObject {
    killDragon() {
       if (this.dead) return
       this.dead = true
-      this.model.animateOnce('DragonModel|Dragon_Death', () => {
+      this.model.animateOnce('DragonModel|Dragon_Death', 0.1, () => {
          this.destroy()
       })
    }
