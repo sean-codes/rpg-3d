@@ -158,14 +158,16 @@ class C3_Model {
       clip.fadeOut(time)
    }
    
-   animateOnce(clipName, onEnd) {
+   animateOnce(clipName, time=0.1, onEnd) {
       const clip = this.clips[clipName]
       clip.enabled = true
       clip.reset()
       clip.time = clip.c3_startAt
       clip.setEffectiveWeight(1)
+      clip.fadeIn(time)
 
       const stopAnimation = (e) => {
+         clip.fadeOut(time)
          clip.setEffectiveWeight(0)
          onEnd && onEnd()
       }

@@ -24,6 +24,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.model.animateStart('idle')
       
       const modelHelmet = c3.models.find('helmet')
+      modelHelmet.object.position.z += 0.01
       const modelSword = c3.models.find('sword')
       const modelShield = c3.models.find('shield')
       const modelShoulders = c3.models.find('shoulderPads')
@@ -235,16 +236,13 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       // Attack
       if (c3.keyboard.check('attack').down && !this.weapon.isAttacking) {
          this.weapon.isAttacking = true
-         this.model.animateOnce('attack', () => { this.weapon.isAttacking = false })
+         this.model.animateOnce('attack', 0.1, () => { this.weapon.isAttacking = false })
       }
    }
    
    stepJump() {
       for (const collision of this.getCollisions()) {
          this.isOnGround = this.isOnGround || collision.isOnGround
-         if (this.isOnGround) {
-            this.model.animateRemove('jump', 0.25)
-         }
       }
       
       // Jump
@@ -253,7 +251,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          this.body.velocity.y = 25
          this.isOnGround = false
          
-         this.model.animateAdd('jump', 0.15)
+         this.model.animateOnce('jump')
       }
    }
 }

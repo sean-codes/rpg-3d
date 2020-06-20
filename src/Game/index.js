@@ -40,12 +40,12 @@ const c3 = new C3({
       { name: 'dragon', file: './assets/models/monsters/FBX/Dragon_Edited.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
       { 
          name: 'character', 
-         file: './assets/models/knight/KnightCharacter_edited_2.fbx', 
+         file: './assets/models/knight/KnightCharacter_new.fbx', 
          scale: 0.01,
          clips: [
             { name: 'run', map: 'HumanArmature|Run_swordRight' },
-            { name: 'idle', map: 'HumanArmature|Idle_swordRight' },
-            { name: 'jump', map: 'HumanArmature|Jump_swordRight', type: 'ADD', pose: { at: 5 } },
+            { name: 'idle', map: "HumanArmature|Idle_swordRight" },
+            { name: 'jump', map: 'HumanArmature|Jump', type: 'ADD' },
             { name: 'attack', map: 'HumanArmature|Run_swordAttack', type: 'ADD' },
          ]
       },
@@ -55,8 +55,8 @@ const c3 = new C3({
       const { camera, scene } = this
       scene.setBackground('#FFF')
       
-      camera.setNearFar(1, 75)
-      c3.scene.setFog(45, 75)
+      // camera.setNearFar(1, 75)
+      // c3.scene.setFog(45, 75)
       
       c3.models.materialAdd('BOX', new THREE.MeshLambertMaterial({ color: '#F55' }))
       c3.models.materialAdd('TARGET', new THREE.MeshLambertMaterial({ color: '#99f' }))
