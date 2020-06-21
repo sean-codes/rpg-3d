@@ -25,6 +25,6 @@ Command                                      | Key
 render mode (wireframe / solid / etc)        | z
 select tool menu                             | space
 transform origin                             | comma
-pivot point                                  | space
+pivot point                                  | period
 mode                                         | tab
 change view (front/back/side/top)            | tilde
