@@ -116,4 +116,75 @@ class C3 {
          this.keys[keyId].down = false
       }
    }
+   
+   async loadModels(models) {
+      const loader = new THREE.FBXLoader()
+
+      return new Promise((yay, nay) => {
+         let loading = Object.keys(models).length
+         for (const modelName in models) {
+            const model = models[modelName]
+            loader.load(model.file, (object) => {
+               model.object = object
+               model.bones = {}
+
+               model.object.traverse((part) => {
+                  // flat shading
+                  if (part.material) {
+                     const makeMaterialFlat = (material) => {
+                        material.flatShading = true
+                        material.reflectivity = 0
+                        material.shininess = 0
+                     }
+
+                     if (part.material.length) part.material.forEach(makeMaterialFlat)
+                     else makeMaterialFlat(part.material)
+                  }
+
+                  // bones
+                  if (part.type === 'Bone') {
+                     model.bones[part.name] = part
+                  }
+
+                  if (part.type === 'Mesh' || part.type === 'SkinnedMesh') {
+                     part.receiveShadow = true
+                     part.castShadow = true
+
+                     if (model.offset) {
+                        part.geometry.translate(...model.offset)
+                     }
+
+                     if (model.rotation) {
+                        part.geometry.rotateX(model.rotation[0])
+                        part.geometry.rotateY(model.rotation[1])
+                        part.geometry.rotateZ(model.rotation[2])
+                     }
+                  }
+               })
+
+               // scale
+               // scale after so we can adjust axis
+               model.object.scale.x = model.scale
+               model.object.scale.y = model.scale
+               model.object.scale.z = model.scale
+
+               //animations
+               model.mixer = new THREE.AnimationMixer(model.object)
+               model.clips = {}
+               model.object.animations.forEach((animation) => {
+                  if (animation.name === 'HumanArmature|Run_swordAttack') {
+                     THREE.AnimationUtils.makeClipAdditive(animation)
+                  }
+                  const clip = model.mixer.clipAction(animation)
+                  clip.setEffectiveWeight(0)
+                  clip.play()
+                  model.clips[animation.name] = clip
+               })
+               // finish loading
+               loading -= 1
+               if (!loading) yay(models)
+            }, null, (e) => { throw e })
+         }
+      })
+   }
 }

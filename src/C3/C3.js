@@ -1,5 +1,7 @@
 class C3 {
    constructor({ 
+      node_modules = "./node_modules",
+      path = "./C3",
       scripts = [], 
       objects = {}, 
       models = [],
@@ -13,26 +15,26 @@ class C3 {
       this.objectTypes = objects
       
       this.listDependancies = [
-         { src: './node_modules/three/build/three.min.js' },
-         { src: './node_modules/cannon/build/cannon.js' },
+         { src: `${node_modules}/three/build/three.min.js` },
+         { src: `${node_modules}/cannon/build/cannon.js` },
       ]
       
       this.listScripts = [
          // External
-         { src: './node_modules/three/examples/js/loaders/FBXLoader.js' },
-         { src: './node_modules/three/examples/js/utils/SkeletonUtils.js' },
-         { src: './node_modules/zlibjs/bin/inflate.min.js' },
+         { src: `${node_modules}/three/examples/js/loaders/FBXLoader.js` },
+         { src: `${node_modules}/three/examples/js/utils/SkeletonUtils.js` },
+         { src: `${node_modules}/zlibjs/bin/inflate.min.js` },
          // Core
-         { src: './src/C3/C3_Camera.js' },
-         { src: './src/C3/C3_GameObjects.js' },
-         { src: './src/C3/C3_GameObject.js' },
-         { src: './src/C3/C3_Keyboard.js' },
-         { src: './src/C3/C3_Math.js' },
-         { src: './src/C3/C3_Models.js' },
-         { src: './src/C3/C3_Model.js' },
-         { src: './src/C3/C3_Physics.js' },
-         { src: './src/C3/C3_Scene.js' },
-         { src: './src/C3/C3_Vector.js' },
+         { src: `${path}/C3_Camera.js` },
+         { src: `${path}/C3_GameObjects.js` },
+         { src: `${path}/C3_GameObject.js` },
+         { src: `${path}/C3_Keyboard.js` },
+         { src: `${path}/C3_Math.js` },
+         { src: `${path}/C3_Models.js` },
+         { src: `${path}/C3_Model.js` },
+         { src: `${path}/C3_Physics.js` },
+         { src: `${path}/C3_Scene.js` },
+         { src: `${path}/C3_Vector.js` },
          // User
          ...scripts
       ]

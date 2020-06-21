@@ -23,15 +23,15 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.model.object.position.y -= 1
       this.model.animateStart('idle')
       
-      const modelHelmet = c3.models.find('helmet')
-      modelHelmet.object.position.z += 0.01
+      // const modelHelmet = c3.models.find('helmet')
+      // modelHelmet.object.position.z += 0.01
       const modelSword = c3.models.find('sword')
-      const modelShield = c3.models.find('shield')
-      const modelShoulders = c3.models.find('shoulderPads')
-      this.model.boneToggle('Head', modelHelmet)
-      this.model.boneToggle('PalmR', modelSword)
-      this.model.boneToggle('PalmL', modelShield)
-      this.model.boneToggle('Neck', modelShoulders)
+      // const modelShield = c3.models.find('shield')
+      // const modelShoulders = c3.models.find('shoulderPads')
+      // this.model.boneToggle('Head', modelHelmet)
+      this.model.boneToggle('BoneLowerArm_R_end', modelSword)
+      // this.model.boneToggle('PalmL', modelShield)
+      // this.model.boneToggle('Neck', modelShoulders)
       
       return this.meshBodyBottom
    }
@@ -53,7 +53,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       
       // Weapon Collider
       this.weapon = c3.gameObjects.create({ type: 'Weapon' })
-      this.model.boneToggle('PalmR', this.weapon.mesh)
+      this.model.boneToggle('BoneLowerArm_R_end', this.weapon.mesh)
       
       // Others
       this.accel = 4
