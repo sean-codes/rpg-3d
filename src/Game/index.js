@@ -10,6 +10,7 @@ const c3 = new C3({
       equip_helmet: 49,
       jump: 32,
       target: 81,
+      sheath: 88,
       sprint: 16,
    },
 
@@ -33,7 +34,7 @@ const c3 = new C3({
    models: [
       { name: 'helmet', file: '../../assets/models/knight/Helmet1.fbx', scale: 0.01, offset: [0.08, 0.05, 0.65] },
       { name: 'sword', file: '../../assets/models/knight/Sword.fbx', scale: 0.015, rotation: [0, Math.PI*0.5, Math.PI*0.5], offset: [0.1, 0.05, -0.15] },
-      { name: 'shield', file: '../../assets/models/knight/Shield_Round.fbx', scale: 0.01, rotation: [-0.1, Math.PI*0.5, 0], offset: [0.2, -0.3, 0] },
+      { name: 'shield', file: '../../assets/models/knight/Shield_Round.fbx', scale: 0.015, rotation: [0, -Math.PI*-0.5, Math.PI*0.5], offset: [0.65, -0.3, 0] },
       { name: 'shoulderPads', file: '../../assets/models/knight/ShoulderPads.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
       { name: 'tree', file: '../../assets/models/environment/PineTree_Autumn_4.fbx', scale: 0.035, },
       { name: 'rock', file: '../../assets/models/environment/Rock_6.fbx', scale: 0.035, },
@@ -49,6 +50,7 @@ const c3 = new C3({
             { name: 'run', map: 'Armature|run' },
             { name: 'idle', map: 'Armature|idle' },
             { name: 'attack', map: 'Armature|attack', type: 'ADD' },
+            { name: 'sheath', map: 'Armature|sheath', type: 'ADD' },
          ]
          // file: '../../assets/models/knight/KnightCharacter_new.fbx', 
          // scale: 0.01,

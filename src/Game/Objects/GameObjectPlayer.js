@@ -26,9 +26,10 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       // const modelHelmet = c3.models.find('helmet')
       // modelHelmet.object.position.z += 0.01
       const modelSword = c3.models.find('sword')
-      // const modelShield = c3.models.find('shield')
+      const modelShield = c3.models.find('shield')
       // const modelShoulders = c3.models.find('shoulderPads')
       // this.model.boneToggle('Head', modelHelmet)
+      this.model.boneToggle('BoneLowerArm_L_end', modelShield)
       this.model.boneToggle('BoneLowerArm_R_end', modelSword)
       // this.model.boneToggle('PalmL', modelShield)
       // this.model.boneToggle('Neck', modelShoulders)
@@ -237,6 +238,10 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       if (c3.keyboard.check('attack').down && !this.weapon.isAttacking) {
          this.weapon.isAttacking = true
          this.model.animateOnce('attack', 0.1, () => { this.weapon.isAttacking = false })
+      }
+      
+      if (c3.keyboard.check('sheath').down) {
+         this.model.animateOnce('sheath', 0.1)
       }
    }
    

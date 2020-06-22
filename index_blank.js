@@ -38,6 +38,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
          { map: 'Armature|lower_run', add: false },
          { map: 'Armature|upper_run', add: false },
          { map: 'Armature|attack', add: true },
+         { map: 'Armature|block', add: true },
       ]},
    })
    
@@ -47,9 +48,9 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    // models.character.bones.Head.add(models.helmet.object)
    scene.add(models.box_chracter.object) // Adding this to the physics box
    
-   models.box_chracter.clips['Armature|run'].enabled = true
-   models.box_chracter.clips['Armature|run'].setEffectiveWeight(1)
-   models.box_chracter.clips['Armature|run'].play()
+   models.box_chracter.clips['Armature|idle'].enabled = true
+   models.box_chracter.clips['Armature|idle'].setEffectiveWeight(1)
+   models.box_chracter.clips['Armature|idle'].play()
    
    // models.box_chracter.clips['Armature|upper_run'].enabled = true
    // models.box_chracter.clips['Armature|upper_run'].setEffectiveWeight(1)
@@ -59,9 +60,9 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    // models.box_chracter.clips['Armature|run'].setEffectiveWeight(1)
    // models.box_chracter.clips['Armature|run'].play()
    
-   models.box_chracter.clips['Armature|attack'].enabled = true
-   models.box_chracter.clips['Armature|attack'].setEffectiveWeight(1)
-   models.box_chracter.clips['Armature|attack'].play()
+   models.box_chracter.clips['Armature|block'].enabled = true
+   models.box_chracter.clips['Armature|block'].setEffectiveWeight(1)
+   models.box_chracter.clips['Armature|block'].play()
 
    
    // globals
