@@ -172,7 +172,10 @@ class C3 {
                model.mixer = new THREE.AnimationMixer(model.object)
                model.clips = {}
                model.object.animations.forEach((animation) => {
-                  if (animation.name === 'HumanArmature|Run_swordAttack') {
+                  const mappedClip = model.clipMap ? model.clipMap.find(c => c.map === animation.name) : undefined
+                  const additive = mappedClip ? mappedClip.add : false
+                  if (additive) {
+                     console.log('wtf')
                      THREE.AnimationUtils.makeClipAdditive(animation)
                   }
                   const clip = model.mixer.clipAction(animation)

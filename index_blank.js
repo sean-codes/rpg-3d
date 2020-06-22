@@ -33,18 +33,35 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    const models = await c3.loadModels({
       sword: { file: './assets/models/knight/Sword.fbx', scale: 0.01, rotation: [0, -Math.PI*0.5, 0], offset: [0.1, 0.05, -0.15] },
       shield: { file: './assets/models/knight/Shield_Round.fbx', scale: 0.01, rotation: [-0.1, Math.PI*0.5, 0], offset: [0.2, -0.3, 0] },
-      character: { file: './assets/models/knight/KnightCharacter_edited.fbx', scale: 0.01 },
+      knight: { file: './assets/models/knight/KnightCharacter_edited.fbx', scale: 0.01 },
+      box_chracter: { file: './assets/blender_practice/cube_person_rigged.fbx', scale: 0.0075, clipMap: [
+         { map: 'Armature|lower_run', add: false },
+         { map: 'Armature|upper_run', add: false },
+         { map: 'Armature|attack', add: true },
+      ]},
    })
    
    console.log(models)
    
 
    // models.character.bones.Head.add(models.helmet.object)
-   scene.add(models.character.object) // Adding this to the physics box
+   scene.add(models.box_chracter.object) // Adding this to the physics box
+   
+   models.box_chracter.clips['Armature|run'].enabled = true
+   models.box_chracter.clips['Armature|run'].setEffectiveWeight(1)
+   models.box_chracter.clips['Armature|run'].play()
+   
+   // models.box_chracter.clips['Armature|upper_run'].enabled = true
+   // models.box_chracter.clips['Armature|upper_run'].setEffectiveWeight(1)
+   // models.box_chracter.clips['Armature|upper_run'].play()
    // 
-   models.character.clips['HumanArmature|Idle_swordRight'].enabled = true
-   models.character.clips['HumanArmature|Idle_swordRight'].setEffectiveWeight(1)
-   models.character.clips['HumanArmature|Idle_swordRight'].play()
+   // models.box_chracter.clips['Armature|run'].enabled = true
+   // models.box_chracter.clips['Armature|run'].setEffectiveWeight(1)
+   // models.box_chracter.clips['Armature|run'].play()
+   
+   models.box_chracter.clips['Armature|attack'].enabled = true
+   models.box_chracter.clips['Armature|attack'].setEffectiveWeight(1)
+   models.box_chracter.clips['Armature|attack'].play()
 
    
    // globals
