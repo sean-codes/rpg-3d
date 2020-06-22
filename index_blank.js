@@ -40,17 +40,46 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
          { map: 'Armature|attack', add: true },
          { map: 'Armature|block', add: true },
       ]},
+      multi_object: { 
+         log: true, 
+         file: './assets/blender_practice/multiple_object_armature.fbx', 
+         scale: 0.01,
+         clipMap: [
+            { map: 'Top|TopAction', object: 'Top' },
+            { map: 'Bottom|BottomAction', object: 'Bottom' },
+         ]
+      }
    })
    
    console.log(models)
    
+   scene.add(models.multi_object.object)
 
-   // models.character.bones.Head.add(models.helmet.object)
-   scene.add(models.box_chracter.object) // Adding this to the physics box
+   models.multi_object.clips['Top|TopAction'].enabled = true
+   models.multi_object.clips['Top|TopAction'].setEffectiveWeight(1)
+   models.multi_object.clips['Top|TopAction'].play()
    
-   models.box_chracter.clips['Armature|idle'].enabled = true
-   models.box_chracter.clips['Armature|idle'].setEffectiveWeight(1)
-   models.box_chracter.clips['Armature|idle'].play()
+   models.multi_object.clips['Bottom|BottomAction'].enabled = true
+   models.multi_object.clips['Bottom|BottomAction'].setEffectiveWeight(1)
+   models.multi_object.clips['Bottom|BottomAction'].play()
+   
+   // models.multi_object.clips['Cube_Bottom|Cube_BottomAction'].enabled = true
+   // models.multi_object.clips['Cube_Bottom|Cube_BottomAction'].setEffectiveWeight(1)
+   // models.multi_object.clips['Cube_Bottom|Cube_BottomAction'].play()
+   
+   // models.multi_object.clips['Armature_Bottom|Armature_Bottom.animation'].enabled = true
+   // models.multi_object.clips['Armature_Bottom|Armature_Bottom.animation'].setEffectiveWeight(1)
+   // models.multi_object.clips['Armature_Bottom|Armature_Bottom.animation'].play()
+   
+   // models.multi_object.clips['Armature.001|Armature_Top.animation'].enabled = true
+   // models.multi_object.clips['Armature.001|Armature_Top.animation'].setEffectiveWeight(1)
+   // models.multi_object.clips['Armature.001|Armature_Top.animation'].play()
+   // models.character.bones.Head.add(models.helmet.object)
+   // scene.add(models.box_chracter.object) // Adding this to the physics box
+   // 
+   // models.box_chracter.clips['Armature|idle'].enabled = true
+   // models.box_chracter.clips['Armature|idle'].setEffectiveWeight(1)
+   // models.box_chracter.clips['Armature|idle'].play()
    
    // models.box_chracter.clips['Armature|upper_run'].enabled = true
    // models.box_chracter.clips['Armature|upper_run'].setEffectiveWeight(1)
@@ -59,10 +88,10 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    // models.box_chracter.clips['Armature|run'].enabled = true
    // models.box_chracter.clips['Armature|run'].setEffectiveWeight(1)
    // models.box_chracter.clips['Armature|run'].play()
-   
-   models.box_chracter.clips['Armature|block'].enabled = true
-   models.box_chracter.clips['Armature|block'].setEffectiveWeight(1)
-   models.box_chracter.clips['Armature|block'].play()
+   // 
+   // models.box_chracter.clips['Armature|block'].enabled = true
+   // models.box_chracter.clips['Armature|block'].setEffectiveWeight(1)
+   // models.box_chracter.clips['Armature|block'].play()
 
    
    // globals
@@ -73,7 +102,10 @@ const render = function({ c3, time, clock, camera, scene }) {
    const delta = clock.getDelta()
    for (const modelName in this.models) {
       const model = this.models[modelName]
-      model.mixer.update(delta)
+      for (const mixerName in model.mixers) {
+         const mixer = model.mixers[mixerName]
+         mixer.update(delta)
+      }
    }
 
 

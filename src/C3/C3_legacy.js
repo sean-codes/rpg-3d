@@ -125,6 +125,7 @@ class C3 {
          for (const modelName in models) {
             const model = models[modelName]
             loader.load(model.file, (object) => {
+               model.log && console.log('loaded model: ' + modelName, object)
                model.object = object
                model.bones = {}
 
@@ -169,20 +170,31 @@ class C3 {
                model.object.scale.z = model.scale
 
                //animations
-               model.mixer = new THREE.AnimationMixer(model.object)
+               model.mixer = 
+               model.mixers = {}
                model.clips = {}
                model.object.animations.forEach((animation) => {
                   const mappedClip = model.clipMap ? model.clipMap.find(c => c.map === animation.name) : undefined
                   const additive = mappedClip ? mappedClip.add : false
+                  const object = mappedClip && mappedClip.object ? model.object.getObjectByName(mappedClip.object) : model.object
+                  if (mappedClip && mappedClip.object ) {
+                     console.log('found object', object)
+                     
+                  }
                   if (additive) {
-                     console.log('wtf')
                      THREE.AnimationUtils.makeClipAdditive(animation)
                   }
-                  const clip = model.mixer.clipAction(animation)
+                  const mixer = model.mixers[object.name] || new THREE.AnimationMixer(object)
+                  const clip = mixer.clipAction(animation)
                   clip.setEffectiveWeight(0)
                   clip.play()
+                  model.mixers[object.name] = mixer
                   model.clips[animation.name] = clip
                })
+               
+               if (model.log) {
+                  console.log('Setup Model: ' + model.name, model)
+               }
                // finish loading
                loading -= 1
                if (!loading) yay(models)
