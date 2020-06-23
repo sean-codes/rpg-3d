@@ -176,6 +176,7 @@ class C3 {
                model.object.animations.forEach((animation) => {
                   const mappedClip = model.clipMap ? model.clipMap.find(c => c.map === animation.name) : undefined
                   const additive = mappedClip ? mappedClip.add : false
+                  const isPose = mappedClip ? mappedClip.pose : false
                   const object = mappedClip && mappedClip.object ? model.object.getObjectByName(mappedClip.object) : model.object
                   if (mappedClip && mappedClip.object ) {
                      console.log('found object', object)
@@ -183,9 +184,14 @@ class C3 {
                   }
                   if (additive) {
                      THREE.AnimationUtils.makeClipAdditive(animation)
+                     
+                     
                   }
                   const mixer = model.mixers[object.name] || new THREE.AnimationMixer(object)
-                  const clip = mixer.clipAction(animation)
+                  if (isPose) {
+                     animation = THREE.AnimationUtils.subclip( animation, animation.name, 2, 3, 30 );
+                  }
+                  let clip = mixer.clipAction(animation)
                   clip.setEffectiveWeight(0)
                   clip.play()
                   model.mixers[object.name] = mixer
