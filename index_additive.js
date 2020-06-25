@@ -53,6 +53,9 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
             { map: 'Armature|Arms.Walk', add: true },
             { map: 'Armature|Arms.Attack', add: true },
             { map: 'Armature|Arms.Block', add: true, pose: true },
+            { map: 'Armature|Arms.Jump', add: true, pose: true },
+            { map: 'Armature|Legs.Jump', add: true, pose: true },
+            { map: 'Armature|Arms.Bow', add: true, pose: true },
          ]
       }
    })
@@ -64,7 +67,17 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    // models.cube_person.clips['Armature|Still'].play()
    // 
    
-   for (const animationName of ['Armature|Legs.Walk', 'Armature|Arms.Walk', 'Armature|Arms.Block', 'Armature|Arms.Attack', 'Armature|Idle']) {      
+   for (const animationName of [
+      'Armature|Legs.Walk', 
+      'Armature|Legs.Backstep', 
+      'Armature|Arms.Walk', 
+      'Armature|Arms.Block', 
+      'Armature|Arms.Attack', 
+      'Armature|Arms.Jump', 
+      'Armature|Legs.Jump', 
+      'Armature|Idle',
+      'Armature|Arms.Bow',
+   ]) {      
       let type = false
       if (animationName === 'Armature|Arms.Attack') {
          type = () => {}
