@@ -51,11 +51,12 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
             { map: 'Armature|Idle', add: true },
             { map: 'Armature|Legs.Walk', add: true },
             { map: 'Armature|Arms.Walk', add: true },
-            { map: 'Armature|Arms.Attack', add: true },
+            { map: 'Armature|Arms.Attack', add: true, playOnce: true },
             { map: 'Armature|Arms.Block', add: true, pose: true },
             { map: 'Armature|Arms.Jump', add: true, pose: true },
             { map: 'Armature|Legs.Jump', add: true, pose: true },
             { map: 'Armature|Arms.Bow', add: true, pose: true },
+            { map: 'Armature|Arms.EquipWeapon', add: true, playOnce: true },
          ]
       }
    })
@@ -77,13 +78,18 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       'Armature|Legs.Jump', 
       'Armature|Idle',
       'Armature|Arms.Bow',
+      'Armature|Arms.EquipWeapon',
    ]) {      
+
       let type = false
-      if (animationName === 'Armature|Arms.Attack') {
+      const clip = models.cube_person.clips[animationName]
+      if (clip.playOnce) {
          type = () => {}
       }
       
       datGui.add({ toggle: type }, 'toggle').name(`${animationName.split('|').splice(1, 1).join()}`).onChange((value, uhh) => {
+         models.cube_person.clips[animationName].enabled = true
+         
          if (value || value === undefined) {
             models.cube_person.clips[animationName].enabled = true
             models.cube_person.clips[animationName].setEffectiveWeight(1)
@@ -94,22 +100,25 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
                const isRunArmsPlaying = models.cube_person.clips[`Armature|Arms.Walk`].getEffectiveWeight() > 0
                isRunArmsPlaying && models.cube_person.clips[`Armature|Arms.Walk`].setEffectiveWeight(0.1)
                
-               if (animationName == 'Armature|Arms.Attack') {
-                  const clip = models.cube_person.clips['Armature|Arms.Attack']
-                  const clearAnimation = () => {
-                     clip.fadeOut(0)
-                     clip.setEffectiveWeight(0)
-                  }
-                  
-                  models.cube_person.getMixer().addEventListener('loop', (e) => {
-                     if (e.action.getClip().name === animationName) {
-                        clearAnimation()
-                     }
-                  })
+            }
+            
+            if (clip.playOnce) {
+               clip.time = 0
+               const clearAnimation = () => {
+                  clip.fadeOut(0)
+                  clip.setEffectiveWeight(0)
+                  models.cube_person.getMixer().removeEventListener('loop', clearAnimation)
                }
+               
+               models.cube_person.getMixer().addEventListener('loop', (e) => {
+                  if (e.action.getClip().name === animationName) {
+                     clearAnimation()
+                  }
+               })
             }
             
             if (animationName == 'Armature|Arms.Walk') {
+               models.cube_person.clips[`Armature|Arms.Walk`].time = models.cube_person.clips[`Armature|Legs.Walk`].time
                const isBlockPlaying = models.cube_person.clips[`Armature|Arms.Block`].getEffectiveWeight() > 0
                const isAttackPlaying = models.cube_person.clips[`Armature|Arms.Attack`].getEffectiveWeight() > 0
 
