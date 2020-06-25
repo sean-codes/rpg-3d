@@ -170,8 +170,10 @@ class C3 {
                model.object.scale.z = model.scale
 
                //animations
-               model.mixer = 
                model.mixers = {}
+               model.getMixer = function() {
+                  return this.mixers[Object.keys(this.mixers)[0]]
+               }
                model.clips = {}
                model.object.animations.forEach((animation) => {
                   const mappedClip = model.clipMap ? model.clipMap.find(c => c.map === animation.name) : undefined

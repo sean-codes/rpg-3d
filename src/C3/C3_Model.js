@@ -170,6 +170,7 @@ class C3_Model {
          clip.fadeOut(time)
          clip.setEffectiveWeight(0)
          onEnd && onEnd()
+         // when do you clear this event? wtf
       }
 
       this.mixer.addEventListener('loop', (e) => {
