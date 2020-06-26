@@ -8,11 +8,11 @@ const c3 = new C3({
       backward: 83,
       attack: 69,
       equip_helmet: 49,
-      jump: 32,
-      block: 81,
-      target: 84,
-      sheath: 88,
-      sprint: 16,
+      jump: 32, 
+      block: 81, // q
+      target: 84, // t
+      sheath: 88, // x
+      sprint: 16, // shift
    },
 
    scripts: [
@@ -53,17 +53,10 @@ const c3 = new C3({
             { name: 'Arms.Walk', map: 'Armature|Arms.Walk', add: true },
             { name: 'Arms.Attack', map: 'Armature|Arms.Attack', add: true },
             { name: 'Arms.Block', map: 'Armature|Arms.Block', add: true, pose: true },
-            // { name: 'attack', map: 'Armature|attack', type: 'ADD' },
-            // { name: 'sheath', map: 'Armature|sheath', type: 'ADD' },
+            { name: 'Arms.EquipWeapon', map: 'Armature|Arms.EquipWeapon', add: true },
+            { name: 'Legs.Jump', map: 'Armature|Legs.Jump', add: true, pose: true },
+            { name: 'Arms.Jump', map: 'Armature|Arms.Jump', add: true, pose: true },
          ]
-         // file: '../../assets/models/knight/KnightCharacter_new.fbx', 
-         // scale: 0.01,
-         // clips: [
-         //    { name: 'run', map: 'HumanArmature|Run_swordRight' },
-         //    { name: 'idle', map: "HumanArmature|Idle_swordRight" },
-         //    { name: 'jump', map: 'HumanArmature|Jump', type: 'ADD' },
-         //    { name: 'attack', map: 'HumanArmature|Run_swordAttack', type: 'ADD' },
-         // ]
       },
    ],
    

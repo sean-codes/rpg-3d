@@ -70,10 +70,9 @@ class C3_Model {
             
          const clip = this.mixer.clipAction(adjustedClip)
          clip.setEffectiveTimeScale(1)
-         clip.time = 1
-         clip.c3_startAt = definedClip ? definedClip.startAt || 0 : 0
          clip.setEffectiveWeight(0)
          clip.play()
+         clip.c3_startAt = definedClip ? definedClip.startAt || 0 : 0
          clip.c3_weightCurrent = 0
          clip.c3_weightTarget = 0
          clip.c3_weightDampen = 0.25
@@ -168,17 +167,15 @@ class C3_Model {
       clip.fadeOut(fade)
    }
    
-   animateOnce(clipName, time=0.1, onEnd) {
+   animateOnce(clipName, onEnd) {
       const clip = this.clips[clipName]
       clip.enabled = true
       clip.reset()
       clip.time = clip.c3_startAt
-      clip.setEffectiveWeight(1)
-      clip.fadeIn(time)
+      this.animateWeight(clipName, 1)
 
       const stopAnimation = (e) => {
-         clip.fadeOut(time)
-         clip.setEffectiveWeight(0)
+         this.animateWeight(clipName, 0, true)
          onEnd && onEnd()
          // when do you clear this event? wtf
       }
@@ -194,9 +191,12 @@ class C3_Model {
       this.clips[clipName].timeScale = scale
    }
    
-   animateWeight(clipName, weight) {
+   animateWeight(clipName, weight, iSaidRightMeow = false) {
       // this.clips[clipName].setEffectiveWeight(weight)
       this.clips[clipName].c3_weightTarget = weight
+      if (iSaidRightMeow) {
+         this.clips[clipName].c3_weightCurrent = weight
+      }
    }
    
    animateIsPlaying(clipName) {
@@ -209,8 +209,10 @@ class C3_Model {
    }
    
    loopClipWeights(delta) {
+      // delta should probably be used in here somewhere
       for (const clipName in this.clips) {
          const clip = this.clips[clipName]
+         
          const dampen = clip.c3_weightDampen
          
          const currentWeight = this.clips[clipName].c3_weightCurrent
