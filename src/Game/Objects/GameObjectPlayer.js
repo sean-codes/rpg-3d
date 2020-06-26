@@ -29,8 +29,8 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       const modelShield = c3.models.find('shield')
       // const modelShoulders = c3.models.find('shoulderPads')
       // this.model.boneToggle('Head', modelHelmet)
-      // this.model.boneToggle('Shield', modelShield)
-      // this.model.boneToggle('Weapon', modelSword)
+      this.model.boneToggle('Shield', modelShield)
+      this.model.boneToggle('Weapon', modelSword)
       // this.model.boneToggle('PalmL', modelShield)
       // this.model.boneToggle('Neck', modelShoulders)
       
@@ -53,7 +53,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.camera = c3.gameObjects.create({ type: 'Camera', attr: { player: this } })
       
       // Weapon Collider
-      this.weapon = c3.gameObjects.create({ type: 'Weapon', parent: this })
+      this.weapon = c3.gameObjects.create({ type: 'Weapon', attr: { parent: this } })
       this.model.boneToggle('Weapon', this.weapon.mesh)
       
       // Others

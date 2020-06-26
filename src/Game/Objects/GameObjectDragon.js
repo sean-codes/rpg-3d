@@ -22,7 +22,8 @@ c3.gameObjects.types.Dragon = class Dragon extends c3.GameObject {
    
    create({ pos }) {
       this.setPosition(pos)
-      this.model.animateStart('DragonModel|Dragon_Flying', { time: Math.random() * 15 })
+      this.model.animateWeight('DragonModel|Dragon_Flying', 1)
+      this.model.animateTime('DragonModel|Dragon_Flying', Math.random() * 15 )
       this.accel = 0
       this.dead = false
    }
@@ -58,7 +59,7 @@ c3.gameObjects.types.Dragon = class Dragon extends c3.GameObject {
    killDragon() {
       if (this.dead) return
       this.dead = true
-      this.model.animateOnce('DragonModel|Dragon_Death', 0.1, () => {
+      this.model.animateOnce('DragonModel|Dragon_Death', () => {
          this.destroy()
       })
    }

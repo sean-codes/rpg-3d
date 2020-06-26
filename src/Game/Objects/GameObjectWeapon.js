@@ -1,6 +1,6 @@
 c3.objectTypes.Weapon = class GameObjectWeapon extends c3.GameObject {
    mesh() {
-      const geo = new THREE.BoxGeometry(0.5, 1, 6.5)
+      const geo = new THREE.BoxGeometry(0.5, 6.5, 1)
       const mat = c3.models.materialFind('WIREFRAME')
       const mesh = new THREE.Mesh(geo, mat)
       
@@ -20,8 +20,10 @@ c3.objectTypes.Weapon = class GameObjectWeapon extends c3.GameObject {
    }
    
    create({ pos, parent }) {
-      this.setPosition(c3.vector.create(0, 0, -2.75))
+      this.setPosition(c3.vector.create(0, 2.75, 0))
       this.parent = parent
+      
+      console.log('weapon parent', this.parent)
    }
    
    step() {

@@ -187,6 +187,10 @@ class C3_Model {
       })
    }
    
+   animateTime(clipName, time) {
+      this.clips[clipName].time = time
+   }
+   
    animateScale(clipName, scale) {
       this.clips[clipName].timeScale = scale
    }
