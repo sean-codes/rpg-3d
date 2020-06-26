@@ -25,7 +25,7 @@ class C3_Models {
    
    loop(delta) {
       for (const model of this.list) {
-         model.mixer.update(delta)
+         model.loop(delta)
       }
    }
 }

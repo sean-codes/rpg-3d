@@ -56,13 +56,14 @@ class C3_Model {
          let clipName = definedClip ? definedClip.name : animation.name
          let adjustedClip = animation
          if (definedClip) {
-            if (definedClip.type === 'ADD') {  
+            if (definedClip.add) {  
                THREE.AnimationUtils.makeClipAdditive(adjustedClip)
             }
             
             if (definedClip.pose) {
                const { at } = definedClip.pose
-               adjustedClip = THREE.AnimationUtils.subclip(adjustedClip, animation.name, at, at+1, 30)
+               adjustedClip = THREE.AnimationUtils.subclip( animation, animation.name, 2, 3, 30 );
+               // adjustedClip = THREE.AnimationUtils.subclip(adjustedClip, animation.name, at, at+1, 30)
             }
          }
             
@@ -73,6 +74,9 @@ class C3_Model {
          clip.c3_startAt = definedClip ? definedClip.startAt || 0 : 0
          clip.setEffectiveWeight(0)
          clip.play()
+         clip.c3_weightCurrent = 0
+         clip.c3_weightTarget = 0
+         clip.c3_weightDampen = 0.25
          this.clips[clipName] = clip
       })
    }
@@ -124,7 +128,6 @@ class C3_Model {
       clip.play()
       
       clip.time = time
-      
       this.currentClip = clip
    }
    
@@ -142,20 +145,27 @@ class C3_Model {
       this.currentClip = inClip
    }
    
-   animateAdd(clipName, time=0) {
+   animateAdd(clipName, { fade=0, syncWith=undefined }) {
       const clip = this.clips[clipName]
       clip.enabled = true
       clip.reset()
+      clip.play()
       clip.setEffectiveWeight(1)
-      clip.fadeIn(time)
+      clip.fadeIn(fade)
+      
+      if (syncWith) {
+         clip.time = this.clips[syncWith].time
+      }
    }
    
-   animateRemove(clipName, time=0) {
+   animateRemove(clipName, { fade=0 }) {
       const clip = this.clips[clipName]
-      clip.enabled = true
-      clip.reset()
-      clip.setEffectiveWeight(0)
-      clip.fadeOut(time)
+      // clip.enabled = true
+      // clip.reset()
+      // clip.stop()
+      // clip.setEffectiveWeight(0)
+      console.log('stopping', fade)
+      clip.fadeOut(fade)
    }
    
    animateOnce(clipName, time=0.1, onEnd) {
@@ -178,6 +188,40 @@ class C3_Model {
             stopAnimation()
          }
       })
+   }
+   
+   animateScale(clipName, scale) {
+      this.clips[clipName].timeScale = scale
+   }
+   
+   animateWeight(clipName, weight) {
+      // this.clips[clipName].setEffectiveWeight(weight)
+      this.clips[clipName].c3_weightTarget = weight
+   }
+   
+   animateIsPlaying(clipName) {
+      return this.clips[clipName].getEffectiveWeight() > 0
+   }
+   
+   loop(delta) {
+      this.mixer.update(delta)
+      this.loopClipWeights(delta)
+   }
+   
+   loopClipWeights(delta) {
+      for (const clipName in this.clips) {
+         const clip = this.clips[clipName]
+         const dampen = clip.c3_weightDampen
+         
+         const currentWeight = this.clips[clipName].c3_weightCurrent
+         const targetWeight = this.clips[clipName].c3_weightTarget
+         
+         const diffWeight = targetWeight - currentWeight
+         const newWeight = currentWeight + diffWeight * dampen // need math
+         
+         clip.c3_weightCurrent = newWeight
+         clip.setEffectiveWeight(newWeight)
+      }
    }
 }
 
