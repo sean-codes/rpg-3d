@@ -55,6 +55,8 @@ const c3 = new C3({
             { name: 'Arms.Block', map: 'Armature|Arms.Block', add: true, pose: true },
             { name: 'Arms.EquipWeapon', map: 'Armature|Arms.EquipWeapon', add: true },
             { name: 'Arms.EquipWeaponEnd', map: 'Armature|Arms.EquipWeaponEnd', add: true, stringed: true },
+            { name: 'Arms.EquipShield', map: 'Armature|Arms.EquipShield', add: true },
+            { name: 'Arms.EquipShieldEnd', map: 'Armature|Arms.EquipShieldEnd', add: true, stringed: true },
             { name: 'Legs.Jump', map: 'Armature|Legs.Jump', add: true, pose: true },
             { name: 'Arms.Jump', map: 'Armature|Arms.Jump', add: true, pose: true },
          ]
