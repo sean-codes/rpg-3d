@@ -62,8 +62,11 @@ class C3_Model {
             
             if (definedClip.pose) {
                const { at } = definedClip.pose
-               adjustedClip = THREE.AnimationUtils.subclip( animation, animation.name, 2, 3, 30 );
-               // adjustedClip = THREE.AnimationUtils.subclip(adjustedClip, animation.name, at, at+1, 30)
+               adjustedClip = THREE.AnimationUtils.subclip( animation, animation.name, 2, 3, 24 )
+            }
+            
+            if(definedClip.stringed) {
+               adjustedClip = THREE.AnimationUtils.subclip( animation, animation.name, 2, Math.round(animation.time * 24), 24 )
             }
          }
             
@@ -72,6 +75,7 @@ class C3_Model {
          clip.setEffectiveTimeScale(1)
          clip.setEffectiveWeight(0)
          clip.play()
+         
          clip.c3_startAt = definedClip ? definedClip.startAt || 0 : 0
          clip.c3_weightCurrent = 0
          clip.c3_weightTarget = 0
@@ -159,32 +163,26 @@ class C3_Model {
    
    animateRemove(clipName, { fade=0 }) {
       const clip = this.clips[clipName]
-      // clip.enabled = true
-      // clip.reset()
-      // clip.stop()
-      // clip.setEffectiveWeight(0)
-      console.log('stopping', fade)
       clip.fadeOut(fade)
    }
    
    animateOnce(clipName, onEnd) {
       const clip = this.clips[clipName]
-      clip.enabled = true
       clip.reset()
-      clip.time = clip.c3_startAt
-      this.animateWeight(clipName, 1)
-
+      clip.enabled = true
+      clip.clampWhenFinished = true
+      clip.setLoop(THREE.LoopOnce, 1)
+      clip.time = 0
+      this.animateWeight(clipName, 1, true)
       const stopAnimation = (e) => {
-         this.animateWeight(clipName, 0, true)
-         onEnd && onEnd()
-         // when do you clear this event? wtf
+         if (e.action.getClip().name === clip._clip.name) {
+            this.mixer.removeEventListener('finished', stopAnimation)
+            this.animateWeight(clipName, 0, true)
+            onEnd && onEnd()
+         }
       }
 
-      this.mixer.addEventListener('loop', (e) => {
-         if (e.action.getClip().name === clip._clip.name) {
-            stopAnimation()
-         }
-      })
+      this.mixer.addEventListener('finished', stopAnimation)
    }
    
    animateTime(clipName, time) {
@@ -208,8 +206,8 @@ class C3_Model {
    }
    
    loop(delta) {
-      this.mixer.update(delta)
       this.loopClipWeights(delta)
+      this.mixer.update(delta)
    }
    
    loopClipWeights(delta) {
@@ -226,6 +224,7 @@ class C3_Model {
          const newWeight = currentWeight + diffWeight * dampen // need math
          
          clip.c3_weightCurrent = newWeight
+         clip.weight = newWeight
          clip.setEffectiveWeight(newWeight)
       }
    }
