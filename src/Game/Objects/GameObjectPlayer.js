@@ -27,10 +27,12 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       // modelHelmet.object.position.z += 0.01
       const modelSword = c3.models.find('sword')
       const modelShield = c3.models.find('shield')
+      this.modelSword = modelSword
       // const modelShoulders = c3.models.find('shoulderPads')
       // this.model.boneToggle('Head', modelHelmet)
       this.model.boneToggle('Shield', modelShield)
       this.model.boneToggle('Weapon', modelSword)
+      
       // this.model.boneToggle('PalmL', modelShield)
       // this.model.boneToggle('Neck', modelShoulders)
       
@@ -54,7 +56,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       
       // Weapon Collider
       this.weapon = c3.gameObjects.create({ type: 'Weapon', attr: { parent: this } })
-      this.model.boneToggle('Weapon', this.weapon.mesh)
+      // this.model.boneToggle('Weapon', this.weapon.mesh)
       
       // Others
       this.accel = 4
@@ -66,6 +68,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.targetMoveAngle = 0
       this.targetLookAngle = 0
       this.target = undefined
+      this.isWeaponEquipped = true
       
       // animation
       this.isBlocking = false
@@ -259,7 +262,16 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       
       if (c3.keyboard.check('sheath').down) {
          this.isSheathing = true
-         this.model.animateOnce('Arms.EquipWeapon', () => { this.isSheathing = false })
+         
+         this.model.animateOnce('Arms.EquipWeapon', () => { 
+            this.isWeaponEquipped = !this.isWeaponEquipped
+            this.isWeaponEquipped
+               ? this.model.boneToggle('Weapon', this.modelSword)
+               : this.model.boneToggle('Weapon_Back', this.modelSword)
+            this.model.animateOnce('Arms.EquipWeaponEnd', () => {
+               this.isSheathing = false
+            })
+         })
       }
    }
    
@@ -281,6 +293,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       // I'm wondering what if I never turn the animations off.
       // We can figure out a way to manage the weights and let them fade in/out automatically
       
+      // this.model.animateWeight('Idle', 1)
       this.model.animateWeight('Arms.Walk', 0)
       this.model.animateWeight('Legs.Walk', 0)
       
@@ -290,6 +303,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          if (this.isBlocking) { runWeightArms = 0.2; runWeightLegs = 0.2 }
          if (this.isAttacking) { runWeightArms = 0.2 }
          if (!this.isOnGround) { runWeightLegs = 0.1; runWeightArms = 0.1 }
+         // if (this.isSheathing) { runWeightArms = 0.1 }
          this.model.animateWeight('Arms.Walk', runWeightArms)
          this.model.animateWeight('Legs.Walk', runWeightLegs)
    
@@ -312,11 +326,11 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          this.model.animateWeight('Arms.Attack', 1)
       }
       
-      this.model.animateWeight('Arms.EquipWeapon', 0)
-      if (this.isSheathing) {
-         this.model.animateWeight('Arms.EquipWeapon', 1)
-      }
-      
+      // this.model.animateWeight('Arms.EquipWeapon', 0)
+      // if (this.isSheathing) {
+      //    this.model.animateWeight('Arms.EquipWeapon', 1)
+      // }
+      // 
       this.model.animateWeight('Legs.Jump', 0)
       this.model.animateWeight('Arms.Jump', 0)
       if (!this.isOnGround && !this.isAttacking) {

@@ -57,6 +57,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
             { map: 'Armature|Legs.Jump', add: true, pose: true },
             { map: 'Armature|Arms.Bow', add: true, pose: true },
             { map: 'Armature|Arms.EquipWeapon', add: true, playOnce: true },
+            { map: 'Armature|Arms.EquipWeaponEnd', add: true, pose: false, playOnce: false, stringed: true },
          ]
       }
    })
@@ -79,6 +80,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       'Armature|Idle',
       'Armature|Arms.Bow',
       'Armature|Arms.EquipWeapon',
+      'Armature|Arms.EquipWeaponEnd',
    ]) {      
 
       let type = false

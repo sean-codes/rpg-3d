@@ -34,8 +34,8 @@ const c3 = new C3({
    
    models: [
       { name: 'helmet', file: '../../assets/models/knight/Helmet1.fbx', scale: 0.01, offset: [0.08, 0.05, 0.65] },
-      { name: 'sword', file: '../../assets/models/knight/Sword.fbx', scale: 0.015, rotation: [0, 0, Math.PI*0.5], offset: [0, 0.05, -0.15] },
-      { name: 'shield', file: '../../assets/models/knight/Shield_Round.fbx', scale: 0.0125, rotation: [0, 0, -Math.PI*0.5], offset: [0.1, 0, 0.5] },
+      { name: 'sword', file: '../../assets/models/knight/Sword.fbx', scale: 0.0125, rotation: [0, 0, Math.PI*0.5], offset: [0, 0.05, -0.15] },
+      { name: 'shield', file: '../../assets/models/knight/Shield_Round.fbx', scale: 0.013, rotation: [0, 0, -Math.PI*0.5], offset: [0.1, 0, 0.5] },
       { name: 'shoulderPads', file: '../../assets/models/knight/ShoulderPads.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
       { name: 'tree', file: '../../assets/models/environment/PineTree_Autumn_4.fbx', scale: 0.035, },
       { name: 'rock', file: '../../assets/models/environment/Rock_6.fbx', scale: 0.035, },
@@ -54,6 +54,7 @@ const c3 = new C3({
             { name: 'Arms.Attack', map: 'Armature|Arms.Attack', add: true },
             { name: 'Arms.Block', map: 'Armature|Arms.Block', add: true, pose: true },
             { name: 'Arms.EquipWeapon', map: 'Armature|Arms.EquipWeapon', add: true },
+            { name: 'Arms.EquipWeaponEnd', map: 'Armature|Arms.EquipWeaponEnd', add: true, stringed: true },
             { name: 'Legs.Jump', map: 'Armature|Legs.Jump', add: true, pose: true },
             { name: 'Arms.Jump', map: 'Armature|Arms.Jump', add: true, pose: true },
          ]

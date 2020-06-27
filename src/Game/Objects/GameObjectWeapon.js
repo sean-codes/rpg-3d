@@ -22,8 +22,6 @@ c3.objectTypes.Weapon = class GameObjectWeapon extends c3.GameObject {
    create({ pos, parent }) {
       this.setPosition(c3.vector.create(0, 2.75, 0))
       this.parent = parent
-      
-      console.log('weapon parent', this.parent)
    }
    
    step() {

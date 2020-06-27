@@ -181,12 +181,19 @@ class C3 {
                   const isPose = mappedClip ? mappedClip.pose : false
                   const object = mappedClip && mappedClip.object ? model.object.getObjectByName(mappedClip.object) : model.object
                   const playOnce = mappedClip ? mappedClip.playOnce : false
+                  const stringed = mappedClip ? mappedClip.stringed : false
+                  
                   if (additive) {
                      THREE.AnimationUtils.makeClipAdditive(animation)   
                   }
                   const mixer = model.mixers[object.name] || new THREE.AnimationMixer(object)
                   if (isPose) {
                      animation = THREE.AnimationUtils.subclip( animation, animation.name, 2, 3, 30 );
+                  }
+                  
+                  if (stringed) {
+                     animation = THREE.AnimationUtils.subclip( animation, animation.name, 2, 12, 24 );
+                     
                   }
                   let clip = mixer.clipAction(animation)
                   clip.setEffectiveWeight(0)
