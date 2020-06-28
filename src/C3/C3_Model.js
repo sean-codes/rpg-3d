@@ -1,8 +1,11 @@
 class C3_Model {
    constructor({ loadInfo, object, isClone = false }) {
+      
       this.loadInfo = loadInfo
       this.name = loadInfo.name
-      this.object = object
+      // makes it easier to scale rorate etc without breaking animations
+      this.object = new THREE.Object3D()
+      this.object.add(object)
       this.bones = {}
       this.currentClip = undefined
 
@@ -28,19 +31,21 @@ class C3_Model {
             part.receiveShadow = true
             part.castShadow = true
 
-            if (loadInfo.offset) {
-               part.geometry.translate(...loadInfo.offset)
-            }
-
-            if (loadInfo.rotation) {
-               if (!isClone) {   
-                  part.geometry.rotateX(loadInfo.rotation[0])
-                  part.geometry.rotateY(loadInfo.rotation[1])
-                  part.geometry.rotateZ(loadInfo.rotation[2])
-               }
-            }
+            
          }
       })
+      
+      if (loadInfo.offset) {
+         object.translateX(loadInfo.offset[0] / loadInfo.scale)
+         object.translateY(loadInfo.offset[1] / loadInfo.scale)
+         object.translateZ(loadInfo.offset[2] / loadInfo.scale)
+      }
+
+      if (loadInfo.rotation) {
+         object.rotateX(loadInfo.rotation[0])
+         object.rotateY(loadInfo.rotation[1])
+         object.rotateZ(loadInfo.rotation[2])
+      }
 
       // scale
       // scale after so we can adjust axis
@@ -49,9 +54,9 @@ class C3_Model {
       this.object.scale.z = loadInfo.scale
 
       //animations
-      this.mixer = new THREE.AnimationMixer(this.object)
+      this.mixer = new THREE.AnimationMixer(object)
       this.clips = {}
-      this.object.animations.forEach((animation) => {
+      object.animations && object.animations.forEach((animation) => {
          const definedClip = loadInfo.clips && loadInfo.clips.find(c => c.map === animation.name)
          let clipName = definedClip ? definedClip.name : animation.name
          let adjustedClip = animation
@@ -85,8 +90,8 @@ class C3_Model {
    }
    
    clone(name) {
-      const clone = THREE.SkeletonUtils.clone(this.object)
-      clone.animations = this.object.animations
+      const clone = THREE.SkeletonUtils.clone(this.object.children[0])
+      clone.animations = this.object.children[0].animations
    
       const newModel = c3.models.add({
          loadInfo: { ...this.loadInfo, name },

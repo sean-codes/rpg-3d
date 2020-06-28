@@ -27,12 +27,18 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       // modelHelmet.object.position.z += 0.01
       const modelSword = c3.models.find('sword')
       const modelShield = c3.models.find('shield')
-      this.modelSword = modelSword
+      const modelBow = c3.models.find('bow')
+      const modelArrow = c3.models.find('arrow')
+      this.modelArrow = modelArrow
+      this.modelSword = modelBow
+      // this.modelSword = modelSword
       this.modelShield = modelShield
       // const modelShoulders = c3.models.find('shoulderPads')
       // this.model.boneToggle('Head', modelHelmet)
-      this.model.boneToggle('Shield', modelShield)
-      this.model.boneToggle('Weapon', modelSword)
+      this.model.boneToggle('Shield_Back', modelShield)
+      this.model.boneToggle('Weapon_Back', modelSword)
+      this.model.boneToggle('Weapon', this.modelSword)
+      this.model.boneToggle('Arrow', this.modelArrow)
       
       // this.model.boneToggle('PalmL', modelShield)
       // this.model.boneToggle('Neck', modelShoulders)
@@ -77,6 +83,13 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.isRunning = false
       this.isSprinting = false
       this.isSheathing = false
+      this.isStrafingRight = false
+      this.isStrafing = false
+      this.isMovingForward = false
+      this.isMovingBackward = false
+      this.isBowHold = false
+      
+      this.weaponType = 'bow'
    }
    
    step() {
@@ -134,11 +147,14 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       // Movement
       let speed = this.speed
       this.isSprinting = c3.keyboard.check('sprint').held
+      this.isStrafing = false
+      this.isMovingForward = false
+      this.isMovingBackward = false
       
       if (this.isSprinting && !this.isBlocking) {
          speed *= 1.25
       } else {
-         if (this.isBlocking || this.isAttacking) {
+         if (this.isBlocking || this.isAttacking || this.isBowHold) {
             speed *= 0.5
          }
       }
@@ -163,10 +179,12 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       
       if (c3.keyboard.check('forward').held) {
          targetMoveAngle = c3.math.loopAngle(baseAngle)
+         this.isMovingForward = true
       }
       
       if (c3.keyboard.check('backward').held) {
          targetMoveAngle = c3.math.loopAngle(baseAngle + Math.PI)
+         this.isMovingBackward = true
       }
       
       
@@ -174,6 +192,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          let pull = 2
          
          if (this.target && !this.isSprinting) {
+            this.isStrafing = true
             const distanceFromTarget = this.target.mesh.position.distanceTo(this.mesh.position)
             const distanceAdjust = Math.min(distanceFromTarget, 20)
             const maxAdjust = 0.6 // this probably depends on speed
@@ -191,6 +210,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          let pull = 2
          
          if (this.target && !this.isSprinting) {
+            this.isStrafing = true
             const distanceFromTarget = this.target.mesh.position.distanceTo(this.mesh.position)
             const distanceAdjust = Math.min(distanceFromTarget, 20)
             const maxAdjust = 0.6 // this probably depends on speed
@@ -248,10 +268,20 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
    
    stepAttack() {
       // Attack
+      this.isBowHold = false
+      
       if (c3.keyboard.check('attack').down && !this.isAttacking) {
-         this.isAttacking = true
-         // yikes this is dependent on an animation speed
-         this.model.animateOnce('Arms.Attack', () => { this.isAttacking = false })
+         if (this.weaponType == '1hand') {
+            this.isAttacking = true
+            // yikes this is dependent on an animation speed
+            this.model.animateOnce('Arms.Attack', () => { this.isAttacking = false })
+         }
+      }
+      
+      if (c3.keyboard.check('attack').held) {
+         if (this.weaponType === 'bow') {
+            this.isBowHold = true
+         }
       }
       
       if (c3.keyboard.check('block').down) {
@@ -269,27 +299,30 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
             this.isWeaponEquipped = !this.isWeaponEquipped
             if (this.isWeaponEquipped) {
                this.model.boneToggle('Weapon', this.modelSword)
-               this.model.boneToggle('Weapon', this.weapon.mesh)
+               // this.model.boneToggle('Weapon', this.weapon.mesh)
             } else {
-               this.model.boneToggle('Weapon_Back', this.modelSword)
-               this.model.boneToggle('Weapon_Back', this.weapon.mesh)
+               const weaponLocation = this.weaponType === 'bow' ? 'Weapon_Back_Bow' : 'Weapon_Back'
+               this.model.boneToggle(weaponLocation, this.modelSword)
+               // this.model.boneToggle(weaponLocation, this.weapon.mesh)
             }
             this.model.animateOnce('Arms.EquipWeaponEnd', () => {
                this.isSheathing = false
             })
          })
          
-         this.model.animateOnce('Arms.EquipShield', () => { 
-            this.isShieldEquipped = !this.isShieldEquipped
-            if (this.isShieldEquipped) {
-               this.model.boneToggle('Shield', this.modelShield)
-            } else {
-               this.model.boneToggle('Shield_Back', this.modelShield)
-            }
-            this.model.animateOnce('Arms.EquipShieldEnd', () => {
-               this.isSheathing = false
+         if (this.weaponType !== 'bow') {
+            this.model.animateOnce('Arms.EquipShield', () => { 
+               this.isShieldEquipped = !this.isShieldEquipped
+               if (this.isShieldEquipped) {
+                  this.model.boneToggle('Shield', this.modelShield)
+               } else {
+                  this.model.boneToggle('Shield_Back', this.modelShield)
+               }
+               this.model.animateOnce('Arms.EquipShieldEnd', () => {
+                  this.isSheathing = false
+               })
             })
-         })
+         }
       }
    }
    
@@ -310,20 +343,30 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       // Before we get started. Does anyone want to get out?
       // I'm wondering what if I never turn the animations off.
       // We can figure out a way to manage the weights and let them fade in/out automatically
-      
-      this.model.animateWeight('Idle', 1)
+      let idleWeight = 1
+      if (this.isBowHold) idleWeight = 0.1
+      this.model.animateWeight('Idle', idleWeight)
       this.model.animateWeight('Arms.Walk', 0)
       this.model.animateWeight('Legs.Walk', 0)
+      this.model.animateWeight('Legs.Walk_Strafe', 0)
       
       if (this.isRunning) {
          let runWeightArms = 1
          let runWeightLegs = 1
+         let runWeightStrafing = 0
          if (this.isBlocking) { runWeightArms = 0.2; runWeightLegs = 0.2 }
          if (this.isAttacking) { runWeightArms = 0.2 }
          if (!this.isOnGround) { runWeightLegs = 0.1; runWeightArms = 0.1 }
-         // if (this.isSheathing) { runWeightArms = 0.1 }
+         if (this.isStrafing) {
+            runWeightArms = 0.2;
+            runWeightLegs = this.isMovingForward || this.isMovingBackward ? 0.5 : 0; 
+            runWeightStrafing = 1 
+         }
+         if (this.isBowHold) { runWeightArms = 0.0 }
+         
          this.model.animateWeight('Arms.Walk', runWeightArms)
          this.model.animateWeight('Legs.Walk', runWeightLegs)
+         this.model.animateWeight('Legs.Walk_Strafe', runWeightStrafing)
    
          let runScale = 1
          if (this.isSprinting) { runScale = 1.5 }
@@ -344,16 +387,21 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          this.model.animateWeight('Arms.Attack', 1)
       }
       
-      // this.model.animateWeight('Arms.EquipWeapon', 0)
-      // if (this.isSheathing) {
-      //    this.model.animateWeight('Arms.EquipWeapon', 1)
-      // }
-      // 
+      this.model.animateWeight('Arms.Bow', 0)
+      this.modelSword.animateWeight('Hold', 0)
+      if (this.isBowHold) {
+         this.model.animateWeight('Arms.Bow', 1)
+         this.modelSword.animateWeight('Hold', 1)
+      }
+      
       this.model.animateWeight('Legs.Jump', 0)
       this.model.animateWeight('Arms.Jump', 0)
       if (!this.isOnGround && !this.isAttacking) {
+         let jumpWeightArms = 1
+         
+         if (this.isBowHold) jumpWeightArms = 0
          this.model.animateWeight('Legs.Jump', 1)
-         this.model.animateWeight('Arms.Jump', 1)
+         this.model.animateWeight('Arms.Jump', jumpWeightArms)
       }
    }
 }

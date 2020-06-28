@@ -71,7 +71,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    
    for (const animationName of [
       'Armature|Legs.Walk', 
-      'Armature|Legs.Backstep', 
+      // 'Armature|Legs.Backstep', 
       'Armature|Arms.Walk', 
       'Armature|Arms.Block', 
       'Armature|Arms.Attack', 

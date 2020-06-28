@@ -34,25 +34,37 @@ const c3 = new C3({
    
    models: [
       { name: 'helmet', file: '../../assets/models/knight/Helmet1.fbx', scale: 0.01, offset: [0.08, 0.05, 0.65] },
-      { name: 'sword', file: '../../assets/models/knight/Sword.fbx', scale: 0.0125, rotation: [0, 0, Math.PI*0.5], offset: [0, 0.05, -0.15] },
-      { name: 'shield', file: '../../assets/models/knight/Shield_Round.fbx', scale: 0.013, rotation: [0, 0, -Math.PI*0.5], offset: [0.1, 0, 0.5] },
+      { name: 'sword', file: '../../assets/models/knight/Sword.fbx', scale: 0.0125, rotation: [0, Math.PI*0.5, 0], offset: [0, -0.4, 0.15] },
+      { name: 'shield', file: '../../assets/models/knight/Shield_Round.fbx', scale: 0.013, rotation: [0, -Math.PI*0.5, 0], offset: [0, 0, 0] },
       { name: 'shoulderPads', file: '../../assets/models/knight/ShoulderPads.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
       { name: 'tree', file: '../../assets/models/environment/PineTree_Autumn_4.fbx', scale: 0.035, },
       { name: 'rock', file: '../../assets/models/environment/Rock_6.fbx', scale: 0.035, },
       { name: 'bush', file: '../../assets/models/environment/BushBerries_2.fbx', scale: 0.035, },
       { name: 'fence', file: '../../assets/models/environment/Fence.fbx', scale: 0.035, },
       { name: 'dragon', file: '../../assets/models/monsters/FBX/Dragon_Edited.fbx', scale: 0.01, offset: [0, 0.2, 0.15] },
+      { log: true, name: 'arrow', file: '../../assets/blender_practice/Arrow.fbx', scale: 0.015, rotation: [-Math.PI*0.5, 0, 0], offset: [0, 0, 0] },
       { 
-         log: true,
+         name: 'bow', 
+         file: '../../assets/blender_practice/bow_wooden.fbx', 
+         scale: 0.01, 
+         rotation: [0, -Math.PI*0.5, 0], 
+         offset: [0, 0, 0],
+         clips: [
+            { name: 'Hold', map: 'Armature|Hold', add: true, pose: true }
+         ]  
+      },
+      {
          name: 'character', 
          scale: 0.01,
          file: '../../assets/blender_practice/cube_person.fbx',
          clips: [
             { name: 'Idle', map: 'Armature|Idle', add: true },
             { name: 'Legs.Walk', map: 'Armature|Legs.Walk', add: true },
+            { name: 'Legs.Walk_Strafe', map: 'Armature|Legs.Walk_Strafe', add: true },
             { name: 'Arms.Walk', map: 'Armature|Arms.Walk', add: true },
             { name: 'Arms.Attack', map: 'Armature|Arms.Attack', add: true },
             { name: 'Arms.Block', map: 'Armature|Arms.Block', add: true, pose: true },
+            { name: 'Arms.Bow', map: 'Armature|Arms.Bow', add: true, pose: true },
             { name: 'Arms.EquipWeapon', map: 'Armature|Arms.EquipWeapon', add: true },
             { name: 'Arms.EquipWeaponEnd', map: 'Armature|Arms.EquipWeaponEnd', add: true, stringed: true },
             { name: 'Arms.EquipShield', map: 'Armature|Arms.EquipShield', add: true },
