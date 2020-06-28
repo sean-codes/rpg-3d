@@ -26,12 +26,12 @@ class C3 {
          { src: `${node_modules}/zlibjs/bin/inflate.min.js` },
          // Core
          { src: `${path}/C3_Camera.js` },
-         { src: `${path}/C3_GameObjects.js` },
-         { src: `${path}/C3_GameObject.js` },
          { src: `${path}/C3_Keyboard.js` },
          { src: `${path}/C3_Math.js` },
          { src: `${path}/C3_Models.js` },
          { src: `${path}/C3_Model.js` },
+         { src: `${path}/C3_Objects.js` },
+         { src: `${path}/C3_Object.js` },
          { src: `${path}/C3_Physics.js` },
          { src: `${path}/C3_Scene.js` },
          { src: `${path}/C3_Vector.js` },
@@ -84,7 +84,7 @@ class C3 {
       
       c3.physics.loopApplyCollisions()
       
-      for (const object of this.gameObjects.list) {
+      for (const object of this.objects.list) {
          object.step()
       }
       

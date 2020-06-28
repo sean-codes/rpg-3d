@@ -1,4 +1,4 @@
-class GameObjectTarget extends c3.GameObject {
+class ObjectTarget extends c3.Object {
    mesh() {
       const geo = new THREE.OctahedronGeometry(2, 0)
       const mat = c3.models.materialFind('TARGET')
@@ -26,4 +26,4 @@ class GameObjectTarget extends c3.GameObject {
    }
 }
 
-c3.objectTypes.Target = GameObjectTarget
+c3.objectTypes.Target = ObjectTarget

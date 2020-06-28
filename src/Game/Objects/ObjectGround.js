@@ -1,4 +1,4 @@
-c3.objectTypes.Ground = class GameObjectGround extends c3.GameObject {
+class ObjectGround extends c3.Object {
    mesh() {
       const geo = new THREE.PlaneBufferGeometry(200, 200)
       const mat = new THREE.MeshPhongMaterial({ 
@@ -28,3 +28,5 @@ c3.objectTypes.Ground = class GameObjectGround extends c3.GameObject {
       
    }
 }
+
+c3.objectTypes.Ground = ObjectGround

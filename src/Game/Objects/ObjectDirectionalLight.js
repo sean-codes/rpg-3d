@@ -1,4 +1,4 @@
-c3.objectTypes.DirectionalLight = class GameObjectDirectionalLight extends c3.GameObject {
+class ObjectDirectionalLight extends c3.Object {
    mesh() {
       const dirLight = new THREE.DirectionalLight('#FFF', 1)
       dirLight.castShadow = true
@@ -22,3 +22,5 @@ c3.objectTypes.DirectionalLight = class GameObjectDirectionalLight extends c3.Ga
       
    }
 }
+
+c3.objectTypes.DirectionalLight = ObjectDirectionalLight

@@ -1,4 +1,4 @@
-c3.objectTypes.Camera = class GameObjectCamera extends c3.GameObject {
+c3.objectTypes.Camera = class ObjectCamera extends c3.Object {
    mesh() {
       const { camera } = c3
       camera.setPosition(0, 0, -15)

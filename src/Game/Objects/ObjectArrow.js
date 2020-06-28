@@ -1,4 +1,4 @@
-class GameObjectArrow extends c3.GameObject {
+class ObjectArrow extends c3.Object {
    mesh() {
       const geo = new THREE.BoxGeometry(1, 1, 5)
       const mat = c3.models.materialFind('WIREFRAME')
@@ -52,4 +52,4 @@ class GameObjectArrow extends c3.GameObject {
    }
 }
 
-c3.objectTypes.Arrow = GameObjectArrow
+c3.objectTypes.Arrow = ObjectArrow

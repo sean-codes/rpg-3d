@@ -1,11 +1,11 @@
-class C3_GameObjects {
+class C3_Objects {
    constructor() {
       this.types = c3.objectTypes
       this.list = []
       this.id = -1
    }
    
-   create({ type = '', attr = {} }) {
+   create(type, attr = {}) {
       const Template = this.types[type]
       const id = this.id++
       const object = new Template({ attr, type, id })
@@ -28,4 +28,4 @@ class C3_GameObjects {
    }
 }
 
-c3.gameObjects = new C3_GameObjects
+c3.objects = new C3_Objects

@@ -1,4 +1,4 @@
-c3.gameObjects.types.Platform = class extends c3.GameObject {
+class ObjectPlatform extends c3.Object {
    mesh() {
       const geo = new THREE.BoxBufferGeometry(10, 0.5, 10)
       const mat = c3.models.materialFind('BOX')
@@ -21,3 +21,5 @@ c3.gameObjects.types.Platform = class extends c3.GameObject {
       this.setPosition(pos)
    }
 } 
+
+c3.objectTypes.Platform = ObjectPlatform

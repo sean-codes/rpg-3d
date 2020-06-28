@@ -17,18 +17,18 @@ const c3 = new C3({
 
    scripts: [
       // Objects
-      { src: './Objects/GameObjectAmbientLight.js' },
-      { src: './Objects/GameObjectDirectionalLight.js' },
-      { src: './Objects/GameObjectBox.js' },
-      { src: './Objects/GameObjectCamera.js' },
-      { src: './Objects/GameObjectDragon.js' },
-      { src: './Objects/GameObjectPlayer.js' },
-      { src: './Objects/GameObjectPlatform.js' },
-      { src: './Objects/GameObjectGround.js' },
-      { src: './Objects/GameObjectResource.js' },
-      { src: './Objects/GameObjectTarget.js' },
-      { src: './Objects/GameObjectWeapon.js' },
-      { src: './Objects/GameObjectArrow.js' },
+      { src: './Objects/ObjectAmbientLight.js' },
+      { src: './Objects/ObjectDirectionalLight.js' },
+      { src: './Objects/ObjectBox.js' },
+      { src: './Objects/ObjectCamera.js' },
+      { src: './Objects/ObjectDragon.js' },
+      { src: './Objects/ObjectPlayer.js' },
+      { src: './Objects/ObjectPlatform.js' },
+      { src: './Objects/ObjectGround.js' },
+      { src: './Objects/ObjectResource.js' },
+      { src: './Objects/ObjectTarget.js' },
+      { src: './Objects/ObjectWeapon.js' },
+      { src: './Objects/ObjectArrow.js' },
       // Scripts
       { src: './Scripts/ScriptCameraController.js' }, 
    ],
@@ -98,29 +98,29 @@ const c3 = new C3({
       c3.physics.addMaterial('GROUND', { friction: 0.1, restitution: 0 })
 
       // lights
-      c3.gameObjects.create({ type: 'AmbientLight' })
-      c3.gameObjects.create({ type: 'DirectionalLight' })
+      c3.objects.create('AmbientLight')
+      c3.objects.create('DirectionalLight')
    
-      const player = c3.gameObjects.create({ type: 'Player', attr: { pos: c3.vector.create(0, 2, 0) } })
-      c3.gameObjects.create({ type: 'Ground' })
+      const player = c3.objects.create('Player', { pos: c3.vector.create(0, 2, 0) })
+      c3.objects.create('Ground')
 
       for (let i = 0; i < 40; i++) {
-         c3.gameObjects.create({ type: 'Box' })
+         c3.objects.create('Box')
       }
       
       for (let i = 0; i < 100; i++) {
-         c3.gameObjects.create({ type: 'Resource' })
+         c3.objects.create('Resource')
       }
       
       for (let x = 0; x < 2; x++) {
          for (let y = 0; y < 2; y++) {
-            c3.gameObjects.create({ type: 'Dragon', attr: { pos: c3.vector.create(15+x*6, 2, -15+y*6) } })
+            c3.objects.create('Dragon', { pos: c3.vector.create(15+x*6, 2, -15+y*6) })
          }
       }
       
-      c3.gameObjects.create({ type: 'Platform', attr: { pos: c3.vector.create(-15, 3, -15) }})
-      c3.gameObjects.create({ type: 'Platform', attr: { pos: c3.vector.create(-20, 6, -15) }})
-      c3.gameObjects.create({ type: 'Target', attr: { pos: c3.vector.create(-8, 4, 8) }})
+      c3.objects.create('Platform', { pos: c3.vector.create(-15, 3, -15) })
+      c3.objects.create('Platform', { pos: c3.vector.create(-20, 6, -15) })
+      c3.objects.create('Target', { pos: c3.vector.create(-8, 4, 8) })
    },
    
    step: function(c3) {

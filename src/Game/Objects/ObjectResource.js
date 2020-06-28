@@ -1,4 +1,4 @@
-c3.objectTypes.Resource = class GameObjectResource extends c3.GameObject {
+c3.objectTypes.Resource = class ObjectResource extends c3.Object {
    mesh() {
       const type = c3.math.choose(['tree', 'rock', 'bush'])
       const model = c3.models.find(type).clone()

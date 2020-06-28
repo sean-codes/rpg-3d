@@ -1,4 +1,4 @@
-class GameObjectBox extends c3.GameObject {
+class ObjectBox extends c3.Object {
    mesh() {
       const scale = c3.math.randomRange(0.5, 2)
       const geo = new THREE.BoxGeometry(scale, scale, scale)
@@ -47,4 +47,4 @@ class GameObjectBox extends c3.GameObject {
    }
 }
 
-c3.objectTypes.Box = GameObjectBox
+c3.objectTypes.Box = ObjectBox

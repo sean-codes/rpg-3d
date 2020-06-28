@@ -1,4 +1,4 @@
-class C3_GameObject {
+class C3_Object {
    constructor({ id, attr, type }) {
       this.id = id
       this.attr = attr
@@ -18,7 +18,7 @@ class C3_GameObject {
    destroy() {
       c3.scene.remove(this.mesh)
       if (this.physicsObject) c3.physics.removeObject(this.physicsObject)
-      c3.gameObjects.destroy(this)
+      c3.objects.destroy(this)
    }
    
    setPosition({ x, y, z }) {
@@ -104,4 +104,4 @@ class C3_GameObject {
    handleResize(width, height) {}
 }
 
-c3.GameObject = C3_GameObject
+c3.Object = C3_Object

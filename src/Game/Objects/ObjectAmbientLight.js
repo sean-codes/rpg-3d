@@ -1,4 +1,4 @@
-c3.objectTypes.AmbientLight = class GameObjectAmbientLight extends c3.GameObject {
+class ObjectAmbientLight extends c3.Object {
    mesh() {
       const ambientLight = new THREE.AmbientLight('#FFF', 0.5)
       return ambientLight
@@ -8,3 +8,5 @@ c3.objectTypes.AmbientLight = class GameObjectAmbientLight extends c3.GameObject
       
    }
 }
+
+c3.objectTypes.AmbientLight = ObjectAmbientLight

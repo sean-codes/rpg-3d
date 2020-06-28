@@ -1,4 +1,4 @@
-c3.gameObjects.types.Dragon = class Dragon extends c3.GameObject {
+class ObjectDragon extends c3.Object {
    mesh() {
       const geo = new THREE.SphereGeometry(2)
       const mat = c3.models.materialFind('WIREFRAME')
@@ -29,7 +29,7 @@ c3.gameObjects.types.Dragon = class Dragon extends c3.GameObject {
    }
    
    step() {
-      const player = c3.gameObjects.find('Player')
+      const player = c3.objects.find('Player')
       const distanceFromPlayer = this.mesh.position.distanceTo(player.mesh.position)
 
       if (distanceFromPlayer < 10) {
@@ -64,3 +64,5 @@ c3.gameObjects.types.Dragon = class Dragon extends c3.GameObject {
       })
    }
 }
+
+c3.objectTypes.Dragon = ObjectDragon

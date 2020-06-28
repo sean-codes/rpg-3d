@@ -1,4 +1,4 @@
-c3.objectTypes.Weapon = class GameObjectWeapon extends c3.GameObject {
+class ObjectWeapon extends c3.Object {
    mesh() {
       const geo = new THREE.BoxGeometry(0.5, 5, 1)
       const mat = c3.models.materialFind('WIREFRAME')
@@ -34,3 +34,5 @@ c3.objectTypes.Weapon = class GameObjectWeapon extends c3.GameObject {
       }
    }
 }
+
+c3.objectTypes.Weapon = ObjectWeapon

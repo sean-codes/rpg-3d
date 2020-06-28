@@ -1,4 +1,4 @@
-c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
+class ObjectPlayer extends c3.Object {
    mesh() {
       // Bodies for physics
       const geoBodyBottom = new THREE.SphereGeometry(0.9)
@@ -59,10 +59,10 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       this.setPosition(pos)
       
       // Camera
-      this.camera = c3.gameObjects.create({ type: 'Camera', attr: { player: this } })
+      this.camera = c3.objects.create('Camera', { player: this } )
       
       // Weapon Collider
-      this.weapon = c3.gameObjects.create({ type: 'Weapon', attr: { parent: this } })
+      this.weapon = c3.objects.create('Weapon', { parent: this } )
       // this.model.boneToggle('Weapon', this.weapon.mesh)
       
       // Others
@@ -111,7 +111,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          if (this.target) {
             this.target = undefined
          } else {
-            const dragons = c3.gameObjects.findAll(['Dragon', 'Target'])
+            const dragons = c3.objects.findAll(['Dragon', 'Target'])
             let closestDragon = undefined
             let closestDistance = 100000000000
             for (const dragon of dragons) {
@@ -286,7 +286,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       
       if (c3.keyboard.check('attack').up) {
          if (this.weaponType === 'bow' && this.model.animateGetWeight('Arms.Bow') > 0.99) {
-            c3.gameObjects.create({ type: 'Arrow', attr: { pos: this.modelArrow.object.getWorldPosition(), rotation: this.getRotation() } })
+            c3.objects.create('Arrow', { pos: this.modelArrow.object.getWorldPosition(), rotation: this.getRotation() })
          }
       }
       
@@ -412,3 +412,5 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
       }
    }
 }
+
+c3.objectTypes.Player = ObjectPlayer
