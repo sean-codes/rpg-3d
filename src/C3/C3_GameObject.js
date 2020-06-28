@@ -37,10 +37,6 @@ class C3_GameObject {
       return this.mesh.position
    }
    
-   getDirection() {
-      return this.mesh.getWorldDirection(new THREE.Vector3())
-   }
-   
    rotate(x, y, z) {
       this.mesh.rotation.x += x
       this.mesh.rotation.y += y
@@ -68,19 +64,33 @@ class C3_GameObject {
       this.rotateUpdate()
    }
    
+   setRotation(rotation) {
+      this.rotation.x = rotation.x
+      this.rotation.y = rotation.y
+      this.rotation.z = rotation.z
+      this.rotateUpdate()
+   }
+   
+   getRotation() {
+      return this.rotation
+   }
+   
+   getDirection() {
+      return this.mesh.getWorldDirection(new THREE.Vector3())
+   }
+   
    addRotationY(radians) {
       this.rotation.y = c3.math.loopAngle(this.rotation.y + radians)
       this.rotateUpdate()
    }
    
    rotateUpdate() {
-      if (this.body) {
-         this.body.quaternion.setFromEuler(this.rotation.x, this.rotation.y, this.rotation.z, 'XYZ')
-      } else {
+      if (!this.body || (this.physics && this.physics.linkToMesh)) {
          this.mesh.rotation.x = this.rotation.x
          this.mesh.rotation.y = this.rotation.y
          this.mesh.rotation.z = this.rotation.z
-         console.log('updating rotation', this.mesh.rotation)
+      } else {
+         this.body.quaternion.setFromEuler(this.rotation.x, this.rotation.y, this.rotation.z, 'XYZ')
       }
    }
    

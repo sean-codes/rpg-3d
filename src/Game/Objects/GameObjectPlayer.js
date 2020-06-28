@@ -284,6 +284,12 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          }
       }
       
+      if (c3.keyboard.check('attack').up) {
+         if (this.weaponType === 'bow' && this.model.animateGetWeight('Arms.Bow') > 0.99) {
+            c3.gameObjects.create({ type: 'Arrow', attr: { pos: this.modelArrow.object.getWorldPosition(), rotation: this.getRotation() } })
+         }
+      }
+      
       if (c3.keyboard.check('block').down) {
          this.isBlocking = true
       }
@@ -310,7 +316,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
             })
          })
          
-         if (this.weaponType !== 'bow') {
+         if (this.weaponType == '1hand') {
             this.model.animateOnce('Arms.EquipShield', () => { 
                this.isShieldEquipped = !this.isShieldEquipped
                if (this.isShieldEquipped) {
@@ -372,6 +378,7 @@ c3.objectTypes.Player = class GameObjectPlayer extends c3.GameObject {
          if (this.isSprinting) { runScale = 1.5 }
          if (this.isBlocking) { runScale = 0.5 }
          if (this.isAttacking) { runScale = 0.5 }
+         if (this.isBowHold) { runScale = 0.5 }
          
          this.model.animateScale('Arms.Walk', runScale)
          this.model.animateScale('Legs.Walk', runScale)

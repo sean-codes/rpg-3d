@@ -28,6 +28,7 @@ const c3 = new C3({
       { src: './Objects/GameObjectResource.js' },
       { src: './Objects/GameObjectTarget.js' },
       { src: './Objects/GameObjectWeapon.js' },
+      { src: './Objects/GameObjectArrow.js' },
       // Scripts
       { src: './Scripts/ScriptCameraController.js' }, 
    ],

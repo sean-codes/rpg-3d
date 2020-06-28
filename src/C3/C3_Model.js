@@ -210,6 +210,10 @@ class C3_Model {
       return this.clips[clipName].getEffectiveWeight() > 0
    }
    
+   animateGetWeight(clipName) {
+      return this.clips[clipName].c3_weightCurrent
+   }
+   
    loop(delta) {
       this.loopClipWeights(delta)
       this.mixer.update(delta)
