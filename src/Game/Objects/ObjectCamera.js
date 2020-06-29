@@ -1,4 +1,4 @@
-c3.objectTypes.Camera = class ObjectCamera extends c3.Object {
+class ObjectCamera extends c3.Object {
    mesh() {
       const { camera } = c3
       camera.setPosition(0, 0, -15)
@@ -36,3 +36,6 @@ c3.objectTypes.Camera = class ObjectCamera extends c3.Object {
       this.yRot.rotation.y = c3.math.loopAngle(this.yRot.rotation.y)
    }
 }
+
+
+c3.objectTypes.Camera = ObjectCamera

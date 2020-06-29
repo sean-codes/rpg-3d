@@ -80,8 +80,8 @@ const c3 = new C3({
       const { camera, scene } = this
       scene.setBackground('#FFF')
       
-      // camera.setNearFar(1, 75)
-      // c3.scene.setFog(45, 75)
+      camera.setNearFar(1, 75)
+      c3.scene.setFog(45, 75)
       
       c3.models.materialAdd('BOX', new THREE.MeshLambertMaterial({ color: '#F55' }))
       c3.models.materialAdd('TARGET', new THREE.MeshLambertMaterial({ color: '#99f' }))
@@ -90,6 +90,7 @@ const c3 = new C3({
          wireframe: true,
          opacity: 0.1,
          transparent: true,
+         visible: false,
       }))
       
       // Setup materials

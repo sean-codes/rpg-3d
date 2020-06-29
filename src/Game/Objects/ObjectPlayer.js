@@ -23,25 +23,14 @@ class ObjectPlayer extends c3.Object {
       this.model.object.position.y -= 1
       this.model.animateStart('Idle')
       
-      // const modelHelmet = c3.models.find('helmet')
-      // modelHelmet.object.position.z += 0.01
       const modelSword = c3.models.find('sword')
       const modelShield = c3.models.find('shield')
       const modelBow = c3.models.find('bow')
       const modelArrow = c3.models.find('arrow')
       this.modelArrow = modelArrow
-      this.modelSword = modelBow
-      // this.modelSword = modelSword
+      this.modelSword = modelSword
       this.modelShield = modelShield
-      // const modelShoulders = c3.models.find('shoulderPads')
-      // this.model.boneToggle('Head', modelHelmet)
-      this.model.boneToggle('Shield_Back', modelShield)
-      this.model.boneToggle('Weapon_Back', modelSword)
-      this.model.boneToggle('Weapon', this.modelSword)
-      this.model.boneToggle('Arrow', this.modelArrow)
-      
-      // this.model.boneToggle('PalmL', modelShield)
-      // this.model.boneToggle('Neck', modelShoulders)
+      this.modelBow = modelBow
       
       return this.meshBodyBottom
    }
@@ -63,7 +52,6 @@ class ObjectPlayer extends c3.Object {
       
       // Weapon Collider
       this.weapon = c3.objects.create('Weapon', { parent: this } )
-      // this.model.boneToggle('Weapon', this.weapon.mesh)
       
       // Others
       this.accel = 4
@@ -89,7 +77,18 @@ class ObjectPlayer extends c3.Object {
       this.isMovingBackward = false
       this.isBowHold = false
       
-      this.weaponType = 'bow'
+      
+      // gear
+      this.gear = {
+         current: 0,
+         type: 'bow',
+         sets: [
+            { mainHand: this.modelSword, offHand: this.modelShield, type: '1hand' },
+            { mainHand: this.modelBow, offHand: this.modelArrow, type: 'bow' }
+         ]
+      }
+      
+      this.setGear(1)
    }
    
    step() {
@@ -271,7 +270,7 @@ class ObjectPlayer extends c3.Object {
       this.isBowHold = false
       
       if (c3.keyboard.check('attack').down && !this.isAttacking) {
-         if (this.weaponType == '1hand') {
+         if (this.gear.type == '1hand') {
             this.isAttacking = true
             // yikes this is dependent on an animation speed
             this.model.animateOnce('Arms.Attack', () => { this.isAttacking = false })
@@ -279,13 +278,13 @@ class ObjectPlayer extends c3.Object {
       }
       
       if (c3.keyboard.check('attack').held) {
-         if (this.weaponType === 'bow') {
+         if (this.gear.type === 'bow') {
             this.isBowHold = true
          }
       }
       
       if (c3.keyboard.check('attack').up) {
-         if (this.weaponType === 'bow' && this.model.animateGetWeight('Arms.Bow') > 0.99) {
+         if (this.gear.type === 'bow' && this.model.animateGetWeight('Arms.Bow') > 0.99) {
             c3.objects.create('Arrow', { pos: this.modelArrow.object.getWorldPosition(), rotation: this.getRotation() })
          }
       }
@@ -302,33 +301,18 @@ class ObjectPlayer extends c3.Object {
          this.isSheathing = true
          
          this.model.animateOnce('Arms.EquipWeapon', () => { 
-            this.isWeaponEquipped = !this.isWeaponEquipped
-            if (this.isWeaponEquipped) {
-               this.model.boneToggle('Weapon', this.modelSword)
-               // this.model.boneToggle('Weapon', this.weapon.mesh)
-            } else {
-               const weaponLocation = this.weaponType === 'bow' ? 'Weapon_Back_Bow' : 'Weapon_Back'
-               this.model.boneToggle(weaponLocation, this.modelSword)
-               // this.model.boneToggle(weaponLocation, this.weapon.mesh)
-            }
+            this.swapGear()
             this.model.animateOnce('Arms.EquipWeaponEnd', () => {
                this.isSheathing = false
             })
          })
          
-         if (this.weaponType == '1hand') {
-            this.model.animateOnce('Arms.EquipShield', () => { 
-               this.isShieldEquipped = !this.isShieldEquipped
-               if (this.isShieldEquipped) {
-                  this.model.boneToggle('Shield', this.modelShield)
-               } else {
-                  this.model.boneToggle('Shield_Back', this.modelShield)
-               }
-               this.model.animateOnce('Arms.EquipShieldEnd', () => {
-                  this.isSheathing = false
-               })
+
+         this.model.animateOnce('Arms.EquipShield', () => { 
+            this.model.animateOnce('Arms.EquipShieldEnd', () => {
+               this.isSheathing = false
             })
-         }
+         })
       }
    }
    
@@ -394,11 +378,13 @@ class ObjectPlayer extends c3.Object {
          this.model.animateWeight('Arms.Attack', 1)
       }
       
-      this.model.animateWeight('Arms.Bow', 0)
-      this.modelSword.animateWeight('Hold', 0)
-      if (this.isBowHold) {
-         this.model.animateWeight('Arms.Bow', 1)
-         this.modelSword.animateWeight('Hold', 1)
+      if (this.gear.type === 'bow') {
+         this.model.animateWeight('Arms.Bow', 0)
+         this.modelBow.animateWeight('Hold', 0)
+         if (this.isBowHold) {
+            this.model.animateWeight('Arms.Bow', 1)
+            this.modelBow.animateWeight('Hold', 1)
+         }
       }
       
       this.model.animateWeight('Legs.Jump', 0)
@@ -410,6 +396,40 @@ class ObjectPlayer extends c3.Object {
          this.model.animateWeight('Legs.Jump', 1)
          this.model.animateWeight('Arms.Jump', jumpWeightArms)
       }
+   }
+   
+   swapGear() {
+      let nextSetId = this.gear.current + 1
+      if (nextSetId >= this.gear.sets.length) nextSetId = 0
+      this.setGear(nextSetId) 
+   }
+   
+   setGear(setId) {
+      const currSet = this.gear.sets[this.gear.current]
+      const nextSet = this.gear.sets[setId]
+      
+      this.model.boneClear('Arrow')
+      this.model.boneClear('Weapon')
+      this.model.boneClear('Shield')
+      
+      this.model.boneAdd('Weapon', nextSet.mainHand)
+      
+      if (nextSet.type === 'bow') {
+         this.model.boneAdd('Arrow', nextSet.offHand)
+      } else {
+         this.model.boneAdd('Shield', nextSet.offHand)
+         this.model.boneAdd('Weapon', this.weapon.mesh)
+      }
+      
+      if (currSet.type === 'bow') {
+         this.model.boneAdd('Weapon_Back_Bow', currSet.mainHand)
+      } else {
+         this.model.boneAdd('Weapon_Back', currSet.mainHand)
+         this.model.boneAdd('Shield_Back', currSet.offHand)
+      }
+      
+      this.gear.current = setId
+      this.gear.type = nextSet.type
    }
 }
 

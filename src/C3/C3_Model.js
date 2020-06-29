@@ -30,8 +30,6 @@ class C3_Model {
          if (part.type === 'Mesh' || part.type === 'SkinnedMesh') {
             part.receiveShadow = true
             part.castShadow = true
-
-            
          }
       })
       
@@ -122,6 +120,14 @@ class C3_Model {
    
    boneRemove(boneName, model) {
       this.bones[boneName].remove(model.object ? model.object : model)
+   }
+   
+   boneClear(boneName) {
+      const bone = this.bones[boneName]
+      
+      for (let i = bone.children.length - 1; i > 0; i--) {
+         bone.remove(bone.children[i])
+      }
    }
    
    animateSetClipTime(clipName, time) {

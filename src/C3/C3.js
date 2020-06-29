@@ -3,7 +3,7 @@ class C3 {
       node_modules = "./node_modules",
       path = "./C3",
       scripts = [], 
-      objects = {}, 
+      objects = {},
       models = [],
       keyMap = {},
       init = () => { console.log('C3: No init function defined') },
