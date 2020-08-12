@@ -36,9 +36,23 @@
       }
       
       .fileDropper #fileList .file {
-         padding: 0.5rem 0.25rem;
-         
+         background: none;
+         display: block;
+         color: #FFF;
+         border: none;
+         padding: 1rem 0.5rem;
+         font-size: 1rem;
+         font-family: monospace;
+         font-weight: 600;
+         width: 100%;
+         text-align: left;
+         outline: none;
       }
+      
+      .fileDropper #fileList .file.selected {
+         background: rgba(0, 0, 0, 0.25);
+      }
+      
       .fileDropper #fileList .file:hover {
          background: rgba(0, 0, 0, 0.5);
          cursor: pointer;
@@ -50,7 +64,7 @@
 <body>
    <div class="fileDropper">
       <input type="file" id="fileInput" name="fileInput" multiple />
-      <div id="fileList"></div>
+      <div id="fileList" tab-index="1"></div>
    </div>
    
    <script src="../../node_modules/three/build/three.min.js"></script>

@@ -50,19 +50,46 @@ render()
 
 // file dropper
 let files = []
+let selected = 0
 fileInput.addEventListener('input', (e) => {
+   selected = 0
    files = e.target.files
    
    fileList.innerHTML = ''
    for (var i = 0; i < files.length; i++) {
       const file = files[i]
-      fileList.innerHTML += `<div class="file" onClick="loadFile(${i})">${file.name}</div>`
+      fileList.innerHTML += `<button class="file" onClick="loadFile(${i})">${file.name}</button>`
    }
    
-   loadFile(0)
+   loadFile(selected)
 })
 
+fileList.addEventListener('keydown', (e) => {
+   e.stopPropagation()
+   e.preventDefault()
+   if(e.keyCode == 38) {
+      selected = Math.max(0, selected - 1)
+   }
+   if(e.keyCode == 40) {
+      selected = Math.min(files.length-1, selected + 1)
+   }
+   
+   const eleFiles = document.querySelectorAll('.file')
+   const eleSelectFile = eleFiles[selected]
+   eleSelectFile.click()
+   eleSelectFile.focus()
+})
+
+
 function loadFile(i) {
+   const eleFiles = document.querySelectorAll('.file')
+   
+   for (var o = 0; o < eleFiles.length; o++) {
+      const eleFile = eleFiles[o]
+      eleFile.classList.remove('selected')
+      if (i == o) eleFile.classList.add('selected')
+   }
+   
    const fileReader = new FileReader()
    fileReader.onload = () => {
       const object = loader.parse(fileReader.result)
@@ -104,7 +131,7 @@ function addObject(object) {
 
 function fixCamera() {
    camera.position.z = offset*0.75
-   camera.position.y = offset*0.75
+   camera.position.y = offset*0.25
    camera.position.x = offset*0.75
    camera.lookAt(0, 0, 0)
 }
