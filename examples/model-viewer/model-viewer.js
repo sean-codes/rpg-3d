@@ -10,6 +10,7 @@ document.body.appendChild(renderer.domElement)
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000)
 const controls = new THREE.OrbitControls(camera, renderer.domElement)
 const loader = new THREE.FBXLoader()
+const gltfLoader = new THREE.GLTFLoader()
 const GUI = new dat.GUI({ closed: true });
 
 function resize() {
@@ -92,25 +93,40 @@ function loadFile(i) {
    
    const fileReader = new FileReader()
    fileReader.onload = () => {
-      const object = loader.parse(fileReader.result)
-      object.traverse((part) => {
-         // flat shading
-         if (part.material) {
-            const makeMaterialFlat = (material) => {
-               material.flatShading = true
-               material.reflectivity = 0
-               material.shininess = 0
-            }
-
-            if (part.material.length) part.material.forEach(makeMaterialFlat)
-            else makeMaterialFlat(part.material)
-         }
-      })
+      const isGltf = files[i].name.includes('.gltf')
+      const isFbx = files[i].name.includes('.fbx')
       
-      addObject(object)
-      fixCamera()
+      if (isGltf) {
+         gltfLoader.parse(fileReader.result, undefined, (loaded) => {
+            onLoadObject(loaded.scene.children[0])
+         })
+      } 
+      
+      if (isFbx) {
+         const object = loader.parse(fileReader.result)
+         onLoadObject(object)
+      }
    }
    fileReader.readAsArrayBuffer(files[i])
+}
+
+function onLoadObject(object) {
+   object.traverse((part) => {
+      // flat shading
+      if (part.material) {
+         const makeMaterialFlat = (material) => {
+            material.flatShading = true
+            material.reflectivity = 0
+            material.shininess = 0
+         }
+
+         if (part.material.length) part.material.forEach(makeMaterialFlat)
+         else makeMaterialFlat(part.material)
+      }
+   })
+   
+   addObject(object)
+   fixCamera()
 }
 
 function addObject(object) {
@@ -130,8 +146,8 @@ function addObject(object) {
 }
 
 function fixCamera() {
-   camera.position.z = offset*0.75
-   camera.position.y = offset*0.25
-   camera.position.x = offset*0.75
+   camera.position.z = -offset*0.75
+   camera.position.y = offset*0.5
+   camera.position.x = -offset*0.75
    camera.lookAt(0, 0, 0)
 }
