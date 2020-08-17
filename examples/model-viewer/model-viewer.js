@@ -93,7 +93,7 @@ function loadFile(i) {
    
    const fileReader = new FileReader()
    fileReader.onload = () => {
-      const isGltf = files[i].name.includes('.gltf')
+      const isGltf = files[i].name.includes('.gltf') || files[i].name.includes('.glb')
       const isFbx = files[i].name.includes('.fbx')
       
       if (isGltf) {
