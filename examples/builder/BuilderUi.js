@@ -5,7 +5,6 @@ function BuilderUi() {
    const canvas = document.createElement('canvas')
    canvas.width = 400
    canvas.height = 400
-   document.body.appendChild(canvas)
    
    // setup threejs
    const scene = new THREE.Scene()
@@ -45,13 +44,16 @@ function BuilderUi() {
       const imageData = canvas.toDataURL("image/png")
       
       // create a image template
-      const htmlObject = templateObjectBuilderObject.content.cloneNode(true)
+      const htmlObject = templateObjectBuilderObject.content.firstElementChild.cloneNode(true)
       htmlObject.querySelector('img').src = imageData
+      htmlObject.addEventListener('click', handleObjectClick)
       objectBuilder.appendChild(htmlObject)
       
-      // cleat scene
+      // clear scene
       scene.remove(mes)
    }
+   
+   function handleObjectClick() {
+      console.log('clicked an object')
+   }
 }
-
-BuilderUi()
