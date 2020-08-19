@@ -4,7 +4,16 @@
 // camera.position.y = 1.5
 
 
-BuilderUi()
+BuilderUi({
+   models: [
+      { src: '../../assets/models/environment/Bush_1.fbx', name: 'Bush_1', desc: 'A bush model' },
+      { src: '../../assets/models/environment/BushBerries_2.fbx', name: 'BushBerries_2', desc: 'A bush model with berries' },
+      { src: '../../assets/models/environment/Fence.fbx', name: 'Fence', desc: 'A fence model' },
+      { src: '../../assets/models/environment/Grass_Short.fbx', name: 'Grass Short', desc: 'A grass model' },
+      { src: '../../assets/models/environment/PineTree_Autumn_4.fbx', name: 'A Pine tree', desc: 'PineTree_Autumn_4' },
+      { src: '../../assets/models/environment/Rock_6.fbx', name: 'A rock', desc: 'Rock_6' },
+   ]
+})
 
 const scene = new THREE.Scene()
 scene.background = new THREE.Color('#555')
@@ -18,7 +27,10 @@ camera.position.x += 5
 camera.lookAt(0, 0, 0)
 const controls = new THREE.OrbitControls(camera, renderer.domElement)
 
-const light = new THREE.PointLight('#FFF', 3, 15)
+const ambientLight = new THREE.AmbientLight('#FFF', 0.75)
+scene.add(ambientLight)
+
+const light = new THREE.PointLight('#FFF', 1, 15)
 light.position.z = 1.5
 light.position.x = 1
 light.position.y = 2
@@ -36,14 +48,23 @@ scene.add(mes)
 
 // grid helper
 // const gridHelper = new THREE.InfiniteGridHelper(1, 10)
-// gridHelper.material.uniforms.uDistance.value = 50
+// gridHelper.material.uniforms.uDistance.value = 100
 // gridHelper.name = 'awd'
-// scene.add( gridHelper );
+const gridHelper = new THREE.GridHelper(
+   100, 
+   100, 
+   new THREE.Color(0, 0, 0),
+   new THREE.Color(0, 0, 0),
+)
+scene.add( gridHelper );
 
 // main plane
-const planeGeo = new THREE.PlaneGeometry(10, 10)
-const planeMat = new THREE.MeshPhongMaterial({ color: '#000' })
+const planeGeo = new THREE.PlaneGeometry(100, 100)
+const planeMat = new THREE.MeshPhongMaterial({ color: '#4F8146',  })
 const planeMes = new THREE.Mesh(planeGeo, planeMat)
+planeMat.reflectivity = 0
+planeMat.shininess = 0
+planeMat.flatShading = true
 planeMes.rotation.x = Math.PI*-0.5
 planeMes.position.y -= 0.01
 scene.add(planeMes)
@@ -54,9 +75,14 @@ const mouse = new THREE.Vector2(-1, -1)
 function onMouseMove({ clientX, clientY }) {
    mouse.x = (clientX / window.innerWidth) * 2 - 1
    mouse.y = -(clientY / window.innerHeight) * 2 + 1
-   // console.log(Math.round(mouse.x * 1000) / 1000, Math.round(mouse.y * 1000) / 1000)
 }
 window.addEventListener('mousemove', onMouseMove, false)
+renderer.domElement.addEventListener('click', addObject)
+
+function addObject() {
+   const object = THREE.SkeletonUtils.clone(mes)
+   scene.add(object)
+}
 
 function render() {
    requestAnimationFrame(render)
@@ -69,9 +95,7 @@ function render() {
    
    for (let intersect of intersects) {
       if (intersect.object.uuid === planeMes.uuid) {
-         // console.log('intersecting plane', intersect)
          mes.position.copy(intersect.point)
-         
       }
    }
 }

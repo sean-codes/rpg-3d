@@ -9,7 +9,7 @@ const renderer = new THREE.WebGLRenderer()
 document.body.appendChild(renderer.domElement)
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000)
 const controls = new THREE.OrbitControls(camera, renderer.domElement)
-const loader = new THREE.FBXLoader()
+const fbxLoader = new THREE.FBXLoader()
 const gltfLoader = new THREE.GLTFLoader()
 const GUI = new dat.GUI({ closed: true });
 
@@ -103,7 +103,7 @@ function loadFile(i) {
       } 
       
       if (isFbx) {
-         const object = loader.parse(fileReader.result)
+         const object = fbxLoader.parse(fileReader.result)
          onLoadObject(object)
       }
    }
