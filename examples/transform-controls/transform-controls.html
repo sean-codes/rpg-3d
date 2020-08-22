@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no">
+
+    <title>transform-controls</title>
+    <style>
+      html, body {
+        padding: 0;
+        margin: 0;
+        background: #000;
+      }
+
+      canvas {
+        display: block;
+      }
+      
+      .info {
+         position: fixed;
+         top: 0;
+         left: 0;
+         font-size: 16px;
+         font-family: monospace;
+         font-weight: 600;
+         background: rgba(0, 0, 0, 0.25);
+         padding: 0.5rem;
+         color: #FFF;
+      }
+    </style>
+  </head>
+  <body>
+     <div class="info">
+       Translate = 1 <br>
+       Rotate = 2 <br>
+       Scale = 3 <br>
+       +/- = scale controls <br>
+       shift = snap <br>
+     </div>
+     
+    <script src="../../node_modules/three/build/three.min.js"></script>
+    <script src="../../node_modules/cannon/build/cannon.js"></script>
+    <script src="../../node_modules/three/examples/js/controls/OrbitControls.js"></script>
+    <script src="../../node_modules/three/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="../../node_modules/three/examples/js/utils/BufferGeometryUtils.js"></script>
+    <script src="../../node_modules/three/examples/js/utils/SkeletonUtils.js"></script>
+    <script src="../../node_modules/three/examples/js/controls/TransformControls.js"></script>
+    <script src="../../node_modules/three/examples/js/controls/OrbitControls.js"></script>
+    <script src="../../node_modules/zlibjs/bin/inflate.min.js"></script>
+    <script src="../../node_modules/three/examples/js/loaders/FBXLoader.js"></script>
+    <script src="../../node_modules/dat.gui/build/dat.gui.min.js"></script>
+    <!-- <script src="./src/C3/C3_legacy.js"></script> -->
+    <script src="./transform-controls.js"></script>
+  </body>
+</html>
