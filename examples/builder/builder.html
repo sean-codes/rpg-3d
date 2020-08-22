@@ -29,7 +29,7 @@
          left: 0;
          height: 100%;
          background: rgba(255, 255, 255, 0.15);
-         width: 400px;
+         width: 250px;
          max-width: 100%;
          color: #FFF;
          font-family: monospace;
@@ -44,11 +44,14 @@
          cursor: pointer;
          background: rgba(255, 255, 255, 0.25);
       }
+      #objectBuilder .object.selected .title {
+         text-decoration: underline;
+      }
       
       #objectBuilder .object .image {
-         width: 100px;
-         height: 100px;
-         padding: 0.5rem
+         width: 75px;
+         height: 75px;
+         padding: 0.25rem
       }
       
       #objectBuilder .object .image img {
@@ -57,11 +60,11 @@
       }
       
       #objectBuilder .object .description {
-         margin: auto auto auto 1rem;
+         margin: auto auto auto 0.25rem;
       }
       
       #objectBuilder .object .description .title {
-         font-size: 2rem;
+         font-size: 1.15rem;
       }
       
       #objectBuilder .object .description .text {
@@ -78,7 +81,7 @@
             </div>
             <div class="description">
                <div class="title">Box</div>
-               <div class="text">A simple box</div>
+               <div class="text"></div>
             </div>
          </div>
       </template>
