@@ -1,13 +1,12 @@
 // This will load the models and setup the ui
 
-function BuilderUi({ models }) {
+function BuilderUi({ onSelect, models }) {
    // setup a canvas
    const canvas = document.createElement('canvas')
    canvas.width = 400
    canvas.height = 400
    
    // setup threejs
-   
    const scene = new THREE.Scene()
    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
    
@@ -25,11 +24,14 @@ function BuilderUi({ models }) {
    const fbxLoader = new THREE.FBXLoader()
    const holder = new THREE.Object3D()
    scene.add(holder)
+   const htmlObjects = []
+   const objects = {}
+   
    for (const model of models) {
-      const { src, name, desc } = model
+      const { src, name, scale } = model
       
       fbxLoader.load(src, object => {
-         console.log('loaded', object)
+         objects[name] = object
          
          // Flat shading
          object.traverse((part) => {
@@ -44,7 +46,16 @@ function BuilderUi({ models }) {
                if (part.material.length) part.material.forEach(makeMaterialFlat)
                else makeMaterialFlat(part.material)
             }
+            
+            if (part.type === 'Mesh' || part.type === 'SkinnedMesh') {
+               part.receiveShadow = true
+               part.castShadow = true
+            }
          })
+         
+         object.scale.x = scale
+         object.scale.y = scale
+         object.scale.z = scale
          
          const box = new THREE.Box3().setFromObject(object)
          const center = box.max.clone().add(box.min).multiplyScalar(0.5)
@@ -71,47 +82,29 @@ function BuilderUi({ models }) {
          const htmlObject = templateObjectBuilderObject.content.firstElementChild.cloneNode(true)
          htmlObject.querySelector('img').src = imageData
          htmlObject.querySelector('.title').innerHTML = name
-         htmlObject.querySelector('.text').innerHTML = desc
+         // htmlObject.querySelector('.text').innerHTML = desc
          htmlObject.addEventListener('click', handleObjectClick)
+         htmlObject.dataset.name = name
+         htmlObjects.push(htmlObject)
          objectBuilder.appendChild(htmlObject)
          
          // clear scene
          holder.remove(object)
       })
    }
-   
-   // var colors = [
-   //    '#C1A5A9',
-   //    '#F08CAE',
-   //    '#9A4C95',
-   //    '#4D2D52',
-   //    '#1d1a31',
-   //    '#322F44',
-   //    '#454255',
-   // ]
-   // 
-   // for (var color of colors) {
-   //    // create the object
-   //    const geo = new THREE.BoxGeometry()
-   //    const mat = new THREE.MeshPhongMaterial({ color: color })
-   //    const mes = new THREE.Mesh(geo, mat)
-   //    scene.add(mes)
-   // 
-   //    // render it then convert to image
-   //    renderer.render(scene, camera)
-   //    const imageData = canvas.toDataURL("image/png")
-   // 
-   //    // create a image template
-   //    const htmlObject = templateObjectBuilderObject.content.firstElementChild.cloneNode(true)
-   //    htmlObject.querySelector('img').src = imageData
-   //    htmlObject.addEventListener('click', handleObjectClick)
-   //    objectBuilder.appendChild(htmlObject)
-   // 
-   //    // clear scene
-   //    scene.remove(mes)
-   // }
-   
-   function handleObjectClick() {
-      console.log('clicked an object')
+
+   function handleObjectClick(e) {
+      // reset them all
+      for (let htmlObject of htmlObjects) {
+         htmlObject.classList.remove('selected')
+      }
+      
+      // set selected
+      const htmlClicked = this
+      htmlClicked.classList.add('selected')
+      
+      // call back with the selected object
+      const object = objects[htmlClicked.dataset.name]
+      onSelect(object)
    }
 }
