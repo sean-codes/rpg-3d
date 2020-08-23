@@ -1,9 +1,3 @@
-// const scene = new THREE.Scene()
-// camera.position.z = 1.5
-// camera.position.x = 1.5
-// camera.position.y = 1.5
-
-
 BuilderUi({
    models: [
       { src: '../../assets/models/environment/Bush_1.fbx', name: 'Bush_1', scale: 0.01 },
@@ -17,6 +11,7 @@ BuilderUi({
       setObject(object)
    }
 })
+const POINTER_MODES = { add: 1, select: 2 }
 
 const scene = new THREE.Scene()
 scene.background = new THREE.Color('#555')
@@ -24,6 +19,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = THREE.PCFSoftShadowMap
 document.body.appendChild(renderer.domElement)
+const pointerMode = POINTER_MODES.select
 
 const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000)
 camera.position.z += 5
@@ -110,6 +106,7 @@ function addObject(e) {
    const object = THREE.SkeletonUtils.clone(pointer.children[0])
    object.position.copy(pointer.position)
    scene.add(object)
+   pointerMode
 }
 
 function setObject(object) {
@@ -120,13 +117,13 @@ function setObject(object) {
 function render() {
    requestAnimationFrame(render)
    renderer.render(scene, camera)
-   
+
    light.position.copy(camera.position)
    light.position.y += 2
-   
+
    raycaster.setFromCamera(mouse, camera)
    const intersects = raycaster.intersectObjects(scene.children)
-   
+
    for (let intersect of intersects) {
       if (intersect.object.uuid === planeMes.uuid) {
          pointer.position.copy(intersect.point)

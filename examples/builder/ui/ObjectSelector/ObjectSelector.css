@@ -1,0 +1,51 @@
+#previewContainer {
+   width: 400px;
+   height: 400px;
+}
+
+#objectBuilder {
+   position: absolute;
+   top: 0;
+   left: 0;
+   height: 100%;
+   background: rgba(255, 255, 255, 0.15);
+   width: 250px;
+   max-width: 100%;
+   color: #FFF;
+   font-family: monospace;
+   max-height: 100%;
+   overflow: auto;
+}
+
+#objectBuilder .object {
+   display: flex;
+}
+#objectBuilder .object:hover {
+   cursor: pointer;
+   background: rgba(255, 255, 255, 0.25);
+}
+#objectBuilder .object.selected .title {
+   text-decoration: underline;
+}
+
+#objectBuilder .object .image {
+   width: 75px;
+   height: 75px;
+   padding: 0.25rem
+}
+
+#objectBuilder .object .image img {
+   width: 100%;
+   height: auto;
+}
+
+#objectBuilder .object .description {
+   margin: auto auto auto 0.25rem;
+}
+
+#objectBuilder .object .description .title {
+   font-size: 1.15rem;
+}
+
+#objectBuilder .object .description .text {
+}
