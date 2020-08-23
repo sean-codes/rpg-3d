@@ -107,4 +107,50 @@ function BuilderUi({ onSelect, models }) {
       const object = objects[htmlClicked.dataset.name]
       onSelect(object)
    }
+   
+   let selectedObject = undefined
+   const posInputs = document.querySelectorAll('.js-position input')
+   const rotInputs = document.querySelectorAll('.js-rotation input')
+   const scaInputs = document.querySelectorAll('.js-scale input')
+   const groups = {
+      position: posInputs,
+      rotation: rotInputs,
+      scale: scaInputs,
+   }
+   for (let groupName in groups) {
+      const group = groups[groupName]
+      
+      for (let inputId = 0; inputId < group.length; inputId++) {
+         const input = group[inputId]
+         const axis = ['x', 'y', 'z' ][inputId]
+         
+         input.addEventListener('keydown', (e) => {
+            e.stopPropagation()
+         })
+         
+         input.addEventListener('input', (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            if (selectedObject) {
+               const value = Math.min(1000, Math.max(-1000, Number(e.target.value) || 0))
+               selectedObject[groupName][axis] = value
+            }
+         })
+      }
+   }
+   
+   this.onChangeObject = function(object) {
+      selectedObject = object
+      posInputs[0].value = object.position.x
+      posInputs[1].value = object.position.y
+      posInputs[2].value = object.position.z
+      rotInputs[0].value = object.rotation.x
+      rotInputs[1].value = object.rotation.y
+      rotInputs[2].value = object.rotation.z
+      scaInputs[0].value = object.scale.x
+      scaInputs[1].value = object.scale.y
+      scaInputs[2].value = object.scale.z
+   }
+   
+   return this
 }

@@ -9,6 +9,7 @@
    <style>
       html,
       body {
+         font-family: monospace;
          padding: 0;
          margin: 0;
          background: #000;
@@ -69,6 +70,29 @@
       
       #objectBuilder .object .description .text {
       }
+      
+      
+      .selectedObject {
+         position: absolute;
+         right: 0;
+         top: 0;
+      }
+      
+      .selectedObject .input-group {
+         display: flex;
+         margin-bottom: 0.5rem;
+      }
+      
+      .selectedObject .input-group label {
+         width: 6rem;
+         color: #FFF;
+      }
+      
+      .selectedObject .input-group input {
+         width: 3rem;
+         background: rgba(255, 255, 255, 0.5);
+         border: none;
+      }
    </style>
 </head>
 
@@ -86,9 +110,36 @@
          </div>
       </template>
    </div>
+   <div class="selectedObject">
+      <div class="input-group">
+         <label>position</label>
+         <div class="inputs js-position">
+            <input />
+            <input />
+            <input />
+         </div>
+      </div>
+      <div class="input-group">
+         <label>rotation</label>
+         <div class="inputs js-rotation">
+            <input />
+            <input />
+            <input />
+         </div>
+      </div>
+      <div class="input-group">
+         <label>scale</label>
+         <div class="inputs js-scale">
+            <input />
+            <input />
+            <input />
+         </div>
+      </div>
+   </div>
    <script src="../../node_modules/three/build/three.min.js"></script>
    <script src="../../node_modules/cannon/build/cannon.js"></script>
    <script src="../../node_modules/three/examples/js/controls/OrbitControls.js"></script>
+   <script src="../../node_modules/three/examples/js/controls/TransformControls.js"></script>
    <script src="../../node_modules/three/examples/js/loaders/GLTFLoader.js"></script>
    <script src="../../node_modules/three/examples/js/utils/BufferGeometryUtils.js"></script>
    <script src="../../node_modules/three/examples/js/utils/SkeletonUtils.js"></script>

@@ -6,12 +6,11 @@ camera.position.z = 5
 camera.position.y = 5
 document.body.appendChild(renderer.domElement)
 
-const oControls = new THREE.OrbitControls(camera, renderer.domElement)
-const tControl = new THREE.TransformControls(camera, renderer.domElement)
-// const oControl = new THREE.TransformControls(camera, renderer.domElement)
-scene.add(tControl)
+const oControls = new THREE.OrbitControlss(camera, renderer.domElement)
+const tControls = new THREE.TransformControls(camera, renderer.domElement)
+scene.add(tControls)
 
-tControl.addEventListener('dragging-changed', ({ value }) => {
+tControls.addEventListener('dragging-changed', ({ value }) => {
    oControls.enabled = !value
 })
 
@@ -32,7 +31,7 @@ const mesh = new THREE.Mesh(geometry, material)
 
 scene.add(mesh)
 
-tControl.attach(mesh)
+tControls.attach(mesh)
 
 
 // render
@@ -55,29 +54,29 @@ resize()
 window.addEventListener('keydown', ({ keyCode }) => {
    const call = {
       '49': () => {
-         tControl.setMode('translate')
+         tControls.setMode('translate')
       },
       
       '50': () => {
-         tControl.setMode('rotate')
+         tControls.setMode('rotate')
       },
       
       '51': () => {
-         tControl.setMode('scale')
+         tControls.setMode('scale')
       },
       
       '187': () => {
-         tControl.setSize(tControl.size + 0.1);
+         tControls.setSize(tControls.size + 0.1);
       },
       
       '189': () => {
-         tControl.setSize(Math.max(tControl.size - 0.1, 0.1));
+         tControls.setSize(Math.max(tControls.size - 0.1, 0.1));
       },
       
       '16': () => {
-         tControl.setTranslationSnap(1);
-         tControl.setRotationSnap(THREE.MathUtils.degToRad( 15 ));
-         tControl.setScaleSnap(0.25);
+         tControls.setTranslationSnap(1);
+         tControls.setRotationSnap(THREE.MathUtils.degToRad( 15 ));
+         tControls.setScaleSnap(0.25);
       },
    }[keyCode]
    
@@ -86,8 +85,8 @@ window.addEventListener('keydown', ({ keyCode }) => {
 
 window.addEventListener('keyup', ({ keyCode }) => {
    if (keyCode === 16) {
-      tControl.setTranslationSnap(null);
-      tControl.setRotationSnap(null);
-      tControl.setScaleSnap(null);
+      tControls.setTranslationSnap(null);
+      tControls.setRotationSnap(null);
+      tControls.setScaleSnap(null);
    }
 })
