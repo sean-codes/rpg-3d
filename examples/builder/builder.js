@@ -18,15 +18,18 @@ scene.background = new THREE.Color('#555')
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = THREE.PCFSoftShadowMap
+renderer.domElement.tabIndex = 1
 document.body.appendChild(renderer.domElement)
 const pointerMode = POINTER_MODES.select
 const selectedObject = undefined
 const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000)
-camera.position.z += 5
-camera.position.y += 5
-camera.position.x += 5
-camera.lookAt(0, 0, 0)
-const oControls = new THREE.OrbitControls(camera, renderer.domElement)
+// camera.position.z += 5
+// camera.position.y += 5
+// camera.position.x += 5
+// camera.lookAt(0, 0, 0)
+// const oControls = new THREE.OrbitControls(camera, renderer.domElement)
+const fControls = new THREE.FlyControls(camera, renderer.domElement)
+scene.add(fControls.object)
 const tControls = new THREE.TransformControls(camera, renderer.domElement)
 scene.add(tControls)
 
@@ -101,7 +104,7 @@ window.addEventListener('mousedown', () => { blockAdd = false; select = true })
 renderer.domElement.addEventListener('click', addObject)
 
 tControls.addEventListener('dragging-changed', ({ value }) => {
-   oControls.enabled = !value
+   fControls.enabled = !value
 })
 tControls.addEventListener('objectChange', ({ value }) => {
    builderUi.onChangeObject(tControls.object)
@@ -124,6 +127,7 @@ function addObject(e) {
 function setObject(object) {
    pointer.remove(pointer.children[0])
    pointer.add(object)
+   renderer.domElement.focus()
 }
 
 window.addEventListener('keydown', ({ keyCode, metaKey }) => {
@@ -200,6 +204,9 @@ function render() {
    }
    
    // objects
+   if (select) {
+      tControls.detach()
+   }
    const intersectsObjects = raycaster.intersectObjects(addedObjects, true)
    for (let intersect of intersectsObjects) {
       if (select) {
