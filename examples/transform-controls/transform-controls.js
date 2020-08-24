@@ -6,7 +6,7 @@ camera.position.z = 5
 camera.position.y = 5
 document.body.appendChild(renderer.domElement)
 
-const oControls = new THREE.OrbitControlss(camera, renderer.domElement)
+const oControls = new THREE.OrbitControls(camera, renderer.domElement)
 const tControls = new THREE.TransformControls(camera, renderer.domElement)
 scene.add(tControls)
 
