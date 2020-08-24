@@ -1,11 +1,11 @@
 const builderUi = new BuilderUi({
    models: [
-      { src: '../../assets/models/environment/Bush_1.fbx', name: 'Bush_1', scale: 0.01 },
-      { src: '../../assets/models/environment/BushBerries_2.fbx', name: 'BushBerries_2', scale: 0.01 },
+      { src: '../../assets/models/environment/Bush_1.fbx', name: 'Bush', scale: 0.01 },
+      { src: '../../assets/models/environment/BushBerries_2.fbx', name: 'Bush Berries', scale: 0.01 },
       { src: '../../assets/models/environment/Fence.fbx', name: 'Fence', scale: 0.01 },
       { src: '../../assets/models/environment/Grass_Short.fbx', name: 'Grass Short', scale: 0.01 },
-      { src: '../../assets/models/environment/PineTree_Autumn_4.fbx', name: 'A Pine tree', scale: 0.01 },
-      { src: '../../assets/models/environment/Rock_6.fbx', name: 'A rock', scale: 0.01 },
+      { src: '../../assets/models/environment/PineTree_Autumn_4.fbx', name: 'Pine tree', scale: 0.01 },
+      { src: '../../assets/models/environment/Rock_6.fbx', name: 'Rock', scale: 0.01 },
    ],
    onSelect: (object) => {
       setObject(object)
@@ -92,6 +92,7 @@ const raycaster = new THREE.Raycaster()
 const mouse = new THREE.Vector2(-1, -1)
 let blockAdd = false
 let select = false
+let tControlSelect = false
 const addedObjects = []
 function onMouseMove(e) {
    const { clientX, clientY } = e
@@ -100,9 +101,15 @@ function onMouseMove(e) {
    blockAdd = true
 }
 window.addEventListener('mousemove', onMouseMove, false)
-window.addEventListener('mousedown', () => { blockAdd = false; select = true })
+window.addEventListener('mousedown', () => { 
+   blockAdd = false; 
+   if (!tControlSelect) select = true 
+})
 renderer.domElement.addEventListener('click', addObject)
 
+tControls.addEventListener('mouseDown', () => {
+   tControlSelect = true
+})
 tControls.addEventListener('dragging-changed', ({ value }) => {
    fControls.enabled = !value
 })
@@ -219,6 +226,7 @@ function render() {
    }
    
    select = false
+   tControlSelect = false
 }
 
 function rootParent(object) {
