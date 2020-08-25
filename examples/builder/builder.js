@@ -6,6 +6,7 @@ const builderUi = new BuilderUi({
       { src: '../../assets/models/environment/Grass_Short.fbx', name: 'Grass Short', scale: 0.01 },
       { src: '../../assets/models/environment/PineTree_Autumn_4.fbx', name: 'Pine tree', scale: 0.01 },
       { src: '../../assets/models/environment/Rock_6.fbx', name: 'Rock', scale: 0.01 },
+      { src: '../../assets/models/environment/grass_ledge_1.fbx', name: 'Grass Ledge', scale: 0.01 },
    ],
    onSelect: (object) => {
       setObject(object)
@@ -19,6 +20,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = THREE.PCFSoftShadowMap
 renderer.domElement.tabIndex = 1
+renderer.gammaOutput = true
 document.body.appendChild(renderer.domElement)
 const pointerMode = POINTER_MODES.select
 const selectedObject = undefined
@@ -33,7 +35,7 @@ scene.add(fControls.object)
 const tControls = new THREE.TransformControls(camera, renderer.domElement)
 scene.add(tControls)
 
-const ambientLight = new THREE.AmbientLight('#FFF', 0.75)
+const ambientLight = new THREE.AmbientLight('#FFF', 0.5)
 scene.add(ambientLight)
 
 const light = new THREE.PointLight('#FFF', 1, 5)
@@ -75,7 +77,7 @@ scene.add( gridHelper );
 
 // main plane
 const planeGeo = new THREE.PlaneGeometry(100, 100)
-const planeMat = new THREE.MeshPhongMaterial({ color: '#4F8146',  })
+const planeMat = new THREE.MeshPhongMaterial({ color: '#4F8146' })//97BC8F
 const planeMes = new THREE.Mesh(planeGeo, planeMat)
 planeMat.reflectivity = 0
 planeMat.shininess = 0

@@ -9,15 +9,15 @@ function BuilderUi({ onSelect, models }) {
    // setup threejs
    const scene = new THREE.Scene()
    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
-   
+   renderer.gammaOutput = true
    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000)
    
    camera.lookAt(0, 0, 0)
    
-   const ambientLight = new THREE.AmbientLight('#FFF', 1)
+   const ambientLight = new THREE.AmbientLight('#FFF', 0.5)
    scene.add(ambientLight)
    
-   const light = new THREE.PointLight('#FFF', 3, 45)
+   const light = new THREE.PointLight('#FFF', 1.5, 45)
    scene.add(light)
    
    // load models
