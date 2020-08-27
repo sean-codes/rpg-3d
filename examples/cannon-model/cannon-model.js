@@ -84,7 +84,7 @@ world.add(groundBod)
 // ../../assets/models/monkey
 // ../../assets/models/cone
 // ../../assets/models/cube
-loader.load('../../assets/models/monkey.fbx', (object) => { try {
+loader.load('../../assets/models/cone.fbx', (object) => { try {
    console.log('loaded', object)
    let mesh = undefined
    // object.position.y += 2
@@ -115,7 +115,7 @@ loader.load('../../assets/models/monkey.fbx', (object) => { try {
    })
    console.log('hello', verts, faces)
    const quaternion = new CANNON.Quaternion()
-   quaternion.setFromEuler(Math.PI*1.35, 0, Math.PI*1.95, 'XYZ')
+   quaternion.setFromEuler(Math.PI*(Math.random()*2), 0, Math.PI*1.95, 'XYZ')
    const boxBod = new CANNON.Body({
       mass: 1,
       quaternion: quaternion,
