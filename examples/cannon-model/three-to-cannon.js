@@ -120,10 +120,9 @@ function createBoundingBoxShape (object) {
  * @param  {THREE.Object3D} mesh
  * @return {CANNON.Shape}
  */
-function createConvexPolyhedron (object) {
+CANNON.createConvexPolyhedron = function(object) {
   var geometry = getGeometry(object);
   geometry.mergeVertices()
-  console.log('where here', geometry)
   if (!geometry || !geometry.vertices.length) return null;
 
   // Perturb.
@@ -136,7 +135,6 @@ function createConvexPolyhedron (object) {
 
   // Compute the 3D convex hull.
   var hull = new THREE.ConvexGeometry(geometry.vertices);
-  console.log('wtf', hull)
   var faces = hull.faces;
   
   var vertices = [];
@@ -159,8 +157,6 @@ function createConvexPolyhedron (object) {
     faces.push([face.a, face.b, face.c])
   }
   
-  
-  console.log('uhh', vertices, faces)
   return new CANNON.ConvexPolyhedron(vertices, faces);
 }
 

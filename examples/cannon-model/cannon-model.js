@@ -98,39 +98,54 @@ loader.load('../../assets/models/cone.fbx', (object) => { try {
          part.scale.z = 0.5
       }
    })
-   
-   console.log('meow', mesh.geometry)
-   const geometry = new THREE.Geometry()
-   geometry.fromBufferGeometry(mesh.geometry)
-   geometry.mergeVertices()
-   console.log('hello', geometry)
-   const convexGeo = new THREE.ConvexGeometry(geometry.vertices)
-   console.log(';uhhh', convexGeo)
-   const verts = convexGeo.vertices.map(v => {
-      return new CANNON.Vec3(v.x*150, v.y*150, v.z*150)
-   })
-   
-   const faces = convexGeo.faces.map(f => {
-      return [f.a, f.b, f.c]
-   })
-   console.log('hello', verts, faces)
+
    const quaternion = new CANNON.Quaternion()
    quaternion.setFromEuler(Math.PI*(Math.random()*2), 0, Math.PI*1.95, 'XYZ')
    const boxBod = new CANNON.Body({
       mass: 1,
       quaternion: quaternion,
       position: new CANNON.Vec3(0, 2, 0),
-      shape: THREE.threeToCannon(mesh, { type: THREE.threeToCannon.Type.HULL })
+      // shape: CANNON.createConvexPolyhedron(mesh),
+      shape: createConvexPolyhedronFromModel(object)
    })
-   // const shape = 
-   // console.log(shape)
-   // boxBod.addShape(shape)
-   // boxBod.addShape(new CANNON.ConvexPolyhedron(verts, faces))
+
    physicsObjects.push({ body: boxBod, mesh: mesh })
    world.add(boxBod)
-   
    scene.add(object)
 } catch(e) { console.error(e) }})
+
+function createConvexPolyhedronFromModel(object) {
+   let mesh = getMesh(object)
+   mesh.updateMatrixWorld()
+   const geometry = new THREE.Geometry()
+   geometry.fromBufferGeometry(mesh.geometry)
+   geometry.scale(mesh.scale.x, mesh.scale.y, mesh.scale.x)
+
+   // We have to move the points around so they aren't perfectly aligned?
+   var eps = 1e-2; // between 2-4 seems to work
+   for (var i = 0; i < geometry.vertices.length; i++) {
+      geometry.vertices[i].x += (Math.random() - 0.5) * eps;
+      geometry.vertices[i].y += (Math.random() - 0.5) * eps;
+      geometry.vertices[i].z += (Math.random() - 0.5) * eps;
+   }
+
+   // create convex geometry
+   var convexGeo = new THREE.ConvexGeometry(geometry.vertices);
+
+   // get vertices and faces for cannon
+   const vertices = convexGeo.vertices.map(v => new CANNON.Vec3(v.x, v.y, v.z));
+   const faces = convexGeo.faces.map(f => [f.a, f.b, f.c]);
+
+   return new CANNON.ConvexPolyhedron(vertices, faces);
+}
+
+function getMesh(object) {
+   let mesh = undefined
+   object.traverse(part => mesh = part.type === 'Mesh' ? part : mesh)
+   return mesh
+}
+
+
 
 var cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, world );
 
