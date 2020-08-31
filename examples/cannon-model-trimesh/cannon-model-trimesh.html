@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no">
+
+    <title>rpg-3d</title>
+    <style>
+      html, body {
+        padding: 0;
+        margin: 0;
+        background: #000;
+      }
+
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="../../node_modules/three/build/three.min.js"></script>
+    <script src="../../node_modules/cannon/build/cannon.js"></script>
+    <script src="../../node_modules/cannon/tools/threejs/CannonDebugRenderer.js"></script>
+    <script src="../../node_modules/three/examples/js/controls/OrbitControls.js"></script>
+    <script src="../../node_modules/three/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="../../node_modules/three/examples/js/math/ConvexHull.js"></script>
+    <script src="../../node_modules/three/examples/js/geometries/ConvexGeometry.js"></script>
+    <script src="../../node_modules/three/examples/js/utils/BufferGeometryUtils.js"></script>
+    <script src="../../node_modules/three/examples/js/utils/SkeletonUtils.js"></script>
+    <script src="../../node_modules/zlibjs/bin/inflate.min.js"></script>
+    <script src="../../node_modules/three/examples/js/loaders/FBXLoader.js"></script>
+    <script src="../../node_modules/dat.gui/build/dat.gui.min.js"></script>
+    <!-- <script src="./src/C3/C3_legacy.js"></script> -->
+    <script src="./three-to-cannon.js"></script>
+    <script src="./cannon-model-trimesh.js"></script>
+  </body>
+</html>
