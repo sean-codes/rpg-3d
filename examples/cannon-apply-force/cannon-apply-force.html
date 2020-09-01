@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no">
+
+   <title>rpg-3d</title>
+   <style>
+      html,
+      body {
+         padding: 0;
+         margin: 0;
+         background: #000;
+      }
+
+      canvas {
+         display: block;
+      }
+
+      .info {
+         position: fixed;
+         top: 0;
+         left: 0;
+         font-size: 16px;
+         font-family: monospace;
+         font-weight: 600;
+         background: rgba(0, 0, 0, 0.25);
+         padding: 0.5rem;
+         color: #FFF;
+      }
+   </style>
+</head>
+
+<body>
+   <div class="info">
+      Apply Impulse Demo</br>
+      <hr>
+      WASD/Arrows = move
+   </div>
+   <script type="module" src="./cannon-apply-force.js"></script>
+</body>
+
+</html>
