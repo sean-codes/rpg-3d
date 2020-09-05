@@ -7,6 +7,7 @@ const builderUi = new BuilderUi({
       { src: '../../assets/models/environment/PineTree_Autumn_4.fbx', name: 'Pine tree', scale: 0.01 },
       { src: '../../assets/models/environment/Rock_6.fbx', name: 'Rock', scale: 0.01 },
       { src: '../../assets/models/environment/grass_ledge_1.fbx', name: 'Grass Ledge', scale: 0.01 },
+      { src: '../../assets/models/environment/grass_ledge_2.fbx', name: 'Grass Ledge 2', scale: 0.01 },
    ],
    onSelect: (object) => {
       setObject(object)
