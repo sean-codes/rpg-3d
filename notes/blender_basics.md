@@ -29,7 +29,7 @@ pivot point                                  | period
 mode                                         | tab
 change view (front/back/side/top)            | tilde
 
-# After mirrors geometry in blender you need to recalculate normals
+# After mirroring geometry in blender you need to recalculate normals
 ![lighting issue after mirroring geometry](./images/blender-mirror-lighting-issue.gif)
 
 In bender Select Mesh -> Edit Mode -> Mesh -> Normals -> Recalculate Outside
