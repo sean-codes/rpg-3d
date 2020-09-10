@@ -22,7 +22,7 @@ window.onresize = resize
 resize()
 
 // lighting
-const pointLight = new THREE.PointLight('#FFF', 1.5, 10000)
+const pointLight = new THREE.PointLight('#FFF', 10, 10000)
 scene.add(pointLight)
 
 const ambientLight = new THREE.AmbientLight('#FFF', 0.5)

@@ -23,8 +23,17 @@
    - ![switch to shader](./images/blender_switch_to_shader.png)
    - ![shader editor](./images/blender_shader_editor.png)
 10. Find where the texture image is. `Ex. Map #3` and click the folder icon to open file. Navigate to `unity_project/Assets/asset_name/Textures` and select the texture
-11. The model should now have a texture!
+11. Change mode to `material preview`. Press `z` or select in top right of 3d view
+12. The model should now have a texture!
    - ![added shader](./images/blender_after_open_texture.png)
 
 ## Export it with textures
 To export with textures within the file you need to export as `glft (.glb)`
+
+## Setup blender default scene to help process
+I haven't figured out an automated way to do this. But can speed up process by creating a blender scene
+
+![blender unity scraper scene](./images/blender_unity_scraper_optimized.png)
+
+## After joining models blender in render view gets slow
+Check the materials. If using a bunch of the same models from the same asset pack it is likely we need to delete the duplicate materials and assign one to all

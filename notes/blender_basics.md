@@ -16,14 +16,14 @@ add menu                                     | shift-a
 Command                                      | Key
 ---------------------------------------------|--------------
 Change Select vert/edge/face                 | Num 1-3
-Change Drag select mode                      | w
+⚠️ Change Drag select mode                   | w
 
 ## Pie Menus
 Command                                      | Key
 ---------------------------------------------|--------------
+select tool menu                             | space
 3d cursor                                    | shift-s 
 render mode (wireframe / solid / etc)        | z
-select tool menu                             | space
 transform origin                             | comma
 pivot point                                  | period
 mode                                         | tab
