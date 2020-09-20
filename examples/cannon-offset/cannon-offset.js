@@ -45,11 +45,11 @@ scene.add(groundMes)
 const boxGeo = new THREE.BoxGeometry()
 const boxMat = new THREE.MeshPhongMaterial({ color: '#465' })
 const boxMes = new THREE.Mesh(boxGeo, boxMat)
-boxMes.rotation.z -= Math.PI*0.25
-boxMes.rotation.x -= Math.PI*0.25
+// boxMes.rotation.z -= Math.PI*0.25
+// boxMes.rotation.x -= Math.PI*0.25
 boxMes.castShadow = true
 boxMes.receiveShadow = true
-boxMes.position.y = 2
+boxMes.position.y = 1
 scene.add(boxMes)
 
 // physics
@@ -70,9 +70,11 @@ quaternion.setFromEuler(boxMes.rotation.x, boxMes.rotation.y, boxMes.rotation.z,
 const boxBod = new CANNON.Body({
    mass: 1,
    quaternion: quaternion,
-   shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
+   // shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
    position: new CANNON.Vec3(boxMes.position.x, boxMes.position.y, boxMes.position.z),
 })
+const boxShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
+boxBod.addShape(boxShape, new CANNON.Vec3(0.25, 0, 0))
 physicsObjects.push({ body: boxBod, mesh: boxMes })
 world.add(boxBod)
 
@@ -81,7 +83,7 @@ world.add(boxBod)
 
 
 // render
-var cannonDebugRenderer = new THREE.CannonDebugRenderer(scene, world)
+var cannonDebugRenderer = new THREE.CannonDebugRenderer( scene, world );
 function render() {
    requestAnimationFrame(render)
    renderer.render(scene, camera)

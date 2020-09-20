@@ -105,9 +105,9 @@ loader.load('../../assets/models/cone.fbx', (object) => { try {
       mass: 1,
       quaternion: quaternion,
       position: new CANNON.Vec3(0, 2, 0),
-      // shape: CANNON.createConvexPolyhedron(mesh),
-      shape: createConvexPolyhedronFromModel(object)
+      // shape: createConvexPolyhedronFromModel(object)
    })
+   boxBod.addShape(createConvexPolyhedronFromModel(object))
 
    physicsObjects.push({ body: boxBod, mesh: mesh })
    world.add(boxBod)
