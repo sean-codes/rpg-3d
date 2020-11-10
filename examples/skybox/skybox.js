@@ -7,19 +7,24 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement)
 
 camera.position.z = 5
 
-const skyColor = "#FFF"
-const refColor = "#00a"
+const skyColor = "#000"
+const refColor = "#41b9ee"
+const size = 50
 
 // Sides
 const skySidesCanvas = document.createElement('canvas')
 const skySidesCtx = skySidesCanvas.getContext('2d')
-skySidesCanvas.width = 500
-skySidesCanvas.height = 500
+skySidesCanvas.width = size
+skySidesCanvas.height = size
+skySidesCtx.fillStyle = skyColor
+skySidesCtx.fillRect(0, 0, skySidesCanvas.width, skySidesCanvas.height)
 var grd = skySidesCtx.createLinearGradient(0, skySidesCanvas.height, 0, 0);
 grd.addColorStop(0, refColor);
+grd.addColorStop(0.95, skyColor);
 grd.addColorStop(1, skyColor);
 skySidesCtx.fillStyle = grd;
 skySidesCtx.fillRect(0, 0, skySidesCanvas.width, skySidesCanvas.height)
+
 
 const skyImgSides = document.createElement('img')
 skyImgSides.src = skySidesCanvas.toDataURL()
@@ -28,8 +33,8 @@ skyImgSides.crossOrigin = 'anonymous'
 // Top
 const skyTopCanvas = document.createElement('canvas')
 const skyTopCtx = skyTopCanvas.getContext('2d')
-skyTopCanvas.width = 500
-skyTopCanvas.height = 500
+skyTopCanvas.width = size
+skyTopCanvas.height = size
 skyTopCtx.fillStyle = skyColor
 skyTopCtx.fillRect(0, 0, skyTopCanvas.width, skyTopCanvas.height)
 
@@ -40,8 +45,8 @@ skyTopImage.crossOrigin = 'anonymous'
 // Bottom
 const skyBottomCanvas = document.createElement('canvas')
 const skyBottomCtx = skyBottomCanvas.getContext('2d')
-skyBottomCanvas.width = 500
-skyBottomCanvas.height = 500
+skyBottomCanvas.width = size
+skyBottomCanvas.height = size
 skyBottomCtx.fillStyle = refColor
 skyBottomCtx.fillRect(0, 0, skyBottomCanvas.width, skyBottomCanvas.height)
 
@@ -49,7 +54,7 @@ const skyBottomImage = document.createElement('img')
 skyBottomImage.src = skyBottomCanvas.toDataURL()
 skyBottomImage.crossOrigin = 'anonymous'
 
-const skyCube = new THREE.CubeTexture()
+const skyCube = new THREE.CubeTexture(undefined, THREE.CubeRefractionMapping, undefined, undefined, THREE.NearestFilter)
 
 let loading = 3
 function doneLoadingCubeImages() {
