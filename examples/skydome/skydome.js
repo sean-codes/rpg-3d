@@ -27,16 +27,10 @@ skyCtx.fillStyle = grd;
 skyCtx.fillRect(0, 0, skyCanvas.width, skyCanvas.height)
 
 
-const skyImg = document.createElement('img')
-skyImg.src = skyCanvas.toDataURL()
-skyImg.crossOrigin = 'anonymous'
-
-skyImg.addEventListener('load', () => {
-   const geo = new THREE.SphereGeometry(20, 60, 40)
-   const mat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(skyCanvas), side: THREE.BackSide })
-   const mes = new THREE.Mesh(geo, mat)
-   scene.add(mes)
-})
+const geo = new THREE.SphereGeometry(20, 60, 40)
+const mat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(skyCanvas), side: THREE.BackSide })
+const mes = new THREE.Mesh(geo, mat)
+scene.add(mes)
 
 
 // render
