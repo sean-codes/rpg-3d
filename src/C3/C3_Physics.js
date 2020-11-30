@@ -28,7 +28,7 @@ class C3_Physics {
       
       const quaternion = new CANNON.Quaternion()
       quaternion.setFromEuler(mesh.rotation.x, mesh.rotation.y, mesh.rotation.z, 'XYZ')
-
+      
       if (geoType.startsWith('Box')) {
          const { width, height, depth } = object.mesh.geometry.parameters
          const { x, y, z } = object.mesh.position
