@@ -31,17 +31,14 @@ void main() {
 
 const uniforms = {
    iTime: { value: 0 },
-   iResolution: { value: new THREE.Vector3() }
+   iResolution: { value: new THREE.Vector3(1000, 1000, 1) }
 }
 
 const geometry = new THREE.PlaneGeometry(5, 5, 1)
-// const material = new THREE.MeshBasicMaterial({ color: '#FFF' })
 const material = new THREE.ShaderMaterial({ 
    vertexShader: vertexShader, 
    fragmentShader: shader, 
    uniforms: uniforms,
-   // transparent: true,
-   // opacity: 0.95,
 })
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
@@ -50,12 +47,8 @@ scene.add(mesh)
 
 // render
 function render(time) {
-   uniforms.iResolution.value.set(1000, 1000)
-   uniforms.iTime.value = time * 0.001
    requestAnimationFrame(render)
    renderer.render(scene, camera)
-   // mesh.rotation.x += 0.01
-   // mesh.rotation.y += 0.01
 }
 render()
 
