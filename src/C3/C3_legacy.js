@@ -170,9 +170,9 @@ class C3 {
                model.object.scale.z = model.scale
 
                //animations
-               model.mixers = {}
+               model.mixer = new THREE.AnimationMixer(object)
                model.getMixer = function() {
-                  return this.mixers[Object.keys(this.mixers)[0]]
+                  return this.mixer
                }
                model.clips = {}
                model.object.animations.forEach((animation) => {
@@ -184,22 +184,20 @@ class C3 {
                   const stringed = mappedClip ? mappedClip.stringed : false
                   
                   if (additive) {
-                     THREE.AnimationUtils.makeClipAdditive(animation)   
+                     console.log('additive animation', animation, model.clipMap)
+                     animation = THREE.AnimationUtils.makeClipAdditive(animation)   
                   }
-                  const mixer = model.mixers[object.name] || new THREE.AnimationMixer(object)
                   if (isPose) {
                      animation = THREE.AnimationUtils.subclip( animation, animation.name, 2, 3, 30 );
                   }
                   
                   if (stringed) {
-                     animation = THREE.AnimationUtils.subclip( animation, animation.name, 2, 12, 24 );
-                     
+                     animation = THREE.AnimationUtils.subclip( animation, animation.name, 1, Math.round(animation.duration * 24), 24 )
                   }
-                  let clip = mixer.clipAction(animation)
+                  let clip = model.mixer.clipAction(animation)
                   clip.setEffectiveWeight(0)
                   clip.play()
                   clip.playOnce = playOnce
-                  model.mixers[object.name] = mixer
                   model.clips[animation.name] = clip
                })
                
