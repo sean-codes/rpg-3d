@@ -46,8 +46,11 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
          scale: 0.01,
          clipMap: [
             { map: 'Armature|Arms.AttackStart', add: true, pose: true },
+            { map: 'Armature|Arms.AttackTwiceStart', add: true, pose: true },
             { map: 'Armature|Arms.AttackOnce', add: true, stringed: true },
+            { map: 'Armature|Arms.AttackTwice', add: true, stringed: true },
             { map: 'Armature|Arms.AttackOnceRest', add: true, stringed: true },
+            { map: 'Armature|Arms.AttackTwiceRest', add: true, stringed: true },
          ]
       }
    })
@@ -66,22 +69,19 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    console.log(models.cube_person)
    const clipAttackStart = models.cube_person.clips['Armature|Arms.AttackStart']
    const clipAttackOnce = models.cube_person.clips['Armature|Arms.AttackOnce']
+   const clipAttackTwice = models.cube_person.clips['Armature|Arms.AttackTwice']
+   const clipAttackTwiceStart = models.cube_person.clips['Armature|Arms.AttackTwiceStart']
    const clipAttackRest = models.cube_person.clips['Armature|Arms.AttackOnceRest']
+   const clipAttackTwiceRest = models.cube_person.clips['Armature|Arms.AttackTwiceRest']
 
    clipAttackOnce.loop = THREE.LoopOnce 
    clipAttackRest.loop = THREE.LoopOnce 
+   clipAttackTwice.loop = THREE.LoopOnce 
+   clipAttackTwiceRest.loop = THREE.LoopOnce 
    clipAttackOnce.clampWhenFinished = true
    clipAttackRest.clampWhenFinished = true
-   
-   // models.cube_person.getMixer().addEventListener('finished', (e) => {
-   //    const clipName = e.action.getClip().name
-   //    if (clipName === 'Armature|Arms.AttackOnce') {
-   //       clipAttackOnce.onDone && clipAttackOnce.onDone()
-   //    }
-   //    if (clipName === 'Armature|Arms.AttackOnceRest') {
-   //       clipAttackRest.onDone && clipAttackRest.onDone()
-   //    }
-   // })
+   clipAttackTwice.clampWhenFinished = true
+   clipAttackTwiceRest.clampWhenFinished = true
    
    models.cube_person.mixer.onLoop = () => {
       // pose -> animation
@@ -90,10 +90,21 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
          clipAttackStart.onDone = false
       } 
       
+      if (clipAttackTwiceStart.onDone && clipAttackTwiceStart.getEffectiveWeight() === 1) {
+         clipAttackTwiceStart.onDone()
+         clipAttackTwiceStart.onDone = false
+      } 
+      
       // animation -> animation
       if (clipAttackOnce.onDone && clipAttackOnce.time === clipAttackOnce.getClip().duration) {
          clipAttackOnce.onDone()
          clipAttackOnce.onDone = false
+      }
+      
+      // animation -> animation
+      if (clipAttackTwice.onDone && clipAttackTwice.time === clipAttackTwice.getClip().duration) {
+         clipAttackTwice.onDone()
+         clipAttackTwice.onDone = false
       }
       
       // end
@@ -101,85 +112,59 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
          clipAttackRest.onDone()
          clipAttackRest.onDone = false
       }
+      
+      // end
+      if (clipAttackTwiceRest.onDone && clipAttackTwiceRest.time === clipAttackTwiceRest.getClip().duration) {
+         clipAttackTwiceRest.onDone()
+         clipAttackTwiceRest.onDone = false
+      }
    }
    
-   // models.cube_person.getMixer().addEventListener('finished', () => console.log('finished'))
    var attacking = false
    var resting = false
    function restToAttack() {
       attacking = true
-      clipAttackStart.weight = 1
-      clipAttackStart.fadeIn(0.25)
+      let useAttackStart = resting && clipAttackRest.getEffectiveWeight() > 0 ? clipAttackTwiceStart : clipAttackStart
+      let useAttack = resting && clipAttackRest.getEffectiveWeight() > 0 ? clipAttackTwice : clipAttackOnce
+      let useRest = resting  && clipAttackRest.getEffectiveWeight() > 0 ? clipAttackTwiceRest : clipAttackRest
       
+      if (resting) {
+         clipAttackRest.halt()
+         clipAttackRest.fadeOut(0.25)
+         clipAttackTwiceRest.halt()
+         clipAttackTwiceRest.fadeOut(0.25)
+         resting = false
+      }
       
-      clipAttackStart.onDone = () => {
-         console.log('done')
-         // clipAttackStart.enabled = false
-         clipAttackStart.weight = 0
-         clipAttackOnce.reset()
-         clipAttackOnce.weight = 1
-         console.log(clipAttackOnce.time)
-         setTimeout(() => console.log(clipAttackOnce.time, clipAttackOnce.getClip().duration), 2000)
-         clipAttackOnce.onDone = () => {
-            console.log('attackOnce done')
-            clipAttackOnce.weight = 0
-            clipAttackRest.reset()
-            clipAttackRest.weight = 1
+      useAttackStart.weight = 1
+      useAttackStart.fadeIn(0.25)
+      
+      useAttackStart.onDone = () => {
+         useAttackStart.weight = 0
+         
+         useAttack.reset()
+         useAttack.weight = 1
+         
+         useAttack.onDone = () => {
+            attacking = false
+            resting = true
             
-            clipAttackRest.onDone = () => {
-               console.log('attackRest done')
-               attacking = false
-               clipAttackRest.weight = 0
+            useAttack.weight = 0
+            useRest.reset()
+            useRest.play()
+            useRest.weight = 1
+            
+            useRest.onDone = () => {
+               useRest.weight = 0
+               resting = false
             }
          }
       }
    }
-   // function restToAttack() {
-   //    attacking = true
-   //    clipAttackStart.enabled = true 
-   //    clipAttackStart.started = true
-   // 
-   //    clipAttackStart.setEffectiveWeight(1)
-   //    clipAttackStart.weight = 1
-   //    clipAttackStart.fadeIn(1)
-   // 
-   //    clipAttackStart.onDone = () => {
-   //       clipAttackStart.enabled = false
-   //       console.log('clipAttackStart.onDone')
-   //       clipAttackStart.setEffectiveWeight(0)
-   // 
-   // 
-   //       clipAttackOnce.enabled = true
-   //       clipAttackOnce.reset()
-   //       // clipAttackOnce.fadeIn(0)
-   //       clipAttackOnce.weight = 1
-   //       clipAttackOnce.setEffectiveWeight(1)
-   //       clipAttackOnce.onDone = () => {
-   //          clipAttackOnce.setEffectiveWeight(0)
-   //          clipAttackOnce.enabled = false
-   // 
-   //          clipAttackRest.enabled = true
-   //          clipAttackRest.reset()
-   //          clipAttackRest.setEffectiveWeight(1)
-   //          clipAttackRest.weight = 1
-   //          resting = true
-   //          clipAttackRest.onDone = () => {
-   //             clipAttackRest.setEffectiveWeight(0)
-   //             attacking = false
-   //             resting = false
-   //          }
-   //       }
-   //    }
-   // }
    
    window.addEventListener('keydown', ({ keyCode }) => {
       const call = {
          '32': () => { //spacebar
-            if (resting) {
-               console.log('resting ')
-               
-            } 
-            
             if (attacking) return
             
             // console.log('attack')

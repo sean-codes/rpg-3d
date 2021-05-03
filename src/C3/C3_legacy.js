@@ -192,7 +192,7 @@ class C3 {
                   }
                   
                   if (stringed) {
-                     animation = THREE.AnimationUtils.subclip( animation, animation.name, 1, Math.round(animation.duration * 24), 24 )
+                     animation = THREE.AnimationUtils.subclip( animation, animation.name, 0.1, Math.round(animation.duration * 24), 24 )
                   }
                   let clip = model.mixer.clipAction(animation)
                   clip.setEffectiveWeight(0)
