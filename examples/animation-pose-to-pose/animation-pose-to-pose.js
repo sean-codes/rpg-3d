@@ -29,10 +29,6 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
    dirLight.target = new THREE.Object3D()
    scene.add(dirLight.target)
    scene.add(dirLight)
-   this.dirLight = dirLight
-   // const dirLightHelper = new THREE.DirectionalLightHelper(dirLight)
-   // scene.add(dirLightHelper)
-   // this.dirLightHelper = dirLightHelper
 
 
    // a grid
@@ -54,16 +50,9 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
          ]
       }
    })
-   
+   this.models = models
    scene.add(models.cube_person.object)
 
-   // models.cube_person.clips['Armature|Still'].enabled = true
-   // models.cube_person.clips['Armature|Still'].setEffectiveWeight(1)
-   // models.cube_person.clips['Armature|Still'].play()
-   // 
-   function attack() {
-      
-   }
    const model = models.cube_person
    model.mixer.endFunctions = []
    console.log(models.cube_person)
@@ -120,29 +109,41 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       }
    }
    
+   var attackQued = false
    var attacking = false
    var resting = false
    function restToAttack() {
+      if (!attackQued || attacking) return
       attacking = true
-      let useAttackStart = resting && clipAttackRest.getEffectiveWeight() > 0 ? clipAttackTwiceStart : clipAttackStart
-      let useAttack = resting && clipAttackRest.getEffectiveWeight() > 0 ? clipAttackTwice : clipAttackOnce
-      let useRest = resting  && clipAttackRest.getEffectiveWeight() > 0 ? clipAttackTwiceRest : clipAttackRest
+      attackQued = false
+      const shouldUseTwice = resting && (clipAttackRest.getEffectiveWeight() > 0 || clipAttackOnce.getEffectiveWeight())
+      const useAttackStart = shouldUseTwice ? clipAttackTwiceStart : clipAttackStart
+      const useAttack = shouldUseTwice ? clipAttackTwice : clipAttackOnce
+      const useRest = shouldUseTwice ? clipAttackTwiceRest : clipAttackRest
       
-      if (resting) {
+      let restTime = 1
+      if (resting) {         
+         restTime = Math.max(
+            clipAttackRest.time  / clipAttackRest.getClip().duration,
+            clipAttackTwiceRest.time  / clipAttackTwiceRest.getClip().duration
+         )
+
          clipAttackRest.halt()
-         clipAttackRest.fadeOut(0.25)
+         clipAttackRest.fadeOut(0.25 * restTime)
          clipAttackTwiceRest.halt()
-         clipAttackTwiceRest.fadeOut(0.25)
+         clipAttackTwiceRest.fadeOut(0.25 * restTime)
          resting = false
       }
       
+      var time = Date.now()
+      useAttackStart.reset().play()
       useAttackStart.weight = 1
-      useAttackStart.fadeIn(0.25)
+      useAttackStart.fadeIn(0.25 * restTime)
       
       useAttackStart.onDone = () => {
          useAttackStart.weight = 0
          
-         useAttack.reset()
+         useAttack.reset().play()
          useAttack.weight = 1
          
          useAttack.onDone = () => {
@@ -150,33 +151,32 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
             resting = true
             
             useAttack.weight = 0
-            useRest.reset()
-            useRest.play()
+            useRest.reset().play()
             useRest.weight = 1
             
             useRest.onDone = () => {
                useRest.weight = 0
+               useRest.stop()
                resting = false
             }
          }
       }
    }
    
+   
    window.addEventListener('keydown', ({ keyCode }) => {
       const call = {
-         '32': () => { //spacebar
-            if (attacking) return
-            
-            // console.log('attack')
-            restToAttack()
-         },
+      '32': () => { //spacebar
+         attackQued = true
+      },
       }[keyCode]
       
       call && call()
    }) 
    
-   // globals
-   this.models = models
+   this.onRender = (time) => {
+      restToAttack()
+   }
 }
 
 const render = function({ c3, time, clock, camera, scene }) {
@@ -187,23 +187,9 @@ const render = function({ c3, time, clock, camera, scene }) {
       mixer.update(delta)
       
       mixer.onLoop && mixer.onLoop()
-      // if (mixer.endFunctions) {
-      //    for (let func of mixer.endFunctions) {
-      //       func()
-      //    }
-      // 
-      //    mixer.endFunctions = []
-      // }
-   
    }
    
-   // console.log(this.dirLight.position)
-   const dirPosX = Math.sin(time/500) * 30
-   const dirPosZ = Math.cos(time/500) * 30
-   this.dirLight.position.x = dirPosX
-   this.dirLight.position.z = dirPosZ
-   this.dirLight.lookAt(new THREE.Vector3(0, 0, 0))
-   // this.dirLightHelper.update()
+   this.onRender(time)
 }
 
 

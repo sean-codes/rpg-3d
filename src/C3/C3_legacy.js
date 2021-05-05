@@ -196,7 +196,7 @@ class C3 {
                   }
                   let clip = model.mixer.clipAction(animation)
                   clip.setEffectiveWeight(0)
-                  clip.play()
+                  // clip.play()
                   clip.playOnce = playOnce
                   model.clips[animation.name] = clip
                })
