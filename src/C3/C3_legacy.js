@@ -184,11 +184,11 @@ class C3 {
                   const stringed = mappedClip ? mappedClip.stringed : false
                   
                   if (additive) {
-                     console.log('additive animation', animation, model.clipMap)
                      animation = THREE.AnimationUtils.makeClipAdditive(animation)   
                   }
+                  
                   if (isPose) {
-                     animation = THREE.AnimationUtils.subclip( animation, animation.name, 2, 3, 30 );
+                     animation = THREE.AnimationUtils.subclip( animation, animation.name, 1, 2, 30 );
                   }
                   
                   if (stringed) {
@@ -199,11 +199,11 @@ class C3 {
                   // clip.play()
                   clip.playOnce = playOnce
                   model.clips[animation.name] = clip
-               })
+               }) 
                
-               if (model.log) {
+               if (model.log) { 
                   console.log('Setup Model: ' + model.name, model)
-               }
+               } 
                // finish loading
                loading -= 1
                if (!loading) yay(models)

@@ -1,5 +1,11 @@
-// Not sure yet how we will structure this :]
-// Lets figure out the basics of using three first
+// Animating to a pose
+/*
+
+i think i made a notes file
+*/
+
+
+
 const init = async function({ c3, camera, scene, renderer, datGui }) {
    scene.background = new THREE.Color('#3a293f')
    // scene.fog = new THREE.Fog('#FFF', 20, 50);
@@ -122,7 +128,7 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
       const useRest = shouldUseTwice ? clipAttackTwiceRest : clipAttackRest
       
       let restTime = 1
-      if (resting) {         
+      if (resting) {          
          restTime = Math.max(
             clipAttackRest.time  / clipAttackRest.getClip().duration,
             clipAttackTwiceRest.time  / clipAttackTwiceRest.getClip().duration
@@ -135,23 +141,23 @@ const init = async function({ c3, camera, scene, renderer, datGui }) {
          resting = false
       }
       
-      var time = Date.now()
       useAttackStart.reset().play()
       useAttackStart.weight = 1
       useAttackStart.fadeIn(0.25 * restTime)
       
       useAttackStart.onDone = () => {
-         useAttackStart.weight = 0
-         
+         useAttackStart.weight = 0 // can use .weight = 0 or stop()
          useAttack.reset().play()
          useAttack.weight = 1
+         // useAttackStart.stop() // has to be after the next clip is played or will skip
          
          useAttack.onDone = () => {
             attacking = false
             resting = true
-            
+             
             useAttack.weight = 0
             useRest.reset().play()
+            // useAttack.stop()
             useRest.weight = 1
             
             useRest.onDone = () => {
