@@ -11,7 +11,7 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 const controls = new THREE.OrbitControls(camera, renderer.domElement)
 const fbxLoader = new THREE.FBXLoader()
 const gltfLoader = new THREE.GLTFLoader()
-const GUI = new dat.GUI({ closed: true });
+const GUI = new dat.GUI({ closed: false });
 
 function resize() {
    renderer.setSize(window.innerWidth, window.innerHeight)
