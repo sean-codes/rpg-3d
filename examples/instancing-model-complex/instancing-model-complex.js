@@ -20,16 +20,17 @@ let iMesh = undefined
 const loader = new THREE.GLTFLoader()
 loader.load('../../assets/models/wood-house.glb', (object) => {
    console.log('Loaded object', object)
-   
+   let innerObj = undefined
+   object.scene.traverse(p => { if (p.name === 'model_wood_house_two_story') innerObj = p })
    // geometry + material out of the model
-   const geometry = object.children[0].geometry
-   const material = object.children[0].material
+   const geometry = innerObj.geometry
+   const material = innerObj.material
    console.log('geometry', geometry)
    console.log('material', material)
    
    // fixing scale based on the models scale
-   const modelScale = 0.1 // made this up
-   const scaleFix = object.children[0].scale.x / 10 * modelScale
+   const modelScale = 4 // made this up
+   const scaleFix = innerObj.scale.x / 10 * modelScale
    geometry.scale(scaleFix, scaleFix, scaleFix)
    geometry.rotateX(-Math.PI/2)
    
