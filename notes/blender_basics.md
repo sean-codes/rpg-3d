@@ -26,7 +26,7 @@ select tool menu                             | space
 render mode (wireframe / solid / etc)        | z
 transform origin                             | comma
 pivot point                                  | period
-mode                                         | tab
+mode                                         | tab / ctrl-tab
 change view (front/back/side/top)            | tilde
 
 # After mirroring geometry in blender you need to recalculate normals
