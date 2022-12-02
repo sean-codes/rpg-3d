@@ -1,68 +1,97 @@
-/**
- * @author sunag / http://www.sunag.com.br/
- */
+import Node from './Node.js';
+import OperatorNode from '../math/OperatorNode.js';
 
-import { Node } from './Node.js';
+class VarNode extends Node {
 
-function VarNode( type, value ) {
+	constructor( node, name = null ) {
 
-	Node.call( this, type );
+		super();
 
-	this.value = value;
+		this.node = node;
+		this.name = name;
+
+	}
+
+	op( op, ...params ) {
+
+		this.node = new OperatorNode( op, this.node, ...params );
+
+		return this;
+
+	}
+
+	assign( ...params ) {
+
+		return this.op( '=', ...params );
+
+	}
+
+	add( ...params ) {
+
+		return this.op( '+', ...params );
+
+	}
+
+	sub( ...params ) {
+
+		return this.op( '-', ...params );
+
+	}
+
+	mul( ...params ) {
+
+		return this.op( '*', ...params );
+
+	}
+
+	div( ...params ) {
+
+		return this.op( '/', ...params );
+
+	}
+
+	getHash( builder ) {
+
+		return this.name || super.getHash( builder );
+
+	}
+
+	getNodeType( builder ) {
+
+		return this.node.getNodeType( builder );
+
+	}
+
+	generate( builder ) {
+
+		const node = this.node;
+		const name = this.name;
+
+		if ( name === null && node.isTempNode === true ) {
+
+			return node.build( builder );
+
+		}
+
+		const type = builder.getVectorType( this.getNodeType( builder ) );
+
+		const snippet = node.build( builder, type );
+		const nodeVar = builder.getVarFromNode( this, type );
+
+		if ( name !== null ) {
+
+			nodeVar.name = name;
+
+		}
+
+		const propertyName = builder.getPropertyName( nodeVar );
+
+		builder.addFlowCode( `${propertyName} = ${snippet}` );
+
+		return propertyName;
+
+	}
 
 }
 
-VarNode.prototype = Object.create( Node.prototype );
-VarNode.prototype.constructor = VarNode;
-VarNode.prototype.nodeType = "Var";
-
-VarNode.prototype.getType = function ( builder ) {
-
-	return builder.getTypeByFormat( this.type );
-
-};
-
-VarNode.prototype.generate = function ( builder, output ) {
-
-	var varying = builder.getVar( this.uuid, this.type );
-
-	if ( this.value && builder.isShader( 'vertex' ) ) {
-
-		builder.addNodeCode( varying.name + ' = ' + this.value.build( builder, this.getType( builder ) ) + ';' );
-
-	}
-
-	return builder.format( varying.name, this.getType( builder ), output );
-
-};
-
-VarNode.prototype.copy = function ( source ) {
-
-	Node.prototype.copy.call( this, source );
-
-	this.type = source.type;
-	this.value = source.value;
-
-	return this;
-
-};
-
-VarNode.prototype.toJSON = function ( meta ) {
-
-	var data = this.getJSONNode( meta );
-
-	if ( ! data ) {
-
-		data = this.createJSONNode( meta );
-
-		data.type = this.type;
-
-		if ( this.value ) data.value = this.value.toJSON( meta ).uuid;
-
-	}
-
-	return data;
-
-};
-
-export { VarNode };
+export default VarNode;
