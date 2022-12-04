@@ -15,6 +15,7 @@
 - [Third Person Camera](./notes/third-person-camera.md)
 - [Map Loader](./notes/mapLoader.md)
 - [Raycast grid axis aligned](./notes/grid-raycast-axis-aligned.md)
+- [Particle notes](./notes/particles.md)
 - [Misc Notes](./notes/misc-notes.md)
 
 # Would like to figure out
