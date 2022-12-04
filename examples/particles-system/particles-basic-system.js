@@ -9,34 +9,22 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement)
 camera.position.z = 25
 
 
-// create a circle pixel
-function CircleTexture() {
-   var canvas = document.createElement('canvas')
-   var ctx = canvas.getContext('2d')
-   canvas.width = 25 // resolution
-   canvas.height = 25
-   ctx.fillStyle = '#FFF' // give it 100% of the color space. remove it later
-   ctx.beginPath()
-   ctx.arc(canvas.width/2, canvas.height/2, canvas.height/2, 0, 2 * Math.PI)
-   ctx.fill()
-
-   return new THREE.CanvasTexture(canvas)
-}
-
-
-
 
 class System {
    constructor(settings) {
       this.settings = { ...settings }
       this.particles = []
 
-      this.material = new THREE.PointsMaterial({
-         size: 1,
-         vertexColors: true,
+      this.material = new THREE.ShaderMaterial({
+         vertexShader: pointVertexShader(),
+         fragmentShader: pointFragmentShader(),
+         //    vertexColors: true,
          transparent: true,
          depthTest: false,
-         map: settings.shape === "circle" ? CircleTexture() : null,
+         uniforms: {
+            shape: { value: settings.shape === 'circle' ? 1 : 0 },
+            pointTexture: { value: CircleTexture(100) },
+         }
       })
 
       this.geometry = new THREE.BufferGeometry()
@@ -44,9 +32,6 @@ class System {
    }
 
    step() {
-      // if (Math.random() > 0.5) {
-      //    this.generate()
-      // }
       for (var i = 0; i < this.settings.count; i++) {
          this.generate()
       }
@@ -67,16 +52,19 @@ class System {
    updateGeometry() {
       let arrPoints = [] // sorry gc...
       let arrColors = [] // >:(
+      let arrSizes = []
       for (var particle of this.particles) {
-         arrPoints.push(...particle.position) // new Array(x)?
+         arrPoints.push(...particle.position.toArray()) // new Array(x)?
          arrColors.push(...particle.color)
+         arrSizes.push(particle.size)
       }
 
       const positions = new THREE.Float32BufferAttribute(arrPoints, 3)
       const colors = new THREE.Float32BufferAttribute(arrColors, 4)
-
+      const sizes = new THREE.Float32BufferAttribute(arrSizes, 1)
       this.geometry.setAttribute('position', positions)
       this.geometry.setAttribute('color', colors)
+      this.geometry.setAttribute('size', sizes)
    }
 
    generate() {
@@ -87,99 +75,120 @@ class System {
 
 class Particle {
    constructor(settings) {
-      
-      if (settings.pattern == 'halo') {
-         var directionX = randomRange(settings.directionX.min, settings.directionX.max)
-         var directionY = randomRange(settings.directionY.min, settings.directionY.max)
-         var directionZ = randomRange(settings.directionZ.min, settings.directionZ.max)
-         var direction = new THREE.Vector3(directionX, directionY, directionZ).normalize()
-      }
+      this.userStep = settings.step
+      this.userCreate = settings.create
 
-      direction.multiplyScalar(settings.width)
-
-      var speed = randomRange(settings.vel.min, settings.vel.max)
-
-
-      this.position = [
-         direction.x,
-         direction.y,
-         direction.z,
-      ] // xyz
-
-      this.life = settings.life
-      this.color = [0, 1, Math.random(), 1] // rgba
-      this.speed = [directionX*speed, directionY*speed, directionZ*speed]
+      const setup = this.userCreate(this)
+      this.position = setup.position
+      this.size = setup.size
+      this.color = setup.color
+      this.life = setup.life
    }
 
    step() {
-      this.position[0] += this.speed[0]
-      this.position[1] += this.speed[1]
-      this.position[2] += this.speed[2]
-      // this.color[3] = 0.5
-      this.color[3] = Math.max(0, this.color[3]-0.01)
+      this.life -= 1
+      const update = this.userStep(this)
 
-      this.life--
+      this.position = update.position
+      this.size = update.size
+      this.color = update.color
    }
 }
 
 
+// Example 1
+// function ParticleCreate(part) {
+//    var life = 60
+//    var color = [1, 0, 0, 1]
+   
+//    var directionX = randomRange(-1, 1)
+//    var directionY = randomRange(-1, 1)
+//    var directionZ = randomRange(-1, 1)
+//    var direction = new THREE.Vector3(directionX, directionY, directionZ).normalize()
+   
+//    part.direction = direction
+//    part.accel = part.direction.clone().multiplyScalar(0.1)
+//    var position = direction.clone().multiplyScalar(5)
+
+//    var size = randomRange(1, 5)
+
+//    var colorOptions = ['#F22', 'skyblue']
+//    var color = new THREE.Color(colorOptions[Math.floor(Math.random()*colorOptions.length)])
+
+
+//    return {
+//       position, // Vec3
+//       life: life, // == 0 = destroy
+//       size: size, // scale
+//       color: [color.r, color.g, color.b, 1], // [r, g, b, a]
+//    }
+// }
+
+// function ParticleStep(part) {
+//    part.color[3] -= 0.01
+   
+//    part.position.add(part.accel)
+   
+//    return {
+//       position: part.position,
+//       size: part.size,
+//       color: part.color,
+//    }
+// }
+
+// Example 2
+function ParticleCreate(part) {
+   var life = 60
+   var color = [1, 0, 0, 1]
+   
+   var directionX = randomRange(-1, 1)
+   var directionY = randomRange(0, 0)
+   var directionZ = randomRange(-1, 1)
+   var direction = new THREE.Vector3(directionX, directionY, directionZ).normalize()
+
+   
+   part.direction = direction
+   part.vel = new THREE.Vector3(0, 1, 0).multiplyScalar(0.1)
+   var position = direction.clone().multiplyScalar(5)
+
+   var size = randomRange(3, 3)
+
+   var colorOptions = ['#F22', 'skyblue']
+   var color = new THREE.Color(colorOptions[Math.floor(Math.random()*colorOptions.length)])
+
+
+   return {
+      position, // Vec3
+      life: life, // == 0 = destroy
+      size: size, // scale
+      color: [color.r, color.g, color.b, 1], // [r, g, b, a]
+   }
+}
+
+function ParticleStep(part) {
+   part.color[3] -= 0.01
+   
+   part.position.add(part.vel)
+   part.size -= 0.05
+   return {
+      position: part.position,
+      size: part.size,
+      color: part.color,
+   }
+}
+
 
 // settings 
+
 var settings = {
-   "position": {
-      "x": 0,
-      "y": 0,
-   },
-   "shape": "circle",
-   "pattern": "halo",
-   "width": 5,
-   "count": 10,
-   "interval": 1,
-   "gaussian": 1,
-   "life": 120,
-   "colors": [
-      [
-         "#fff",
-         "#fff"
-      ],
-      [
-         "#f22",
-         "#fff"
-      ]
-   ],
-   "vel": {
-      "min": 0.1,
-      "max": 0.25
-   },
-   "accel": 0,
-   "friction": 0.99,
-   "size": {
-      "min": 1,
-      "max": 4
-   },
-   "grow": 0,
-   "wobble": {
-      "time": 30,
-      "amount": 0.25
-   },
-   "directionX": {
-      "min": -1,
-      "max": 1
-   },
-   "directionY": {
-      "min": -1,
-      "max": 1
-   },
-   "directionZ": {
-      "min": -1,
-      "max": 1
-   },
-   "alpha": 1,
-   "fade": 0.02
+   shape: "circle",
+   count: 2,
+   create: ParticleCreate,
+   step: ParticleStep,
 }
 
 var eleTextarea = document.querySelector('textarea')
-eleTextarea.innerHTML = JSON.stringify(settings, null, 3)
+eleTextarea.innerHTML = settings.create.toString() + '\r\n\r\n' + settings.step.toString()
 var eleData = document.querySelector('.data')
 
 let particleSystem = new System(settings)
@@ -188,11 +197,17 @@ scene.add(particleSystem.object)
 
 eleTextarea.oninput = function() {
    try {
-      var settings = JSON.parse(eleTextarea.value)
-      console.log(settings)
+      eval(eleTextarea.value)
+      console.log(ParticleCreate.toString())
 
       scene.remove(particleSystem.object)
-      particleSystem = new System(settings)
+      particleSystem = new System({
+         shape: "circle",
+         count: 1,
+         create: ParticleCreate,
+         step: ParticleStep,
+      }
+      )
       scene.add(particleSystem.object)
 
 
@@ -233,7 +248,26 @@ function resize() {
 window.onresize = resize
 resize()
 
-// Math
+// Utils
+
+// create a circle pixel
+function CircleTexture(res) {
+   var canvas = document.createElement('canvas')
+   var ctx = canvas.getContext('2d')
+   canvas.width = res // resolution
+   canvas.height = res
+   ctx.imageSmoothingEnabled = false
+   ctx.fillStyle = '#FFF' // give it 100% of the color space. remove it later
+   ctx.beginPath()
+   ctx.arc(canvas.width/2, canvas.height/2, canvas.height/2, 0, 2 * Math.PI)
+   ctx.fill()
+
+   const texture = new THREE.CanvasTexture(canvas)
+   texture.minFilter = THREE.NearestFilter
+   texture.magFilter = THREE.NearestFilter
+   return texture
+}
+
 function randomRange(min, max) {
    return min + Math.random() * (max - min)
 }
@@ -248,4 +282,34 @@ function degreeCos(degree) {
 
 function degreeSin(degree) {
    return Math.sin(degreeToRadian(degree))
+}
+
+
+function pointVertexShader() {
+   return `
+       attribute float size;
+       attribute vec4 color;
+       varying vec4 vColor;
+       void main() {
+           vColor = color;
+           vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+           gl_PointSize = size * ( 250.0 / -mvPosition.z );
+           gl_Position = projectionMatrix * mvPosition;
+       }
+   `
+}
+
+function pointFragmentShader() {
+   return `
+      varying vec4 vColor;
+      uniform sampler2D pointTexture;
+      uniform int shape;
+
+      void main() {
+         gl_FragColor = vec4( vColor );
+         if (shape == 1) {
+            gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+         }
+      }
+   `
 }
