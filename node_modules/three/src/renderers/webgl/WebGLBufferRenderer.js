@@ -1,8 +1,12 @@
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
 function WebGLBufferRenderer( gl, extensions, info, capabilities ) {
 
-	const isWebGL2 = capabilities.isWebGL2;
+	var isWebGL2 = capabilities.isWebGL2;
 
-	let mode;
+	var mode;
 
 	function setMode( value ) {
 
@@ -14,15 +18,15 @@ function WebGLBufferRenderer( gl, extensions, info, capabilities ) {
 
 		gl.drawArrays( mode, start, count );
 
-		info.update( count, mode, 1 );
+		info.update( count, mode );
 
 	}
 
-	function renderInstances( start, count, primcount ) {
+	function renderInstances( geometry, start, count, primcount ) {
 
 		if ( primcount === 0 ) return;
 
-		let extension, methodName;
+		var extension, methodName;
 
 		if ( isWebGL2 ) {
 

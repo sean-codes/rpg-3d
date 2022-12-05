@@ -1,45 +1,49 @@
-class Clock {
+/**
+ * @author alteredq / http://alteredqualia.com/
+ */
 
-	constructor( autoStart = true ) {
+function Clock( autoStart ) {
 
-		this.autoStart = autoStart;
+	this.autoStart = ( autoStart !== undefined ) ? autoStart : true;
 
-		this.startTime = 0;
-		this.oldTime = 0;
-		this.elapsedTime = 0;
+	this.startTime = 0;
+	this.oldTime = 0;
+	this.elapsedTime = 0;
 
-		this.running = false;
+	this.running = false;
 
-	}
+}
 
-	start() {
+Object.assign( Clock.prototype, {
 
-		this.startTime = now();
+	start: function () {
+
+		this.startTime = ( typeof performance === 'undefined' ? Date : performance ).now(); // see #10732
 
 		this.oldTime = this.startTime;
 		this.elapsedTime = 0;
 		this.running = true;
 
-	}
+	},
 
-	stop() {
+	stop: function () {
 
 		this.getElapsedTime();
 		this.running = false;
 		this.autoStart = false;
 
-	}
+	},
 
-	getElapsedTime() {
+	getElapsedTime: function () {
 
 		this.getDelta();
 		return this.elapsedTime;
 
-	}
+	},
 
-	getDelta() {
+	getDelta: function () {
 
-		let diff = 0;
+		var diff = 0;
 
 		if ( this.autoStart && ! this.running ) {
 
@@ -50,7 +54,7 @@ class Clock {
 
 		if ( this.running ) {
 
-			const newTime = now();
+			var newTime = ( typeof performance === 'undefined' ? Date : performance ).now();
 
 			diff = ( newTime - this.oldTime ) / 1000;
 			this.oldTime = newTime;
@@ -63,12 +67,7 @@ class Clock {
 
 	}
 
-}
+} );
 
-function now() {
-
-	return ( typeof performance === 'undefined' ? Date : performance ).now(); // see #10732
-
-}
 
 export { Clock };

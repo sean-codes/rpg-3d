@@ -1,35 +1,42 @@
 import { Curve } from './Curve.js';
 import * as Curves from '../curves/Curves.js';
 
+/**
+ * @author zz85 / http://www.lab4games.net/zz85/blog
+ *
+ **/
+
 /**************************************************************
  *	Curved Path - a curve path is simply a array of connected
  *  curves, but retains the api of a curve
  **************************************************************/
 
-class CurvePath extends Curve {
+function CurvePath() {
 
-	constructor() {
+	Curve.call( this );
 
-		super();
+	this.type = 'CurvePath';
 
-		this.type = 'CurvePath';
+	this.curves = [];
+	this.autoClose = false; // Automatically closes the path
 
-		this.curves = [];
-		this.autoClose = false; // Automatically closes the path
+}
 
-	}
+CurvePath.prototype = Object.assign( Object.create( Curve.prototype ), {
 
-	add( curve ) {
+	constructor: CurvePath,
+
+	add: function ( curve ) {
 
 		this.curves.push( curve );
 
-	}
+	},
 
-	closePath() {
+	closePath: function () {
 
 		// Add a line curve if start and end of lines are not connected
-		const startPoint = this.curves[ 0 ].getPoint( 0 );
-		const endPoint = this.curves[ this.curves.length - 1 ].getPoint( 1 );
+		var startPoint = this.curves[ 0 ].getPoint( 0 );
+		var endPoint = this.curves[ this.curves.length - 1 ].getPoint( 1 );
 
 		if ( ! startPoint.equals( endPoint ) ) {
 
@@ -37,7 +44,7 @@ class CurvePath extends Curve {
 
 		}
 
-	}
+	},
 
 	// To get accurate point with reference to
 	// entire path distance at time t,
@@ -48,11 +55,11 @@ class CurvePath extends Curve {
 	// 3. Get t for the curve
 	// 4. Return curve.getPointAt(t')
 
-	getPoint( t, optionalTarget ) {
+	getPoint: function ( t ) {
 
-		const d = t * this.getLength();
-		const curveLengths = this.getCurveLengths();
-		let i = 0;
+		var d = t * this.getLength();
+		var curveLengths = this.getCurveLengths();
+		var i = 0;
 
 		// To think about boundaries points.
 
@@ -60,13 +67,13 @@ class CurvePath extends Curve {
 
 			if ( curveLengths[ i ] >= d ) {
 
-				const diff = curveLengths[ i ] - d;
-				const curve = this.curves[ i ];
+				var diff = curveLengths[ i ] - d;
+				var curve = this.curves[ i ];
 
-				const segmentLength = curve.getLength();
-				const u = segmentLength === 0 ? 0 : 1 - diff / segmentLength;
+				var segmentLength = curve.getLength();
+				var u = segmentLength === 0 ? 0 : 1 - diff / segmentLength;
 
-				return curve.getPointAt( u, optionalTarget );
+				return curve.getPointAt( u );
 
 			}
 
@@ -78,32 +85,32 @@ class CurvePath extends Curve {
 
 		// loop where sum != 0, sum > d , sum+1 <d
 
-	}
+	},
 
 	// We cannot use the default THREE.Curve getPoint() with getLength() because in
 	// THREE.Curve, getLength() depends on getPoint() but in THREE.CurvePath
 	// getPoint() depends on getLength
 
-	getLength() {
+	getLength: function () {
 
-		const lens = this.getCurveLengths();
+		var lens = this.getCurveLengths();
 		return lens[ lens.length - 1 ];
 
-	}
+	},
 
 	// cacheLengths must be recalculated.
-	updateArcLengths() {
+	updateArcLengths: function () {
 
 		this.needsUpdate = true;
 		this.cacheLengths = null;
 		this.getCurveLengths();
 
-	}
+	},
 
 	// Compute lengths and cache them
 	// We cannot overwrite getLengths() because UtoT mapping uses it.
 
-	getCurveLengths() {
+	getCurveLengths: function () {
 
 		// We use cache values if curves and cache array are same length
 
@@ -116,10 +123,9 @@ class CurvePath extends Curve {
 		// Get length of sub-curve
 		// Push sums into cached array
 
-		const lengths = [];
-		let sums = 0;
+		var lengths = [], sums = 0;
 
-		for ( let i = 0, l = this.curves.length; i < l; i ++ ) {
+		for ( var i = 0, l = this.curves.length; i < l; i ++ ) {
 
 			sums += this.curves[ i ].getLength();
 			lengths.push( sums );
@@ -130,13 +136,15 @@ class CurvePath extends Curve {
 
 		return lengths;
 
-	}
+	},
 
-	getSpacedPoints( divisions = 40 ) {
+	getSpacedPoints: function ( divisions ) {
 
-		const points = [];
+		if ( divisions === undefined ) divisions = 40;
 
-		for ( let i = 0; i <= divisions; i ++ ) {
+		var points = [];
+
+		for ( var i = 0; i <= divisions; i ++ ) {
 
 			points.push( this.getPoint( i / divisions ) );
 
@@ -150,26 +158,27 @@ class CurvePath extends Curve {
 
 		return points;
 
-	}
+	},
 
-	getPoints( divisions = 12 ) {
+	getPoints: function ( divisions ) {
 
-		const points = [];
-		let last;
+		divisions = divisions || 12;
 
-		for ( let i = 0, curves = this.curves; i < curves.length; i ++ ) {
+		var points = [], last;
 
-			const curve = curves[ i ];
-			const resolution = curve.isEllipseCurve ? divisions * 2
-				: ( curve.isLineCurve || curve.isLineCurve3 ) ? 1
-					: curve.isSplineCurve ? divisions * curve.points.length
+		for ( var i = 0, curves = this.curves; i < curves.length; i ++ ) {
+
+			var curve = curves[ i ];
+			var resolution = ( curve && curve.isEllipseCurve ) ? divisions * 2
+				: ( curve && ( curve.isLineCurve || curve.isLineCurve3 ) ) ? 1
+					: ( curve && curve.isSplineCurve ) ? divisions * curve.points.length
 						: divisions;
 
-			const pts = curve.getPoints( resolution );
+			var pts = curve.getPoints( resolution );
 
-			for ( let j = 0; j < pts.length; j ++ ) {
+			for ( var j = 0; j < pts.length; j ++ ) {
 
-				const point = pts[ j ];
+				var point = pts[ j ];
 
 				if ( last && last.equals( point ) ) continue; // ensures no consecutive points are duplicates
 
@@ -188,17 +197,17 @@ class CurvePath extends Curve {
 
 		return points;
 
-	}
+	},
 
-	copy( source ) {
+	copy: function ( source ) {
 
-		super.copy( source );
+		Curve.prototype.copy.call( this, source );
 
 		this.curves = [];
 
-		for ( let i = 0, l = source.curves.length; i < l; i ++ ) {
+		for ( var i = 0, l = source.curves.length; i < l; i ++ ) {
 
-			const curve = source.curves[ i ];
+			var curve = source.curves[ i ];
 
 			this.curves.push( curve.clone() );
 
@@ -208,36 +217,36 @@ class CurvePath extends Curve {
 
 		return this;
 
-	}
+	},
 
-	toJSON() {
+	toJSON: function () {
 
-		const data = super.toJSON();
+		var data = Curve.prototype.toJSON.call( this );
 
 		data.autoClose = this.autoClose;
 		data.curves = [];
 
-		for ( let i = 0, l = this.curves.length; i < l; i ++ ) {
+		for ( var i = 0, l = this.curves.length; i < l; i ++ ) {
 
-			const curve = this.curves[ i ];
+			var curve = this.curves[ i ];
 			data.curves.push( curve.toJSON() );
 
 		}
 
 		return data;
 
-	}
+	},
 
-	fromJSON( json ) {
+	fromJSON: function ( json ) {
 
-		super.fromJSON( json );
+		Curve.prototype.fromJSON.call( this, json );
 
 		this.autoClose = json.autoClose;
 		this.curves = [];
 
-		for ( let i = 0, l = json.curves.length; i < l; i ++ ) {
+		for ( var i = 0, l = json.curves.length; i < l; i ++ ) {
 
-			const curve = json.curves[ i ];
+			var curve = json.curves[ i ];
 			this.curves.push( new Curves[ curve.type ]().fromJSON( curve ) );
 
 		}
@@ -246,7 +255,7 @@ class CurvePath extends Curve {
 
 	}
 
-}
+} );
 
 
 export { CurvePath };

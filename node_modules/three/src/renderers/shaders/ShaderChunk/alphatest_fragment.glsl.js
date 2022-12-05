@@ -1,7 +1,7 @@
 export default /* glsl */`
-#ifdef USE_ALPHATEST
+#ifdef ALPHATEST
 
-	if ( diffuseColor.a < alphaTest ) discard;
+	if ( diffuseColor.a < ALPHATEST ) discard;
 
 #endif
 `;

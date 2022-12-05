@@ -1,7 +1,7 @@
 export default /* glsl */`
 #ifdef USE_FOG
 
-	varying float vFogDepth;
+	varying float fogDepth;
 
 #endif
 `;

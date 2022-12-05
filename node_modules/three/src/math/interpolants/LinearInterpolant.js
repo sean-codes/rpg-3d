@@ -1,16 +1,22 @@
 import { Interpolant } from '../Interpolant.js';
 
-class LinearInterpolant extends Interpolant {
+/**
+ * @author tschw
+ */
 
-	constructor( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
+function LinearInterpolant( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
 
-		super( parameterPositions, sampleValues, sampleSize, resultBuffer );
+	Interpolant.call( this, parameterPositions, sampleValues, sampleSize, resultBuffer );
 
-	}
+}
 
-	interpolate_( i1, t0, t, t1 ) {
+LinearInterpolant.prototype = Object.assign( Object.create( Interpolant.prototype ), {
 
-		const result = this.resultBuffer,
+	constructor: LinearInterpolant,
+
+	interpolate_: function ( i1, t0, t, t1 ) {
+
+		var result = this.resultBuffer,
 			values = this.sampleValues,
 			stride = this.valueSize,
 
@@ -20,7 +26,7 @@ class LinearInterpolant extends Interpolant {
 			weight1 = ( t - t0 ) / ( t1 - t0 ),
 			weight0 = 1 - weight1;
 
-		for ( let i = 0; i !== stride; ++ i ) {
+		for ( var i = 0; i !== stride; ++ i ) {
 
 			result[ i ] =
 					values[ offset0 + i ] * weight0 +
@@ -32,7 +38,7 @@ class LinearInterpolant extends Interpolant {
 
 	}
 
-}
+} );
 
 
 export { LinearInterpolant };

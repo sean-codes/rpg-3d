@@ -1,17 +1,24 @@
-class Uniform {
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
 
-	constructor( value ) {
+function Uniform( value ) {
 
-		this.value = value;
+	if ( typeof value === 'string' ) {
+
+		console.warn( 'THREE.Uniform: Type parameter is no longer needed.' );
+		value = arguments[ 1 ];
 
 	}
 
-	clone() {
-
-		return new Uniform( this.value.clone === undefined ? this.value : this.value.clone() );
-
-	}
+	this.value = value;
 
 }
+
+Uniform.prototype.clone = function () {
+
+	return new Uniform( this.value.clone === undefined ? this.value : this.value.clone() );
+
+};
 
 export { Uniform };

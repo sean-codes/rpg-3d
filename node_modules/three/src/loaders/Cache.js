@@ -1,4 +1,8 @@
-const Cache = {
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
+var Cache = {
 
 	enabled: false,
 

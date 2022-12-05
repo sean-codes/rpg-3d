@@ -1,29 +1,32 @@
-import {
-	Color
-} from 'three';
-import { Pass } from './Pass.js';
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
 
-class ClearPass extends Pass {
 
-	constructor( clearColor, clearAlpha ) {
+import { Pass } from "../postprocessing/Pass.js";
 
-		super();
+var ClearPass = function ( clearColor, clearAlpha ) {
 
-		this.needsSwap = false;
+	Pass.call( this );
 
-		this.clearColor = ( clearColor !== undefined ) ? clearColor : 0x000000;
-		this.clearAlpha = ( clearAlpha !== undefined ) ? clearAlpha : 0;
-		this._oldClearColor = new Color();
+	this.needsSwap = false;
 
-	}
+	this.clearColor = ( clearColor !== undefined ) ? clearColor : 0x000000;
+	this.clearAlpha = ( clearAlpha !== undefined ) ? clearAlpha : 0;
 
-	render( renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
+};
 
-		let oldClearAlpha;
+ClearPass.prototype = Object.assign( Object.create( Pass.prototype ), {
+
+	constructor: ClearPass,
+
+	render: function ( renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
+
+		var oldClearColor, oldClearAlpha;
 
 		if ( this.clearColor ) {
 
-			renderer.getClearColor( this._oldClearColor );
+			oldClearColor = renderer.getClearColor().getHex();
 			oldClearAlpha = renderer.getClearAlpha();
 
 			renderer.setClearColor( this.clearColor, this.clearAlpha );
@@ -35,12 +38,12 @@ class ClearPass extends Pass {
 
 		if ( this.clearColor ) {
 
-			renderer.setClearColor( this._oldClearColor, oldClearAlpha );
+			renderer.setClearColor( oldClearColor, oldClearAlpha );
 
 		}
 
 	}
 
-}
+} );
 
 export { ClearPass };

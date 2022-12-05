@@ -1,17 +1,21 @@
 import { ShaderMaterial } from './ShaderMaterial.js';
 
-class RawShaderMaterial extends ShaderMaterial {
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
 
-	constructor( parameters ) {
+function RawShaderMaterial( parameters ) {
 
-		super( parameters );
+	ShaderMaterial.call( this, parameters );
 
-		this.isRawShaderMaterial = true;
-
-		this.type = 'RawShaderMaterial';
-
-	}
+	this.type = 'RawShaderMaterial';
 
 }
+
+RawShaderMaterial.prototype = Object.create( ShaderMaterial.prototype );
+RawShaderMaterial.prototype.constructor = RawShaderMaterial;
+
+RawShaderMaterial.prototype.isRawShaderMaterial = true;
+
 
 export { RawShaderMaterial };

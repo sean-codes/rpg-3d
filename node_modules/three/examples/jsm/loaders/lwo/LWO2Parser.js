@@ -1,18 +1,25 @@
-class LWO2Parser {
+/**
+ * @author Lewy Blue / https://github.com/looeee
+ * @author Guilherme Avila / https://github/sciecode
+ */
 
-	constructor( IFFParser ) {
+function LWO2Parser( IFFParser ) {
 
-		this.IFF = IFFParser;
+	this.IFF = IFFParser;
 
-	}
+}
 
-	parseBlock() {
+LWO2Parser.prototype = {
+
+	constructor: LWO2Parser,
+
+	parseBlock: function () {
 
 		this.IFF.debugger.offset = this.IFF.reader.offset;
 		this.IFF.debugger.closeForms();
 
-		const blockID = this.IFF.reader.getIDTag();
-		let length = this.IFF.reader.getUint32(); // size of data in bytes
+		var blockID = this.IFF.reader.getIDTag();
+		var length = this.IFF.reader.getUint32(); // size of data in bytes
 		if ( length > this.IFF.reader.dv.byteLength - this.IFF.reader.offset ) {
 
 			this.IFF.reader.offset -= 4;
@@ -104,7 +111,6 @@ class LWO2Parser {
 			case 'WRPW': // image wrap w ( for cylindrical and spherical projections)
 			case 'WRPH': // image wrap h
 			case 'NMOD':
-			case 'NSEL':
 			case 'NPRW':
 			case 'NPLA':
 			case 'NODS':
@@ -233,7 +239,7 @@ class LWO2Parser {
 				break;
 
 			case 'IMAG':
-				const index = this.IFF.reader.getVariableLengthIndex();
+				var index = this.IFF.reader.getVariableLengthIndex();
 				this.IFF.currentForm.imageIndex = index;
 				break;
 
@@ -301,7 +307,7 @@ class LWO2Parser {
 
 			// LWO2 Spec chunks: these are needed since the SURF FORMs are often in LWO2 format
 			case 'SMAN':
-				const maxSmoothingAngle = this.IFF.reader.getFloat32();
+				var maxSmoothingAngle = this.IFF.reader.getFloat32();
 				this.IFF.currentSurface.attributes.smooth = ( maxSmoothingAngle < 0 ) ? false : true;
 				break;
 
@@ -409,6 +415,6 @@ class LWO2Parser {
 
 	}
 
-}
+};
 
 export { LWO2Parser };
