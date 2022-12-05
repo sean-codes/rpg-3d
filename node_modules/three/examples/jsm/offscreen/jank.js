@@ -1,9 +1,9 @@
-let interval = null;
-let result = null;
+var interval = null;
+var result = null;
 
 function initJank() {
 
-	const button = document.getElementById( 'button' );
+	var button = document.getElementById( 'button' );
 	button.addEventListener( 'click', function () {
 
 		if ( interval === null ) {
@@ -30,9 +30,9 @@ function initJank() {
 
 function jank() {
 
-	let number = 0;
+	var number = 0;
 
-	for ( let i = 0; i < 10000000; i ++ ) {
+	for ( var i = 0; i < 10000000; i ++ ) {
 
 		number += Math.random();
 

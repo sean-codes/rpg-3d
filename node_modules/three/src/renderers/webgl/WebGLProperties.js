@@ -1,10 +1,14 @@
+/**
+ * @author fordacious / fordacious.github.io
+ */
+
 function WebGLProperties() {
 
-	let properties = new WeakMap();
+	var properties = new WeakMap();
 
 	function get( object ) {
 
-		let map = properties.get( object );
+		var map = properties.get( object );
 
 		if ( map === undefined ) {
 

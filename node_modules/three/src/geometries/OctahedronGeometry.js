@@ -1,37 +1,60 @@
-import { PolyhedronGeometry } from './PolyhedronGeometry.js';
+/**
+ * @author timothypratley / https://github.com/timothypratley
+ * @author Mugen87 / https://github.com/Mugen87
+ */
 
-class OctahedronGeometry extends PolyhedronGeometry {
+import { Geometry } from '../core/Geometry.js';
+import { PolyhedronBufferGeometry } from './PolyhedronGeometry.js';
 
-	constructor( radius = 1, detail = 0 ) {
+// OctahedronGeometry
 
-		const vertices = [
-			1, 0, 0, 	- 1, 0, 0,	0, 1, 0,
-			0, - 1, 0, 	0, 0, 1,	0, 0, - 1
-		];
+function OctahedronGeometry( radius, detail ) {
 
-		const indices = [
-			0, 2, 4,	0, 4, 3,	0, 3, 5,
-			0, 5, 2,	1, 2, 5,	1, 5, 3,
-			1, 3, 4,	1, 4, 2
-		];
+	Geometry.call( this );
 
-		super( vertices, indices, radius, detail );
+	this.type = 'OctahedronGeometry';
 
-		this.type = 'OctahedronGeometry';
+	this.parameters = {
+		radius: radius,
+		detail: detail
+	};
 
-		this.parameters = {
-			radius: radius,
-			detail: detail
-		};
-
-	}
-
-	static fromJSON( data ) {
-
-		return new OctahedronGeometry( data.radius, data.detail );
-
-	}
+	this.fromBufferGeometry( new OctahedronBufferGeometry( radius, detail ) );
+	this.mergeVertices();
 
 }
 
-export { OctahedronGeometry };
+OctahedronGeometry.prototype = Object.create( Geometry.prototype );
+OctahedronGeometry.prototype.constructor = OctahedronGeometry;
+
+// OctahedronBufferGeometry
+
+function OctahedronBufferGeometry( radius, detail ) {
+
+	var vertices = [
+		1, 0, 0, 	- 1, 0, 0,	0, 1, 0,
+		0, - 1, 0, 	0, 0, 1,	0, 0, - 1
+	];
+
+	var indices = [
+		0, 2, 4,	0, 4, 3,	0, 3, 5,
+		0, 5, 2,	1, 2, 5,	1, 5, 3,
+		1, 3, 4,	1, 4, 2
+	];
+
+	PolyhedronBufferGeometry.call( this, vertices, indices, radius, detail );
+
+	this.type = 'OctahedronBufferGeometry';
+
+	this.parameters = {
+		radius: radius,
+		detail: detail
+	};
+
+}
+
+OctahedronBufferGeometry.prototype = Object.create( PolyhedronBufferGeometry.prototype );
+OctahedronBufferGeometry.prototype.constructor = OctahedronBufferGeometry;
+
+
+export { OctahedronGeometry, OctahedronBufferGeometry };

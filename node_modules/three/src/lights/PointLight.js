@@ -1,47 +1,50 @@
 import { Light } from './Light.js';
 import { PointLightShadow } from './PointLightShadow.js';
 
-class PointLight extends Light {
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
 
-	constructor( color, intensity, distance = 0, decay = 2 ) {
 
-		super( color, intensity );
+function PointLight( color, intensity, distance, decay ) {
 
-		this.isPointLight = true;
+	Light.call( this, color, intensity );
 
-		this.type = 'PointLight';
+	this.type = 'PointLight';
 
-		this.distance = distance;
-		this.decay = decay;
+	Object.defineProperty( this, 'power', {
+		get: function () {
 
-		this.shadow = new PointLightShadow();
+			// intensity = power per solid angle.
+			// ref: equation (15) from https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+			return this.intensity * 4 * Math.PI;
 
-	}
+		},
+		set: function ( power ) {
 
-	get power() {
+			// intensity = power per solid angle.
+			// ref: equation (15) from https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+			this.intensity = power / ( 4 * Math.PI );
 
-		// compute the light's luminous power (in lumens) from its intensity (in candela)
-		// for an isotropic light source, luminous power (lm) = 4 π luminous intensity (cd)
-		return this.intensity * 4 * Math.PI;
+		}
+	} );
 
-	}
+	this.distance = ( distance !== undefined ) ? distance : 0;
+	this.decay = ( decay !== undefined ) ? decay : 1;	// for physically correct lights, should be 2.
 
-	set power( power ) {
+	this.shadow = new PointLightShadow();
 
-		// set the light's intensity (in candela) from the desired luminous power (in lumens)
-		this.intensity = power / ( 4 * Math.PI );
+}
 
-	}
+PointLight.prototype = Object.assign( Object.create( Light.prototype ), {
 
-	dispose() {
+	constructor: PointLight,
 
-		this.shadow.dispose();
+	isPointLight: true,
 
-	}
+	copy: function ( source ) {
 
-	copy( source, recursive ) {
-
-		super.copy( source, recursive );
+		Light.prototype.copy.call( this, source );
 
 		this.distance = source.distance;
 		this.decay = source.decay;
@@ -52,6 +55,7 @@ class PointLight extends Light {
 
 	}
 
-}
+} );
+
 
 export { PointLight };

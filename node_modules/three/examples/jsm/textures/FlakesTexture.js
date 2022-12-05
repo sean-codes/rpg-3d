@@ -1,3 +1,7 @@
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
 class FlakesTexture {
 
 	constructor( width = 512, height = 512 ) {

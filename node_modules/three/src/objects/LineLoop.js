@@ -1,17 +1,24 @@
 import { Line } from './Line.js';
 
-class LineLoop extends Line {
+/**
+ * @author mgreter / http://github.com/mgreter
+ */
 
-	constructor( geometry, material ) {
+function LineLoop( geometry, material ) {
 
-		super( geometry, material );
+	Line.call( this, geometry, material );
 
-		this.isLineLoop = true;
-
-		this.type = 'LineLoop';
-
-	}
+	this.type = 'LineLoop';
 
 }
+
+LineLoop.prototype = Object.assign( Object.create( Line.prototype ), {
+
+	constructor: LineLoop,
+
+	isLineLoop: true,
+
+} );
+
 
 export { LineLoop };

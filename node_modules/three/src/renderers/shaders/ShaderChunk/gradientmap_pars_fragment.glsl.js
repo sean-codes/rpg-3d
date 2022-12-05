@@ -14,14 +14,14 @@ vec3 getGradientIrradiance( vec3 normal, vec3 lightDirection ) {
 
 	#ifdef USE_GRADIENTMAP
 
-		return vec3( texture2D( gradientMap, coord ).r );
+		return texture2D( gradientMap, coord ).rgb;
 
 	#else
 
-		vec2 fw = fwidth( coord ) * 0.5;
-		return mix( vec3( 0.7 ), vec3( 1.0 ), smoothstep( 0.7 - fw.x, 0.7 + fw.x, coord.x ) );
+		return ( coord.x < 0.7 ) ? vec3( 0.7 ) : vec3( 1.0 );
 
 	#endif
 
 }
+
 `;

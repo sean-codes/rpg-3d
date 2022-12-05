@@ -1,17 +1,19 @@
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
 import { Texture } from './Texture.js';
 
-class CanvasTexture extends Texture {
+function CanvasTexture( canvas, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy ) {
 
-	constructor( canvas, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy ) {
+	Texture.call( this, canvas, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy );
 
-		super( canvas, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy );
-
-		this.isCanvasTexture = true;
-
-		this.needsUpdate = true;
-
-	}
+	this.needsUpdate = true;
 
 }
+
+CanvasTexture.prototype = Object.create( Texture.prototype );
+CanvasTexture.prototype.constructor = CanvasTexture;
+CanvasTexture.prototype.isCanvasTexture = true;
 
 export { CanvasTexture };

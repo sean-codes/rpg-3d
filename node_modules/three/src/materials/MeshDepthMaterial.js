@@ -1,54 +1,85 @@
 import { Material } from './Material.js';
 import { BasicDepthPacking } from '../constants.js';
 
-class MeshDepthMaterial extends Material {
+/**
+ * @author mrdoob / http://mrdoob.com/
+ * @author alteredq / http://alteredqualia.com/
+ * @author bhouston / https://clara.io
+ * @author WestLangley / http://github.com/WestLangley
+ *
+ * parameters = {
+ *
+ *  opacity: <float>,
+ *
+ *  map: new THREE.Texture( <Image> ),
+ *
+ *  alphaMap: new THREE.Texture( <Image> ),
+ *
+ *  displacementMap: new THREE.Texture( <Image> ),
+ *  displacementScale: <float>,
+ *  displacementBias: <float>,
+ *
+ *  wireframe: <boolean>,
+ *  wireframeLinewidth: <float>
+ * }
+ */
 
-	constructor( parameters ) {
+function MeshDepthMaterial( parameters ) {
 
-		super();
+	Material.call( this );
 
-		this.isMeshDepthMaterial = true;
+	this.type = 'MeshDepthMaterial';
 
-		this.type = 'MeshDepthMaterial';
+	this.depthPacking = BasicDepthPacking;
 
-		this.depthPacking = BasicDepthPacking;
+	this.skinning = false;
+	this.morphTargets = false;
 
-		this.map = null;
+	this.map = null;
 
-		this.alphaMap = null;
+	this.alphaMap = null;
 
-		this.displacementMap = null;
-		this.displacementScale = 1;
-		this.displacementBias = 0;
+	this.displacementMap = null;
+	this.displacementScale = 1;
+	this.displacementBias = 0;
 
-		this.wireframe = false;
-		this.wireframeLinewidth = 1;
+	this.wireframe = false;
+	this.wireframeLinewidth = 1;
 
-		this.setValues( parameters );
+	this.fog = false;
 
-	}
-
-	copy( source ) {
-
-		super.copy( source );
-
-		this.depthPacking = source.depthPacking;
-
-		this.map = source.map;
-
-		this.alphaMap = source.alphaMap;
-
-		this.displacementMap = source.displacementMap;
-		this.displacementScale = source.displacementScale;
-		this.displacementBias = source.displacementBias;
-
-		this.wireframe = source.wireframe;
-		this.wireframeLinewidth = source.wireframeLinewidth;
-
-		return this;
-
-	}
+	this.setValues( parameters );
 
 }
+
+MeshDepthMaterial.prototype = Object.create( Material.prototype );
+MeshDepthMaterial.prototype.constructor = MeshDepthMaterial;
+
+MeshDepthMaterial.prototype.isMeshDepthMaterial = true;
+
+MeshDepthMaterial.prototype.copy = function ( source ) {
+
+	Material.prototype.copy.call( this, source );
+
+	this.depthPacking = source.depthPacking;
+
+	this.skinning = source.skinning;
+	this.morphTargets = source.morphTargets;
+
+	this.map = source.map;
+
+	this.alphaMap = source.alphaMap;
+
+	this.displacementMap = source.displacementMap;
+	this.displacementScale = source.displacementScale;
+	this.displacementBias = source.displacementBias;
+
+	this.wireframe = source.wireframe;
+	this.wireframeLinewidth = source.wireframeLinewidth;
+
+	return this;
+
+};
+
 
 export { MeshDepthMaterial };

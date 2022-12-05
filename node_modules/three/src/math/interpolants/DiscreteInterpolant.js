@@ -2,25 +2,29 @@ import { Interpolant } from '../Interpolant.js';
 
 /**
  *
- * Interpolant that evaluates to the sample value at the position preceding
+ * Interpolant that evaluates to the sample value at the position preceeding
  * the parameter.
+ *
+ * @author tschw
  */
 
-class DiscreteInterpolant extends Interpolant {
+function DiscreteInterpolant( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
 
-	constructor( parameterPositions, sampleValues, sampleSize, resultBuffer ) {
+	Interpolant.call( this, parameterPositions, sampleValues, sampleSize, resultBuffer );
 
-		super( parameterPositions, sampleValues, sampleSize, resultBuffer );
+}
 
-	}
+DiscreteInterpolant.prototype = Object.assign( Object.create( Interpolant.prototype ), {
 
-	interpolate_( i1 /*, t0, t, t1 */ ) {
+	constructor: DiscreteInterpolant,
+
+	interpolate_: function ( i1 /*, t0, t, t1 */ ) {
 
 		return this.copySampleValue_( i1 - 1 );
 
 	}
 
-}
+} );
 
 
 export { DiscreteInterpolant };
