@@ -113,10 +113,7 @@ const boxBod = new CANNON.Body({
    mass: 0,
    quaternion: quaternion,
    shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 1.5)),
-   position: new CANNON.Vec3(boxMes.position.x, boxMes.position.y, boxMes.position.z),
-   // collisionResponse: false,
-   type: CANNON.Body.STATIC ,
-   
+   position: new CANNON.Vec3(boxMes.position.x, boxMes.position.y, boxMes.position.z),   
 })
 physicsObjects.push({ body: boxBod, mesh: boxMes })
 world.add(boxBod)
@@ -125,8 +122,6 @@ const oPlayerBod = new CANNON.Body({
    mass: 1,
    shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
    position: new CANNON.Vec3(oPlayerMes.position.x, oPlayerMes.position.y, oPlayerMes.position.z),
-   // collisionFilterMask: 1
-   // collisionFilterGroup: 1
 })
 physicsObjects.push({ body: oPlayerBod, mesh: oPlayerMes })
 world.add(oPlayerBod)
@@ -135,52 +130,48 @@ world.add(oPlayerBod)
 
 
 // Ray and Line to show
-
 const ray = new CANNON.Ray(new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, 0))
+ray.mode = CANNON.Ray.CLOSEST
+const rayHitPointGeo = new THREE.SphereGeometry( 0.1, 32, 16 );
+const rayHitPointMat = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+const rayHitPointMes = new THREE.Mesh( rayHitPointGeo, rayHitPointMat );
+scene.add( rayHitPointMes );
  
 const lineMat = new THREE.LineBasicMaterial( { color: 0x0000ff } )
 const points = [
    new THREE.Vector3(0, 0, 0),
-   new THREE.Vector3(5, 0, 0),
+   new THREE.Vector3(0, 0, 5),
 ]
 const lineGeo = new THREE.BufferGeometry().setFromPoints( points )
 const lineMes = new THREE.Line(lineGeo, lineMat)
-lineMes.position.copy(playerMes.position)
-scene.add(lineMes)
+// lineMes.position.copy(playerMes.position)
+playerMes.add(lineMes)
+// scene.add(lineMes)
 
 const canvas = renderer.domElement
 canvas.addEventListener('keydown', moveBox)
 
 function moveBox(e) {
    // const 
-   var move = { a: [-1, 0], d: [1,  0], w: [0, -1], s: [0,  1] }[e.key]
+   var move = { 
+      w: playerMes.getWorldDirection(new THREE.Vector3()), 
+      s: playerMes.getWorldDirection(new THREE.Vector3()).negate(), 
+   }[e.key]
    if (move) {
-      playerMes.position.x += move[0]*0.1
-      playerMes.position.z += move[1]*0.1
+      playerMes.position.add(move.multiplyScalar(0.1))
    }
    
-   var spin = { q: 1, e: -1}[e.key]
+   var spin = { a: 1, d: -1}[e.key]
    if (spin) {
       playerMes.rotateY(spin*0.1)
-      // boxBod.
-      // boxMes.rotateY(spin*0.1)
-      // boxBod.quaternion.setFromEuler(
-      //    boxMes.rotation.x, 
-      //    boxMes.rotation.y, 
-      //    boxMes.rotation.z, 
-      //    'XYZ')
    }
-
-   // testRay()
 }
 
 function testRay() {
    // update display
-   lineMes.position.copy(playerMes.position)
-   
-   
+   // lineMes.position.copy(playerMes.position)
    const rayFrom = new CANNON.Vec3(playerMes.position.x, playerMes.position.y, playerMes.position.z)
-   let rayTo = rayFrom.clone().vadd(new CANNON.Vec3(5, 0, 0))
+   let rayTo = rayFrom.clone().vadd(playerMes.getWorldDirection(new THREE.Vector3()).multiplyScalar(5))
    ray.from.copy(rayFrom)
    ray.to.copy(rayTo)
    
@@ -189,43 +180,44 @@ function testRay() {
 
    // initial player to a wall check
    var intersection = new CANNON.RaycastResult()//new CANNON.Vec3(0, 0, 0)
-   ray.intersectBody(boxBod, intersection)
+   ray.intersectBodies([boxBod, oPlayerBod], intersection)
 
    // v1. move camera to the hit point
    if (intersection.hasHit) {
-      rayHitMes.position.copy(intersection.hitPointWorld)      
+      rayHitPointMes.position.copy(intersection.hitPointWorld)
+      rayHitMes.position.copy(intersection.hitPointWorld)
+      // console.log(ray)
+      rayHitMes.position.sub(ray._direction.clone().scale(0.1))
    }
 
    // v2. bump camera outside of the hii point a little
    // moving this outside the hashit. Cause the ray might not be far enough
-   var directions = {
-      // x: [new CANNON.Vec3(-0.5, 0, 0), new CANNON.Vec3(0.5, 0, 0)],
-      // y: [new CANNON.Vec3(0, -0.5, 0), new CANNON.Vec3(0, 0.5, 0)],
-      z: [new CANNON.Vec3(0, 0, -0.5), new CANNON.Vec3(0, 0, 0.5)],
-   }
+   var directionLen = 0.5
+   // exists way to do this with 1 ray per axis
+   var directions = [
+      // x
+      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(directionLen, 0, 0)],
+      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(-directionLen, 0, 0)],
+      // z
+      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, directionLen)],
+      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, -directionLen)],
+   ]
    
    const rayHitPosition = new CANNON.Vec3(0, 0, 0).copy(rayHitMes.position) // onvert THREE Vec to CANNON Vec
 
-   for (var axis in directions) {
-      var [dx, dy] = directions[axis]
+   for (var direction of directions) {
+      var [dFrom, dTo] = direction
       
       // set ray to one of the directions
-      ray.from.copy(rayHitPosition.clone().vadd(dx))
-      ray.to.copy(rayHitPosition.clone().vadd(dy))
+      ray.from.copy(rayHitPosition.clone().vadd(dFrom))
+      ray.to.copy(rayHitPosition.clone().vadd(dTo))
       
       // test again?
       intersection.reset()
-      ray.intersectBody(boxBod, intersection)
+      ray.intersectBodies([boxBod, oPlayerBod], intersection)
       if (intersection.hasHit) {
-         console.log('i dont believe you >:(', intersection.distance)
-         // distance is depending on side
-         const moveDir = intersection.distance < 0.5 ? 1 : -1
-         // distance from 5?  0 = 5, 1 = 4, 4 = 1, 6 = 1
-         // 1 + (5)
-         const fromZeroPFire =  (Math.round(Math.abs((1 - intersection.distance - 0.5)) * 1000)/1000) / 0.5
-         rayHitMes.position[axis] += moveDir * 1 * (fromZeroPFire/2)
-         // if (intersection.distance < 0.5) console.log('left')
-         // if (intersection.distance > 0.5) console.log('right')
+         const percent = (directionLen - intersection.distance) / directionLen
+         rayHitMes.position.sub(dTo.scale(percent))
       }
    }
 }
