@@ -4,7 +4,7 @@
   "description": "Exploring 3D Game development",
   "main": "index.js",
   "scripts": {
-    "dev": "http-serve . -p 4444",
+    "dev": "serve . -p 4444",
     "build": "gulp build",
     "watch": "gulp watch"
   },
