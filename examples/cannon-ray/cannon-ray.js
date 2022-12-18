@@ -179,7 +179,7 @@ function moveBox(e) {
    
    var spin = { a: 1, d: -1}[e.key]
    if (spin) {
-      playerMes.rotateY(spin*0.1)
+      playerMes.rotateY(spin*0.025)
    }
 }
 
@@ -211,12 +211,13 @@ function testRay() {
    
    // exists way to do this with 1 ray per axis but the math felt scary
    var directions = [
-      // x
-      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.x*directionLen, direction.y*directionLen, direction.z*directionLen)],
-      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.x*-directionLen, direction.y*-directionLen, direction.z*-directionLen)],
       // z
       [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.z*directionLen, direction.y*directionLen, direction.x*directionLen)],
       [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.z*-directionLen, direction.y*-directionLen, direction.x*-directionLen)],
+      // x
+      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.x*directionLen, direction.y*directionLen, direction.z*directionLen)],
+      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.x*-directionLen, direction.y*-directionLen, direction.z*-directionLen)],
+   
    ]
    
    let rayHitPosition = new CANNON.Vec3(0, 0, 0).copy(rayHitMes.position) // convert THREE Vec to CANNON Vec
