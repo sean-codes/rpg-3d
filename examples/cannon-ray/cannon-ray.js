@@ -127,8 +127,6 @@ physicsObjects.push({ body: oPlayerBod, mesh: oPlayerMes })
 world.add(oPlayerBod)
 
 
-
-
 // Ray and Line to show
 const ray = new CANNON.Ray(new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, 0))
 ray.mode = CANNON.Ray.CLOSEST
@@ -177,7 +175,8 @@ function testRay() {
    
    // reset
    rayHitMes.position.copy(rayTo)
-
+   rayHitMes.rotation.copy(playerMes.rotation)
+   
    // initial player to a wall check
    var intersection = new CANNON.RaycastResult()//new CANNON.Vec3(0, 0, 0)
    ray.intersectBodies([boxBod, oPlayerBod], intersection)
@@ -194,16 +193,20 @@ function testRay() {
    // moving this outside the hashit. Cause the ray might not be far enough
    var directionLen = 0.5
    // exists way to do this with 1 ray per axis
+   var direction = rayHitMes.getWorldDirection()
+   // var directionCross = direction.clone()
+   // directionCross.set(directionCross.z, directionCross.y, directionCross.x)
+
    var directions = [
       // x
-      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(directionLen, 0, 0)],
-      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(-directionLen, 0, 0)],
+      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.x*directionLen, direction.y*directionLen, direction.z*directionLen)],
+      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.x*-directionLen, direction.y*-directionLen, direction.z*-directionLen)],
       // z
-      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, directionLen)],
-      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(0, 0, -directionLen)],
+      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.z*directionLen, direction.y*directionLen, direction.x*directionLen)],
+      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.z*-directionLen, direction.y*-directionLen, direction.x*-directionLen)],
    ]
    
-   const rayHitPosition = new CANNON.Vec3(0, 0, 0).copy(rayHitMes.position) // onvert THREE Vec to CANNON Vec
+   let rayHitPosition = new CANNON.Vec3(0, 0, 0).copy(rayHitMes.position) // onvert THREE Vec to CANNON Vec
 
    for (var direction of directions) {
       var [dFrom, dTo] = direction
@@ -217,9 +220,12 @@ function testRay() {
       ray.intersectBodies([boxBod, oPlayerBod], intersection)
       if (intersection.hasHit) {
          const percent = (directionLen - intersection.distance) / directionLen
-         rayHitMes.position.sub(dTo.scale(percent))
+         rayHitPosition = rayHitPosition.vsub(dTo.scale(percent))
+         // rayHitMes.position.sub(dTo.scale(percent))
       }
    }
+
+   rayHitMes.position.copy(rayHitPosition)
 }
 
 
