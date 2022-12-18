@@ -1,3 +1,31 @@
+/*
+THREEJS + CANNON Ray Example
+------------------------------------------------
+CANNONJS Ray exploration. Attempting to solve a way to have
+an arcball camera that can bump into physics objects.
+
+The easiest way to do this is us a single ray casted from
+the player to the camera. Where the ray intersects move the 
+camera.
+
+You can do this in THREE.JS using the raycaster and it works
+almost perfectly. Except in some cases the camera will clip 
+objects.
+
+We want to try and bump the camera off from the object. To do 
+this you can take the intersection face normal and bump the 
+camera off a couple units. 
+
+Agin this works but only on a single face. If the camera 
+comes between the ground and a wall for example. The bump will 
+be quite abrupt and depending on  if you are bumping on the 
+floor or wall the opposite can get clipped.
+
+We need to bump the camera on multiple axis.
+*/
+
+
+
 // init
 const scene = new THREE.Scene()
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
@@ -29,13 +57,6 @@ dirLight.shadow.camera.bottom = -10
 dirLight.shadow.mapSize.width = 1024
 dirLight.shadow.mapSize.height = 1024
 scene.add(dirLight)
-// const dirLightCameraHelper = new THREE.CameraHelper(dirLight.shadow.camera)
-// scene.add(dirLightCameraHelper)
-// const dirLightHelper = new THREE.DirectionalLightHelper(dirLight)
-// scene.add(dirLightHelper)
-
-
-
 
 
 
@@ -181,7 +202,7 @@ function testRay() {
    var intersection = new CANNON.RaycastResult()//new CANNON.Vec3(0, 0, 0)
    ray.intersectBodies([boxBod, oPlayerBod], intersection)
 
-   // v1. move camera to the hit point
+   // part 1. move camera to the hit point
    if (intersection.hasHit) {
       rayHitPointMes.position.copy(intersection.hitPointWorld)
       rayHitMes.position.copy(intersection.hitPointWorld)
@@ -189,13 +210,10 @@ function testRay() {
       rayHitMes.position.sub(ray._direction.clone().scale(0.1))
    }
 
-   // v2. bump camera outside of the hii point a little
-   // moving this outside the hashit. Cause the ray might not be far enough
+   // part 2. bump camera outside of the hii point a little
    var directionLen = 0.5
    // exists way to do this with 1 ray per axis
    var direction = rayHitMes.getWorldDirection()
-   // var directionCross = direction.clone()
-   // directionCross.set(directionCross.z, directionCross.y, directionCross.x)
 
    var directions = [
       // x
@@ -206,7 +224,7 @@ function testRay() {
       [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.z*-directionLen, direction.y*-directionLen, direction.x*-directionLen)],
    ]
    
-   let rayHitPosition = new CANNON.Vec3(0, 0, 0).copy(rayHitMes.position) // onvert THREE Vec to CANNON Vec
+   let rayHitPosition = new CANNON.Vec3(0, 0, 0).copy(rayHitMes.position) // convert THREE Vec to CANNON Vec
 
    for (var direction of directions) {
       var [dFrom, dTo] = direction
@@ -215,13 +233,12 @@ function testRay() {
       ray.from.copy(rayHitPosition.clone().vadd(dFrom))
       ray.to.copy(rayHitPosition.clone().vadd(dTo))
       
-      // test again?
+      // test intersections
       intersection.reset()
       ray.intersectBodies([boxBod, oPlayerBod], intersection)
       if (intersection.hasHit) {
          const percent = (directionLen - intersection.distance) / directionLen
          rayHitPosition = rayHitPosition.vsub(dTo.scale(percent))
-         // rayHitMes.position.sub(dTo.scale(percent))
       }
    }
 
