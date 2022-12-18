@@ -86,20 +86,20 @@ playerMes.position.y += 0.75
 scene.add(playerMes);
 
 // other palyer
-const oPlayerGeo = new THREE.BoxGeometry( 1, 1, 1 );
-const oPlayerMat = new THREE.MeshBasicMaterial( { color: 0x6495ED } );
-const oPlayerMes = new THREE.Mesh( oPlayerGeo, oPlayerMat );
-oPlayerMes.position.y += 0.75
-oPlayerMes.position.x += 2
-oPlayerMes.position.z += 2.5
-scene.add(oPlayerMes);
+const oBoxGeo = new THREE.BoxGeometry( 1, 1, 1 );
+const oBoxMat = new THREE.MeshBasicMaterial( { color: 0x6495ED } );
+const oBoxMes = new THREE.Mesh( oBoxGeo, oBoxMat );
+oBoxMes.position.y += 0.75
+oBoxMes.position.x += 2
+oBoxMes.position.z += 2.5
+scene.add(oBoxMes);
 
 
 const rayHitGeo = new THREE.BoxGeometry( 1, 1, 1 )
 const rayHitwire = new THREE.WireframeGeometry( rayHitGeo );
 const rayHitMes = new THREE.LineSegments( rayHitwire );
 
-// y lines
+// raycast lines
 const rayHitXLine = makeRayHitLine(new THREE.Vector3(0.5, 0, 0), new THREE.Vector3(-0.5, 0, 0))
 const rayHitYLine = makeRayHitLine(new THREE.Vector3(0, 0.5, 0), new THREE.Vector3(0, -0.5, 0))
 const rayHitZLine = makeRayHitLine(new THREE.Vector3(0, 0, 0.5), new THREE.Vector3(0, 0, -0.5))
@@ -139,13 +139,13 @@ const boxBod = new CANNON.Body({
 physicsObjects.push({ body: boxBod, mesh: boxMes })
 world.add(boxBod)
 
-const oPlayerBod = new CANNON.Body({
+const oBoxBod = new CANNON.Body({
    mass: 1,
    shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
-   position: new CANNON.Vec3(oPlayerMes.position.x, oPlayerMes.position.y, oPlayerMes.position.z),
+   position: new CANNON.Vec3(oBoxMes.position.x, oBoxMes.position.y, oBoxMes.position.z),
 })
-physicsObjects.push({ body: oPlayerBod, mesh: oPlayerMes })
-world.add(oPlayerBod)
+physicsObjects.push({ body: oBoxBod, mesh: oBoxMes })
+world.add(oBoxBod)
 
 
 // Ray and Line to show
@@ -163,15 +163,12 @@ const points = [
 ]
 const lineGeo = new THREE.BufferGeometry().setFromPoints( points )
 const lineMes = new THREE.Line(lineGeo, lineMat)
-// lineMes.position.copy(playerMes.position)
 playerMes.add(lineMes)
-// scene.add(lineMes)
 
 const canvas = renderer.domElement
 canvas.addEventListener('keydown', moveBox)
 
 function moveBox(e) {
-   // const 
    var move = { 
       w: playerMes.getWorldDirection(new THREE.Vector3()), 
       s: playerMes.getWorldDirection(new THREE.Vector3()).negate(), 
@@ -188,7 +185,6 @@ function moveBox(e) {
 
 function testRay() {
    // update display
-   // lineMes.position.copy(playerMes.position)
    const rayFrom = new CANNON.Vec3(playerMes.position.x, playerMes.position.y, playerMes.position.z)
    let rayTo = rayFrom.clone().vadd(playerMes.getWorldDirection(new THREE.Vector3()).multiplyScalar(5))
    ray.from.copy(rayFrom)
@@ -200,21 +196,20 @@ function testRay() {
    
    // initial player to a wall check
    var intersection = new CANNON.RaycastResult()//new CANNON.Vec3(0, 0, 0)
-   ray.intersectBodies([boxBod, oPlayerBod], intersection)
+   ray.intersectBodies([boxBod, oBoxBod], intersection)
 
    // part 1. move camera to the hit point
    if (intersection.hasHit) {
       rayHitPointMes.position.copy(intersection.hitPointWorld)
       rayHitMes.position.copy(intersection.hitPointWorld)
-      // console.log(ray)
       rayHitMes.position.sub(ray._direction.clone().scale(0.1))
    }
 
    // part 2. bump camera outside of the hii point a little
    var directionLen = 0.5
-   // exists way to do this with 1 ray per axis
    var direction = rayHitMes.getWorldDirection()
-
+   
+   // exists way to do this with 1 ray per axis but the math felt scary
    var directions = [
       // x
       [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.x*directionLen, direction.y*directionLen, direction.z*directionLen)],
@@ -235,7 +230,7 @@ function testRay() {
       
       // test intersections
       intersection.reset()
-      ray.intersectBodies([boxBod, oPlayerBod], intersection)
+      ray.intersectBodies([boxBod, oBoxBod], intersection)
       if (intersection.hasHit) {
          const percent = (directionLen - intersection.distance) / directionLen
          rayHitPosition = rayHitPosition.vsub(dTo.scale(percent))
@@ -252,15 +247,18 @@ function render() {
    requestAnimationFrame(render)
    renderer.render(scene, camera)
    
-   testRay() // move ray hit spot
+   
    world.step(1/60) // update physics
-
+   
    for (const { mesh, body } of physicsObjects) {
       mesh.position.copy(body.position)
       mesh.quaternion.copy(body.quaternion)
    }
    
    cannonDebugRenderer.update()
+   
+   // Run our example
+   testRay() // move ray hit spot
 }
 render()
 
