@@ -1,7 +1,7 @@
 import * as CANNON from '../../node_modules/cannon-es/dist/cannon-es.js'
 import * as THREE from '../../node_modules/three/build/three.module.js'
 import { OrbitControls } from '../../node_modules/three/examples/jsm/controls/OrbitControls.js'
-import { CannonDebugRenderer } from '../../node_modules/cannon-es-debugger-jsm/index.js'
+import { CannonDebugRenderer } from './cannon-es-debugger-jsm.js'
 
 // init
 const scene = new THREE.Scene()
