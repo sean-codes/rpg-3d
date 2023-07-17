@@ -4,9 +4,7 @@ import { EffectComposer } from '../../node_modules/three/examples/jsm/postproces
 import { RenderPass } from '../../node_modules/three/examples/jsm/postprocessing/RenderPass.js'
 import { OutlinePass } from '../../node_modules/three/examples/jsm/postprocessing/OutlinePass.js'
 import { GLTFLoader } from '../../node_modules/three/examples/jsm/loaders/GLTFLoader.js'
-import { FBXLoader } from '../../node_modules/three/examples/jsm/loaders/FBXLoader.js'
 const gltfLoader = new GLTFLoader()
-const fbxLoader = new FBXLoader()
 
 // init
 // ------------------------------------------------------------------------
@@ -32,11 +30,17 @@ scene.add(pLight)
 // cube
 // ------------------------------------------------------------------------
 let object_glb = new THREE.Object3D()
-
+let mixer
 gltfLoader.load('../../assets/models/monsters/bull.glb', (loadedObject) => {
-   const loadedModel = loadedObject.scene.children[0]
-   console.log('Loaded GLB', loadedModel)
+   const loadedModel = loadedObject.scene//.children[0]
+   console.log('Loaded GLB', loadedObject)
    object_glb.add(loadedModel)
+
+   mixer = new THREE.AnimationMixer(loadedModel);
+    var clip = THREE.AnimationClip.findByName(loadedObject.animations, "Charging");
+    var a = mixer.clipAction(clip);
+    a.reset();
+    a.play();
    scene.add(object_glb)
 })
 
@@ -54,12 +58,14 @@ composer.addPass(renderPass)
 const outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera)
 composer.addPass(outlinePass)
 outlinePass.selectedObjects = [object_glb]
-
+var clock = new THREE.Clock()
 
 // render
 // ------------------------------------------------------------------------
 function render() {
+   var delta = clock.getDelta();
    requestAnimationFrame(render)
+   if (mixer) mixer.update(delta)
    // post processing takes over the normal renderer.render
    // renderer.render(scene, camera)
    composer.render()
