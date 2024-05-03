@@ -26,8 +26,29 @@
          top:0;
          left: 0;
          max-height: 100%;
-         display: flex;
          flex-direction: column;
+         padding: 1rem;
+         display: flex;
+         box-sizing: border-box;
+      }
+
+      ::-webkit-scrollbar{
+         width: 10px;
+      }
+
+      ::-webkit-scrollbar-track-piece{
+         background-color: #222;
+      }
+
+      ::-webkit-scrollbar-thumb{
+         background-color: #555;
+         outline: 0px solid #FFF;
+         outline-offset: 0px;
+         border: 0px solid #B7B7B7;
+      }
+
+      ::-webkit-scrollbar-thumb:hover{
+         background-color: #909090;
       }
       
       .fileDropper #fileList {
@@ -58,16 +79,93 @@
          cursor: pointer;
          color: #FFF;
       }
-   </style>
+      
+      .fileDropper .inputs {
+         display: flex;
+         gap: 1rem;
+      }
+      .fileDropperInput input {
+         display: none;
+      }
+      .fileDropperInput label {
+         background: #505677;
+         font-weight:bolder;
+         padding: 1rem 3rem;
+         display: block;
+      }
+      .fileDropperInput label:hover {
+         filter: brightness(1.1);
+         cursor: pointer;
+      }
+      
+      .error {
+         display: none;
+         background: rgba(0, 0, 0, 0.75);
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         z-index: 100;
+      }
+      .error .message {
+         position: fixed;
+         top: 50%;
+         left: 50%;
+         transform: translateX(-50%) translateY(-50%);
+         background: #505677;
+         color: #FFF;
+         font-weight: bold;
+         padding: 2rem;
+         box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+         text-align: center;
+      }
+      
+      .error.show {
+         display: block;
+      }
+      
+      .error button {
+         margin-top: 1rem;
+         color: #000;
+         font-weight: bold;
+         border: none;
+         padding: 1rem 2rem;
+      }
+      .error button:hover {
+         background: #DDD;
+         cursor: pointer;
+      }
+      </style>
 </head>
 
 <body>
+   
    <div class="fileDropper">
-      <input type="file" id="fileInput" name="fileInput" multiple />
+      <div>Import files</div>
+      <div class="inputs">
+         <div class="fileDropperInput">
+            <input type="file" id="fileInputTextures" name="fileInput" multiple />
+            <label for="fileInputTextures">textures</label>
+         </div>
+         <div class="fileDropperInput">
+            <input type="file" id="fileInput" name="fileInput" multiple />
+            <label for="fileInput">models</label>
+         </div>
+      </div>
       <div id="fileList" tab-index="1"></div>
    </div>
    
-   <script src="../../node_modules/three/build/three.min.js"></script>
+   <div class="error">
+      <div class="message">
+         <div class="text">Something went wrong. If model has textures, import them first.</div>
+         <br />
+         <button onclick="toggleError(false)">ok</button>
+         <button onclick="addTextures()">add textures</button>
+      </div>
+   </div>
+   
+   <script src="../../node_modules/three/build/three.js"></script>
    <script src="../../node_modules/cannon/build/cannon.js"></script>
    <script src="../../node_modules/three/examples/js/controls/OrbitControls.js"></script>
    <script src="../../node_modules/three/examples/js/utils/BufferGeometryUtils.js"></script>

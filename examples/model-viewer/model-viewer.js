@@ -13,6 +13,16 @@ const fbxLoader = new THREE.FBXLoader()
 const gltfLoader = new THREE.GLTFLoader()
 const GUI = new dat.GUI({ closed: false });
 
+// texture loaded override
+var old = THREE.TextureLoader.prototype.load
+THREE.TextureLoader.prototype.load = function(url) {
+   var fileName = url.split('/').pop()
+   var newUrl = filesTexture.find(f => f.name === fileName)
+   arguments[0] = newUrl?.url
+   
+   old.call(this, ...arguments)
+}
+
 function resize() {
    renderer.setSize(window.innerWidth, window.innerHeight)
    camera.aspect = window.innerWidth/ window.innerHeight
@@ -22,7 +32,7 @@ window.onresize = resize
 resize()
 
 // lighting
-const pointLight = new THREE.PointLight('#FFF', 10, 10000)
+const pointLight = new THREE.PointLight('#FFF', 7, 10000)
 scene.add(pointLight)
 
 const ambientLight = new THREE.AmbientLight('#FFF', 0.5)
@@ -47,6 +57,34 @@ function render() {
    pointLight.position.copy(dirToCamera.multiplyScalar(offset*2))
 }
 render()
+
+
+
+
+// file dropper texture
+let filesTexture = []
+fileInputTextures.addEventListener('input', (e) => {
+   // filesTexture = e.target.files
+   
+   for (var i = 0; i < e.target.files.length; i++) {
+      const file = e.target.files[i]
+      console.log(file)
+      var url = URL.createObjectURL(file)
+      var reader = new FileReader();
+
+      // SETUP A MAP
+      filesTexture.push({
+         url: url,
+         name: file.name
+      })
+      // window.testing = test
+   }   
+
+   loadFile(selected)
+})
+
+
+
 
 
 // file dropper
@@ -81,8 +119,8 @@ fileList.addEventListener('keydown', (e) => {
    eleSelectFile.focus()
 })
 
-
 function loadFile(i) {
+   console.log('testing', i)
    const eleFiles = document.querySelectorAll('.file')
    
    for (var o = 0; o < eleFiles.length; o++) {
@@ -96,9 +134,17 @@ function loadFile(i) {
       const isGltf = files[i].name.includes('.gltf') || files[i].name.includes('.glb')
       const isFbx = files[i].name.includes('.fbx')
       
+      console.log('onload?', files[i])
       if (isGltf) {
-         gltfLoader.parse(fileReader.result, undefined, (loaded) => {
-            onLoadObject(loaded.scene.children[0])
+         gltfLoader.parse(fileReader.result, null, (loaded) => {
+            var container = new THREE.Object3D()
+            var childrenArr = [...loaded.scene.children]
+            for (var child of childrenArr) {
+               container.add(child)
+            }
+            onLoadObject(container)
+         }, (error) => {
+            toggleError(true)
          })
       } 
       
@@ -150,4 +196,14 @@ function fixCamera() {
    camera.position.y = offset*0.5
    camera.position.x = -offset*0.75
    camera.lookAt(0, 0, 0)
+}
+
+function toggleError(toggle) {
+   var error = document.querySelector('.error')
+   error.classList.toggle('show', toggle)
+}
+
+function addTextures() {
+   fileInputTextures.click()
+   toggleError(false)
 }
