@@ -200,9 +200,11 @@ function testRay() {
 
    // part 1. move camera to the hit point
    if (intersection.hasHit) {
+      var hit = intersection.hitPointWorld.vadd(intersection.hitNormalWorld.scale(0.1))
       rayHitPointMes.position.copy(intersection.hitPointWorld)
-      rayHitMes.position.copy(intersection.hitPointWorld)
-      rayHitMes.position.sub(ray._direction.clone().scale(0.1))
+      rayHitMes.position.copy(hit)
+      
+      // rayHitMes.position.sub(ray._direction.clone().scale(0.1))
    }
 
    // part 2. bump camera outside of the hii point a little
@@ -211,13 +213,12 @@ function testRay() {
    
    // exists way to do this with 1 ray per axis but the math felt scary
    var directions = [
-      // z
-      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.z*directionLen, direction.y*directionLen, direction.x*directionLen)],
-      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.z*-directionLen, direction.y*-directionLen, direction.x*-directionLen)],
       // x
       [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.x*directionLen, direction.y*directionLen, direction.z*directionLen)],
       [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.x*-directionLen, direction.y*-directionLen, direction.z*-directionLen)],
-   
+      // z
+      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.z*directionLen, direction.y*directionLen, direction.x*directionLen)],
+      [new CANNON.Vec3(0, 0, 0), new CANNON.Vec3(direction.z*-directionLen, direction.y*-directionLen, direction.x*-directionLen)],
    ]
    
    let rayHitPosition = new CANNON.Vec3(0, 0, 0).copy(rayHitMes.position) // convert THREE Vec to CANNON Vec
